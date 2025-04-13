@@ -1,62 +1,69 @@
 // DecorationTips.js
-import React, { useState } from 'react';
-import DecoratingForm from './DecoratingForm'; // Adjust path as needed
+import React from 'react';
+import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function DecorationTips() {
-  const [showForm, setShowForm] = useState(false);
-
-  const toggleForm = () => {
-    setShowForm((prev) => !prev);
-  };
-
   return (
     <div className="container py-5">
       <style>
         {`
-          .create-btn {
-            background: #4a4e69;
-            border: none;
-            padding: 10px 25px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-            border-radius: 20px;
-            transition: all 0.3s;
-          }
-          .create-btn:hover {
-            background: #3a3d56;
-            transform: translateY(-2px);
-          }
           .tips-container {
             max-width: 800px;
             margin: 0 auto;
           }
-          .placeholder-card {
+          .create-btn {
+            background: #4a4e69;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+          }
+          .create-btn:hover {
+            background: #3a3d56;
+            transform: translateY(-2px);
+            color: white;
+            text-decoration: none;
+          }
+          .tip-card {
             background: #f9f9ff;
-            border-radius: 15px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             text-align: center;
+          }
+          .tip-card h5 {
+            color: #4a4e69;
+            font-weight: 700;
+          }
+          .tip-card p {
+            color: #6c757d;
           }
         `}
       </style>
       <div className="tips-container">
         <div className="d-flex justify-content-end mb-4">
-          <button className="btn create-btn" onClick={toggleForm}>
-            <i className="bi bi-plus-circle me-2"></i>Create Decoration Tips
-          </button>
+          <Link to="/create-decoration-tips" className="btn create-btn">
+            <i className="bi bi-plus-circle me-2"></i>
+            Create Decoration Tips
+          </Link>
         </div>
-        {showForm && (
-          <div className="card p-4 mb-4" style={{ borderRadius: '15px', boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)' }}>
-            <DecoratingForm onSubmit={toggleForm} />
+        <div className="row">
+          <div className="col-lg-8 mx-auto">
+            <h1 className="display-5 text-center mb-4" style={{ color: '#4a4e69' }}>
+              Cake Decorating Tips
+            </h1>
+            <div className="tip-card">
+              <h5 className="mb-3">No Decorating Tips Yet</h5>
+              <p>Be the first to share a creative decorating tip!</p>
+            </div>
           </div>
-        )}
-        <div className="placeholder-card">
-          <h4 className="text-muted mb-3" style={{ color: '#4a4e69' }}>
-            No Decoration Tips Yet
-          </h4>
-          <p>Be the first to share a creative decorating tip!</p>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ import Navbar from './components/Elements/Navbar'
 
 
 import DecoratingForm from './components/DecorationTips/DecoratingForm';
+import DecorationTips from './components/DecorationTips/DecorationTips';
 
 
 
@@ -26,7 +27,8 @@ function App() {
 
 
 
-          <Route path="/decorationtips" element={<DecoratingForm />} />
+          <Route path="/decorationtips" element={<DecorationTips />} />
+          <Route path="/create-decoration-tips" element={<DecoratingForm />} />
           
         </Routes>
       </Container>
