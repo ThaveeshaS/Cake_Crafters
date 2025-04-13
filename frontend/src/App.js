@@ -6,24 +6,13 @@ import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './App.css';
 
+import Header from './components/Elements/Header'
 import Footer from './components/Elements/Footer'
 
 function App() {
   return (
     <Router>
-      <AppBar position="static" sx={{ mb: 4, bgcolor: '#ff6f61' }}>
-        <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            CakeCrafters
-          </Typography>
-          <Button color="inherit" component={Link} to="/">
-            Home
-          </Button>
-          <Button color="inherit" component={Link} to="/create">
-            Create Post
-          </Button>
-        </Toolbar>
-      </AppBar>
+      <Header />
       <Container>
         <Routes>
           <Route path="/" element={<PostList />} />
