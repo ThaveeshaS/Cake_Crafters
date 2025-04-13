@@ -12,12 +12,14 @@ function DecoratingForm() {
     description: '',
     category: '',
     difficulty: '',
-    media: '',
+    media: [],
     author: '',
     tip: '',
+    mediaType: 'images' // 'images' or 'video'
   });
-  const [previewImage, setPreviewImage] = useState(null);
+  const [previews, setPreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,19 +28,103 @@ function DecoratingForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.mediaType === 'images' && formData.media.length === 0) {
+      setError('Please upload at least one image');
+      return;
+    }
+    if (formData.mediaType === 'video' && formData.media.length === 0) {
+      setError('Please upload a video');
+      return;
+    }
     console.log('Form submitted:', formData);
     navigate('/decoration-tips');
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData({ ...formData, media: file });
+  const handleMediaTypeChange = (type) => {
+    setFormData({
+      ...formData,
+      mediaType: type,
+      media: []
+    });
+    setPreviews([]);
+    setError('');
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    processFiles(files);
+  };
+
+  const processFiles = (files) => {
+    setError('');
+    
+    if (formData.mediaType === 'images') {
+      if (formData.media.length + files.length > 3) {
+        setError('You can upload a maximum of 3 images');
+        return;
+      }
+
+      const imageFiles = files.filter(file => file.type.match('image.*'));
+      if (imageFiles.length !== files.length) {
+        setError('Please upload only image files');
+        return;
+      }
+
+      const newPreviews = [];
+      const newMedia = [...formData.media];
+
+      imageFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push({
+            url: reader.result,
+            file: file
+          });
+          newMedia.push(file);
+          
+          if (newPreviews.length === imageFiles.length) {
+            setPreviews([...previews, ...newPreviews]);
+            setFormData({ ...formData, media: newMedia });
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    } else { // video
+      if (files.length > 1) {
+        setError('Please upload only one video');
+        return;
+      }
+
+      const videoFile = files[0];
+      if (!videoFile.type.match('video.*')) {
+        setError('Please upload a video file');
+        return;
+      }
+
+      // Check video duration (client-side check)
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        if (video.duration > 30) {
+          setError('Video must be 30 seconds or shorter');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviews([{
+            url: reader.result,
+            file: videoFile,
+            isVideo: true
+          }]);
+          setFormData({ ...formData, media: [videoFile] });
+        };
+        reader.readAsDataURL(videoFile);
       };
-      reader.readAsDataURL(file);
+      
+      video.src = URL.createObjectURL(videoFile);
     }
   };
 
@@ -54,25 +140,22 @@ function DecoratingForm() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.match('image.*')) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData({ ...formData, media: file });
-      };
-      reader.readAsDataURL(file);
-    }
+    const files = Array.from(e.dataTransfer.files);
+    processFiles(files);
   };
 
   const triggerFileInput = () => {
     fileInputRef.current.click();
   };
 
-  const removeImage = () => {
-    setPreviewImage(null);
-    setFormData({ ...formData, media: '' });
-    fileInputRef.current.value = '';
+  const removeMedia = (index) => {
+    const newPreviews = [...previews];
+    newPreviews.splice(index, 1);
+    setPreviews(newPreviews);
+    
+    const newMedia = [...formData.media];
+    newMedia.splice(index, 1);
+    setFormData({ ...formData, media: newMedia });
   };
 
   return (
@@ -124,7 +207,7 @@ function DecoratingForm() {
             color: #007bff;
             margin-bottom: 1rem;
           }
-          .image-preview {
+          .media-preview {
             max-width: 100%;
             max-height: 200px;
             border-radius: 8px;
@@ -148,6 +231,60 @@ function DecoratingForm() {
             margin-top: 1rem;
             font-size: 0.9rem;
             color: #6c757d;
+          }
+          .media-selector {
+            display: flex;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+          }
+          .media-option {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            background: ${formData.mediaType === 'images' ? '#e7f1ff' : '#f8f9fa'};
+            border: 1px solid #dee2e6;
+          }
+          .media-option:first-child {
+            border-right: none;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+          }
+          .media-option:last-child {
+            border-left: none;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+          }
+          .media-option.active {
+            background: #007bff;
+            color: white;
+          }
+          .media-option:nth-child(1).active {
+            background: ${formData.mediaType === 'images' ? '#007bff' : '#f8f9fa'};
+          }
+          .media-option:nth-child(2).active {
+            background: ${formData.mediaType === 'video' ? '#007bff' : '#f8f9fa'};
+          }
+          .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+          }
+          .preview-item {
+            position: relative;
+            width: calc(33.333% - 1rem);
+          }
+          .preview-item video {
+            width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+          }
+          .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
           }
         `}
       </style>
@@ -251,14 +388,31 @@ function DecoratingForm() {
             </div>
             <div className="mb-3">
               <label className="form-label">
-                Upload Image
+                Upload Media
               </label>
+              <div className="media-selector">
+                <div 
+                  className={`media-option ${formData.mediaType === 'images' ? 'active' : ''}`}
+                  onClick={() => handleMediaTypeChange('images')}
+                >
+                  <i className="bi bi-images me-2"></i>
+                  Images (Max 3)
+                </div>
+                <div 
+                  className={`media-option ${formData.mediaType === 'video' ? 'active' : ''}`}
+                  onClick={() => handleMediaTypeChange('video')}
+                >
+                  <i className="bi bi-camera-reels me-2"></i>
+                  Video (Max 30s)
+                </div>
+              </div>
               <input
                 type="file"
                 ref={fileInputRef}
-                onChange={handleImageChange}
-                accept="image/*"
+                onChange={handleFileChange}
+                accept={formData.mediaType === 'images' ? 'image/*' : 'video/*'}
                 className="d-none"
+                multiple={formData.mediaType === 'images'}
               />
               <div
                 className="upload-area"
@@ -267,32 +421,51 @@ function DecoratingForm() {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
               >
-                {previewImage ? (
+                {previews.length === 0 ? (
                   <>
-                    <img src={previewImage} alt="Preview" className="image-preview" />
-                    <div className="file-info">
-                      {formData.media.name} ({(formData.media.size / 1024).toFixed(2)} KB)
-                    </div>
-                    <button
-                      type="button"
-                      className="remove-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeImage();
-                      }}
-                    >
-                      <i className="bi bi-trash me-1"></i> Remove Image
-                    </button>
+                    <i className={`bi ${formData.mediaType === 'images' ? 'bi-images' : 'bi-camera-reels'} upload-icon`}></i>
+                    <h5>
+                      {formData.mediaType === 'images' 
+                        ? 'Drag & Drop your images here' 
+                        : 'Drag & Drop your video here'}
+                    </h5>
+                    <p className="text-muted">or click to browse files</p>
+                    <p className="text-muted small">
+                      {formData.mediaType === 'images' 
+                        ? 'Supports: JPG, PNG, GIF (Max 5MB each)' 
+                        : 'Supports: MP4, MOV (Max 30 seconds)'}
+                    </p>
                   </>
                 ) : (
-                  <>
-                    <i className="bi bi-cloud-arrow-up upload-icon"></i>
-                    <h5>Drag & Drop your image here</h5>
-                    <p className="text-muted">or click to browse files</p>
-                    <p className="text-muted small">Supports: JPG, PNG, GIF (Max 5MB)</p>
-                  </>
+                  <div className="preview-container">
+                    {previews.map((preview, index) => (
+                      <div key={index} className="preview-item">
+                        {preview.isVideo ? (
+                          <video controls className="media-preview">
+                            <source src={preview.url} type={preview.file.type} />
+                          </video>
+                        ) : (
+                          <img src={preview.url} alt="Preview" className="media-preview" />
+                        )}
+                        <div className="file-info">
+                          {preview.file.name} ({(preview.file.size / 1024).toFixed(2)} KB)
+                        </div>
+                        <button
+                          type="button"
+                          className="remove-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeMedia(index);
+                          }}
+                        >
+                          <i className="bi bi-trash me-1"></i> Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+              {error && <div className="error-message">{error}</div>}
             </div>
             <div className="d-flex justify-content-end">
               <button type="submit" className="btn submit-btn">
