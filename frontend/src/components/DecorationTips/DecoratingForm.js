@@ -207,6 +207,10 @@ function DecoratingForm() {
     setFormData({ ...formData, media: newMedia });
   };
 
+  const handleBack = () => {
+    navigate('/decorationtips');
+  };
+
   return (
     <div className="container py-5">
       <style>
@@ -227,6 +231,20 @@ function DecoratingForm() {
           }
           .submit-btn:hover {
             background: #0056b3;
+            transform: translateY(-2px);
+          }
+          .back-btn {
+            background: #6c757d;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+            color: white;
+          }
+          .back-btn:hover {
+            background: #5a6268;
             transform: translateY(-2px);
           }
           .form-card {
@@ -334,6 +352,11 @@ function DecoratingForm() {
             color: #dc3545;
             font-size: 0.9rem;
             margin-top: 0.5rem;
+          }
+          .button-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
           }
         `}
       </style>
@@ -519,7 +542,11 @@ function DecoratingForm() {
               </div>
               {error && <div className="error-message">{error}</div>}
             </div>
-            <div className="d-flex justify-content-end">
+            <div className="button-group">
+              <button type="button" className="btn back-btn" onClick={handleBack}>
+                <i className="bi bi-arrow-left-circle me-2"></i>
+                Back
+              </button>
               <button type="submit" className="btn submit-btn">
                 <i className="bi bi-check-circle me-2"></i>
                 {editTip ? 'Update Tip' : 'Submit Tip'}
