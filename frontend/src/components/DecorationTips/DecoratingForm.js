@@ -1,32 +1,47 @@
 // DecoratingForm.js
-import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function DecoratingForm() {
   const navigate = useNavigate();
+  const location = useLocation();
   const fileInputRef = useRef(null);
+  const editTip = location.state?.tip;
+
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: '',
-    difficulty: '',
+    title: editTip?.title || '',
+    description: editTip?.description || '',
+    category: editTip?.category || '',
+    difficulty: editTip?.difficulty || '',
     media: [],
-    author: '',
-    tip: '',
-    mediaType: 'images' // 'images' or 'video'
+    author: editTip?.author || '',
+    tip: editTip?.tip || '',
+    mediaType: editTip?.mediaType || 'images',
   });
   const [previews, setPreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (editTip?.media?.length > 0) {
+      const initialPreviews = editTip.media.map((media, index) => ({
+        url: media,
+        file: null,
+        isVideo: editTip.mediaType === 'video',
+      }));
+      setPreviews(initialPreviews);
+      setFormData((prev) => ({ ...prev, media: editTip.media }));
+    }
+  }, [editTip]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.mediaType === 'images' && formData.media.length === 0) {
       setError('Please upload at least one image');
@@ -36,15 +51,48 @@ function DecoratingForm() {
       setError('Please upload a video');
       return;
     }
-    console.log('Form submitted:', formData);
-    navigate('/decoration-tips');
+
+    let mediaBase64 = formData.media;
+    if (formData.media.some((m) => m instanceof File)) {
+      mediaBase64 = await Promise.all(
+        formData.media.map((file) =>
+          file instanceof File
+            ? new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+              })
+            : Promise.resolve(file)
+        )
+      );
+    }
+
+    const tipData = {
+      id: editTip?.id || Date.now(),
+      ...formData,
+      media: mediaBase64,
+      createdAt: editTip?.createdAt || new Date().toISOString(),
+    };
+
+    const existingTips = JSON.parse(localStorage.getItem('decorationTips') || '[]');
+    let updatedTips;
+    if (editTip) {
+      updatedTips = existingTips.map((tip) =>
+        tip.id === editTip.id ? tipData : tip
+      );
+    } else {
+      updatedTips = [...existingTips, tipData];
+    }
+    localStorage.setItem('decorationTips', JSON.stringify(updatedTips));
+
+    navigate('/decorationtips');
   };
 
   const handleMediaTypeChange = (type) => {
     setFormData({
       ...formData,
       mediaType: type,
-      media: []
+      media: [],
     });
     setPreviews([]);
     setError('');
@@ -57,14 +105,14 @@ function DecoratingForm() {
 
   const processFiles = (files) => {
     setError('');
-    
+
     if (formData.mediaType === 'images') {
       if (formData.media.length + files.length > 3) {
         setError('You can upload a maximum of 3 images');
         return;
       }
 
-      const imageFiles = files.filter(file => file.type.match('image.*'));
+      const imageFiles = files.filter((file) => file.type.match('image.*'));
       if (imageFiles.length !== files.length) {
         setError('Please upload only image files');
         return;
@@ -73,15 +121,15 @@ function DecoratingForm() {
       const newPreviews = [];
       const newMedia = [...formData.media];
 
-      imageFiles.forEach(file => {
+      imageFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push({
             url: reader.result,
-            file: file
+            file: file,
           });
           newMedia.push(file);
-          
+
           if (newPreviews.length === imageFiles.length) {
             setPreviews([...previews, ...newPreviews]);
             setFormData({ ...formData, media: newMedia });
@@ -89,7 +137,7 @@ function DecoratingForm() {
         };
         reader.readAsDataURL(file);
       });
-    } else { // video
+    } else {
       if (files.length > 1) {
         setError('Please upload only one video');
         return;
@@ -101,10 +149,9 @@ function DecoratingForm() {
         return;
       }
 
-      // Check video duration (client-side check)
       const video = document.createElement('video');
       video.preload = 'metadata';
-      
+
       video.onloadedmetadata = () => {
         window.URL.revokeObjectURL(video.src);
         if (video.duration > 30) {
@@ -114,16 +161,18 @@ function DecoratingForm() {
 
         const reader = new FileReader();
         reader.onloadend = () => {
-          setPreviews([{
-            url: reader.result,
-            file: videoFile,
-            isVideo: true
-          }]);
+          setPreviews([
+            {
+              url: reader.result,
+              file: videoFile,
+              isVideo: true,
+            },
+          ]);
           setFormData({ ...formData, media: [videoFile] });
         };
         reader.readAsDataURL(videoFile);
       };
-      
+
       video.src = URL.createObjectURL(videoFile);
     }
   };
@@ -152,7 +201,7 @@ function DecoratingForm() {
     const newPreviews = [...previews];
     newPreviews.splice(index, 1);
     setPreviews(newPreviews);
-    
+
     const newMedia = [...formData.media];
     newMedia.splice(index, 1);
     setFormData({ ...formData, media: newMedia });
@@ -291,7 +340,7 @@ function DecoratingForm() {
       <div className="form-container">
         <div className="form-card">
           <h1 className="display-5 text-center mb-4" style={{ color: '#003087' }}>
-            Create a Decoration Tip
+            {editTip ? 'Edit Decoration Tip' : 'Create a Decoration Tip'}
           </h1>
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
@@ -387,18 +436,16 @@ function DecoratingForm() {
               ></textarea>
             </div>
             <div className="mb-3">
-              <label className="form-label">
-                Upload Media
-              </label>
+              <label className="form-label">Upload Media</label>
               <div className="media-selector">
-                <div 
+                <div
                   className={`media-option ${formData.mediaType === 'images' ? 'active' : ''}`}
                   onClick={() => handleMediaTypeChange('images')}
                 >
                   <i className="bi bi-images me-2"></i>
                   Images (Max 3)
                 </div>
-                <div 
+                <div
                   className={`media-option ${formData.mediaType === 'video' ? 'active' : ''}`}
                   onClick={() => handleMediaTypeChange('video')}
                 >
@@ -423,16 +470,20 @@ function DecoratingForm() {
               >
                 {previews.length === 0 ? (
                   <>
-                    <i className={`bi ${formData.mediaType === 'images' ? 'bi-images' : 'bi-camera-reels'} upload-icon`}></i>
+                    <i
+                      className={`bi ${
+                        formData.mediaType === 'images' ? 'bi-images' : 'bi-camera-reels'
+                      } upload-icon`}
+                    ></i>
                     <h5>
-                      {formData.mediaType === 'images' 
-                        ? 'Drag & Drop your images here' 
+                      {formData.mediaType === 'images'
+                        ? 'Drag & Drop your images here'
                         : 'Drag & Drop your video here'}
                     </h5>
                     <p className="text-muted">or click to browse files</p>
                     <p className="text-muted small">
-                      {formData.mediaType === 'images' 
-                        ? 'Supports: JPG, PNG, GIF (Max 5MB each)' 
+                      {formData.mediaType === 'images'
+                        ? 'Supports: JPG, PNG, GIF (Max 5MB each)'
                         : 'Supports: MP4, MOV (Max 30 seconds)'}
                     </p>
                   </>
@@ -442,13 +493,14 @@ function DecoratingForm() {
                       <div key={index} className="preview-item">
                         {preview.isVideo ? (
                           <video controls className="media-preview">
-                            <source src={preview.url} type={preview.file.type} />
+                            <source src={preview.url} type={preview.file?.type || 'video/mp4'} />
                           </video>
                         ) : (
                           <img src={preview.url} alt="Preview" className="media-preview" />
                         )}
                         <div className="file-info">
-                          {preview.file.name} ({(preview.file.size / 1024).toFixed(2)} KB)
+                          {(preview.file?.name || `Image ${index + 1}`) +
+                            (preview.file ? ` (${(preview.file.size / 1024).toFixed(2)} KB)` : '')}
                         </div>
                         <button
                           type="button"
@@ -470,7 +522,7 @@ function DecoratingForm() {
             <div className="d-flex justify-content-end">
               <button type="submit" className="btn submit-btn">
                 <i className="bi bi-check-circle me-2"></i>
-                Submit Tip
+                {editTip ? 'Update Tip' : 'Submit Tip'}
               </button>
             </div>
           </form>
