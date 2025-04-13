@@ -6,6 +6,8 @@ import { Container, AppBar, Toolbar, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './App.css';
 
+import Footer from './components/Elements/Footer'
+
 function App() {
   return (
     <Router>
@@ -28,6 +30,7 @@ function App() {
           <Route path="/create" element={<CreatePost />} />
         </Routes>
       </Container>
+      <Footer />
     </Router>
   );
 }
