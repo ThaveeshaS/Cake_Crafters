@@ -5,9 +5,11 @@ import CreatePost from './components/CreatePost';
 import { Container} from '@mui/material';
 import './App.css';
 
-import Header from './components/Elements/Header'
-import Footer from './components/Elements/Footer'
-import Navbar from './components/Elements/Navbar'
+import Header from './components/Elements/Header';
+import Navbar from './components/Elements/Navbar';
+import Footer from './components/Elements/Footer';
+import CakeRecipe from './components/CakeRecipe/CakeRecipe';
+import CreateRecipe from './components/CakeRecipe/CreateRecipe';
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
+          <Route path="/cakerecipe" element={<CakeRecipe />} />
+          <Route path="/createrecipe" element={<CreateRecipe />} />
         </Routes>
       </Container>
       <Footer />
