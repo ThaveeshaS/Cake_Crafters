@@ -9,6 +9,11 @@ import Header from './components/Elements/Header'
 import Footer from './components/Elements/Footer'
 import Navbar from './components/Elements/Navbar'
 
+
+import DecoratingForm from './components/DecorationTips/DecoratingForm';
+
+
+
 function App() {
   return (
     <Router>
@@ -18,6 +23,11 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
+
+
+
+          <Route path="/decorationtips" element={<DecoratingForm />} />
+          
         </Routes>
       </Container>
       <Footer />
