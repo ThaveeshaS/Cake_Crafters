@@ -16,6 +16,9 @@ function Navbar() {
             <li className="nav-item mx-3">
               <Link className="nav-link" to="/cakerecipe">Cake Recipe</Link>
             </li>
+            <li className="nav-item mx-3">
+              <Link className="nav-link" to="/decorationtips">Decoration Tips</Link>
+            </li>
           </ul>
         </div>
       </div>
