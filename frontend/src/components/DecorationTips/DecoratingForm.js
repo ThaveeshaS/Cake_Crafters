@@ -23,9 +23,7 @@ function DecoratingForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Placeholder for form submission logic (e.g., API call)
     console.log('Form submitted:', formData);
-    // Navigate back to DecorationTips page after submission
     navigate('/decoration-tips');
   };
 
@@ -38,7 +36,7 @@ function DecoratingForm() {
             margin: 0 auto;
           }
           .submit-btn {
-            background: #4a4e69;
+            background: #007bff;
             border: none;
             padding: 10px 25px;
             font-size: 1rem;
@@ -48,24 +46,24 @@ function DecoratingForm() {
             color: white;
           }
           .submit-btn:hover {
-            background: #3a3d56;
+            background: #0056b3;
             transform: translateY(-2px);
           }
           .form-card {
-            background: #f9f9ff;
+            background: #e7f1ff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 2rem;
           }
           .form-label {
-            color: #4a4e69;
+            color: #003087;
             font-weight: 600;
           }
         `}
       </style>
       <div className="form-container">
         <div className="form-card">
-          <h1 className="display-5 text-center mb-4" style={{ color: '#4a4e69' }}>
+          <h1 className="display-5 text-center mb-4" style={{ color: '#003087' }}>
             Create a Decoration Tip
           </h1>
           <form onSubmit={handleSubmit}>

@@ -14,7 +14,7 @@ function DecorationTips() {
             margin: 0 auto;
           }
           .create-btn {
-            background: #4a4e69;
+            background: #007bff;
             border: none;
             padding: 10px 25px;
             font-size: 1rem;
@@ -26,20 +26,20 @@ function DecorationTips() {
             display: inline-block;
           }
           .create-btn:hover {
-            background: #3a3d56;
+            background: #0056b3;
             transform: translateY(-2px);
             color: white;
             text-decoration: none;
           }
           .tip-card {
-            background: #f9f9ff;
+            background: #e7f1ff;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 2rem;
             text-align: center;
           }
           .tip-card h5 {
-            color: #4a4e69;
+            color: #003087;
             font-weight: 700;
           }
           .tip-card p {
@@ -56,7 +56,7 @@ function DecorationTips() {
         </div>
         <div className="row">
           <div className="col-lg-8 mx-auto">
-            <h1 className="display-5 text-center mb-4" style={{ color: '#4a4e69' }}>
+            <h1 className="display-5 text-center mb-4" style={{ color: '#003087' }}>
               Cake Decorating Tips
             </h1>
             <div className="tip-card">
