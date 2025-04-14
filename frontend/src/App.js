@@ -8,8 +8,8 @@ import './App.css';
 import Header from './components/Elements/Header';
 import Navbar from './components/Elements/Navbar';
 import Footer from './components/Elements/Footer';
-import CakeRecipe from './components/CakeRecipe/CakeRecipe';
-import CreateRecipe from './components/CakeRecipe/CreateRecipe';
+import DisplayCakeRecipe from './components/CakeRecipe/DisplayCakeRecipe';
+import AddNewCakeRecipe from './components/CakeRecipe/AddNewCakeRecipe';
 
 function App() {
   return (
@@ -20,8 +20,8 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
-          <Route path="/cakerecipe" element={<CakeRecipe />} />
-          <Route path="/createrecipe" element={<CreateRecipe />} />
+          <Route path="/displaycakerecipe" element={<DisplayCakeRecipe />} />
+          <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
         </Routes>
       </Container>
       <Footer />
