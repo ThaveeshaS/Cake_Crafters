@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const CreateRecipeForm = () => {
   const [formData, setFormData] = useState({
@@ -14,13 +15,14 @@ const CreateRecipeForm = () => {
     ingredients: '',
     instructions: '',
     date: new Date().toISOString().split('T')[0],
-    likes: 0, // Initialize likes
-    comments: [], // Initialize comments
+    likes: 0,
+    comments: [],
   });
 
   const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const cakeTypes = [
     'Birthday cake',
@@ -91,7 +93,7 @@ const CreateRecipeForm = () => {
           const reader = new FileReader();
           reader.onloadend = () => {
             previews.push(URL.createObjectURL(file));
-            resolve(reader.result); // Base64 string
+            resolve(reader.result);
           };
           reader.readAsDataURL(file);
         });
@@ -109,7 +111,7 @@ const CreateRecipeForm = () => {
     const submittedData = {
       ...formData,
       servings: parseInt(formData.servings, 10),
-      images: images, // Base64 strings
+      images: images,
     };
 
     // Send to backend
@@ -141,6 +143,8 @@ const CreateRecipeForm = () => {
         });
         setImages([]);
         setImagePreviews([]);
+        // Navigate to display page
+        navigate('/displaycakerecipe'); // Navigate after successful submission
       })
       .catch((error) => console.error('Error:', error));
   };
