@@ -1,27 +1,30 @@
-// DecorationTips.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import axios from 'axios';
 
 function DecorationTips() {
   const [tips, setTips] = useState([]);
   const [menuOpen, setMenuOpen] = useState(null);
-  const [comments, setComments] = useState({});
-  const [newComment, setNewComment] = useState({});
   const [showComments, setShowComments] = useState({});
+  const [newComment, setNewComment] = useState({});
   const navigate = useNavigate();
   const menuRefs = useRef({});
 
   useEffect(() => {
-    const storedTips = JSON.parse(localStorage.getItem('decorationTips') || '[]');
-    const sortedTips = storedTips.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    setTips(sortedTips.map(tip => ({ ...tip, likes: tip.likes || 0 })));
-    
-    // Load comments from localStorage
-    const storedComments = JSON.parse(localStorage.getItem('tipComments') || '{}');
-    setComments(storedComments);
+    fetchTips();
   }, []);
+
+  const fetchTips = async () => {
+    try {
+      const response = await axios.get('http://localhost:8080/api/decoration-tips');
+      const sortedTips = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setTips(sortedTips);
+    } catch (err) {
+      console.error('Failed to fetch tips:', err);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -33,11 +36,14 @@ function DecorationTips() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleDelete = (id) => {
-    const updatedTips = tips.filter((tip) => tip.id !== id);
-    localStorage.setItem('decorationTips', JSON.stringify(updatedTips));
-    setTips(updatedTips);
-    setMenuOpen(null);
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8080/api/decoration-tips/${id}`);
+      setTips(tips.filter((tip) => tip.id !== id));
+      setMenuOpen(null);
+    } catch (err) {
+      console.error('Failed to delete tip:', err);
+    }
   };
 
   const handleEdit = (tip) => {
@@ -49,48 +55,41 @@ function DecorationTips() {
     setMenuOpen(menuOpen === id ? null : id);
   };
 
-  const handleLike = (id) => {
-    const updatedTips = tips.map(tip => 
-      tip.id === id ? { ...tip, likes: (tip.likes || 0) + 1 } : tip
-    );
-    setTips(updatedTips);
-    localStorage.setItem('decorationTips', JSON.stringify(updatedTips));
+  const handleLike = async (id) => {
+    try {
+      const response = await axios.post(`http://localhost:8080/api/decoration-tips/${id}/like`);
+      setTips(tips.map(tip => tip.id === id ? response.data : tip));
+    } catch (err) {
+      console.error('Failed to like tip:', err);
+    }
   };
 
-  const handleCommentSubmit = (id, e) => {
+  const handleCommentSubmit = async (id, e) => {
     e.preventDefault();
     if (!newComment[id]?.trim()) return;
 
-    const updatedComments = {
-      ...comments,
-      [id]: [
-        ...(comments[id] || []),
-        {
-          id: Date.now(),
-          text: newComment[id],
-          createdAt: new Date().toISOString(),
-          author: 'User' // Could be enhanced with actual user data
-        }
-      ]
+    const comment = {
+      text: newComment[id],
+      author: 'User', // Could be enhanced with actual user data
+      createdAt: new Date().toISOString(),
     };
 
-    setComments(updatedComments);
-    localStorage.setItem('tipComments', JSON.stringify(updatedComments));
-    
-    setNewComment({
-      ...newComment,
-      [id]: ''
-    });
+    try {
+      const response = await axios.post(`http://localhost:8080/api/decoration-tips/${id}/comment`, comment);
+      setTips(tips.map(tip => tip.id === id ? response.data : tip));
+      setNewComment({ ...newComment, [id]: '' });
+    } catch (err) {
+      console.error('Failed to add comment:', err);
+    }
   };
 
-  const handleCommentDelete = (tipId, commentId) => {
-    const updatedComments = {
-      ...comments,
-      [tipId]: (comments[tipId] || []).filter(comment => comment.id !== commentId)
-    };
-
-    setComments(updatedComments);
-    localStorage.setItem('tipComments', JSON.stringify(updatedComments));
+  const handleCommentDelete = async (tipId, commentId) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${tipId}/comment/${commentId}`);
+      setTips(tips.map(tip => tip.id === tipId ? response.data : tip));
+    } catch (err) {
+      console.error('Failed to delete comment:', err);
+    }
   };
 
   const toggleComments = (id) => {
@@ -489,10 +488,10 @@ function DecorationTips() {
                   )}
                   <div className="interaction-bar">
                     <button 
-                      className={`like-btn ${tip.liked ? 'liked' : ''}`}
+                      className="like-btn"
                       onClick={() => handleLike(tip.id)}
                     >
-                      <i className={`bi ${tip.liked ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+                      <i className="bi bi-heart"></i>
                       <span>{tip.likes || 0} Likes</span>
                     </button>
                     <button 
@@ -500,7 +499,7 @@ function DecorationTips() {
                       onClick={() => toggleComments(tip.id)}
                     >
                       <i className="bi bi-chat"></i>
-                      <span>{(comments[tip.id] || []).length} Comments</span>
+                      <span>{(tip.comments || []).length} Comments</span>
                     </button>
                   </div>
                   {showComments[tip.id] && (
@@ -524,7 +523,7 @@ function DecorationTips() {
                         </button>
                       </form>
                       <div className="comment-list">
-                        {(comments[tip.id] || []).map((comment) => (
+                        {(tip.comments || []).map((comment) => (
                           <div key={comment.id} className="comment-item">
                             <div className="comment-content">
                               <div className="comment-author">{comment.author}</div>

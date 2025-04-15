@@ -1,8 +1,8 @@
-// DecoratingForm.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import axios from 'axios';
 
 function DecoratingForm() {
   const navigate = useNavigate();
@@ -15,10 +15,11 @@ function DecoratingForm() {
     description: editTip?.description || '',
     category: editTip?.category || '',
     difficulty: editTip?.difficulty || '',
-    media: [],
+    media: editTip?.media || [],
     author: editTip?.author || '',
     tip: editTip?.tip || '',
     mediaType: editTip?.mediaType || 'images',
+    createdAt: editTip?.createdAt || new Date().toISOString(),
   });
   const [previews, setPreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -32,7 +33,6 @@ function DecoratingForm() {
         isVideo: editTip.mediaType === 'video',
       }));
       setPreviews(initialPreviews);
-      setFormData((prev) => ({ ...prev, media: editTip.media }));
     }
   }, [editTip]);
 
@@ -68,24 +68,20 @@ function DecoratingForm() {
     }
 
     const tipData = {
-      id: editTip?.id || Date.now(),
       ...formData,
       media: mediaBase64,
-      createdAt: editTip?.createdAt || new Date().toISOString(),
     };
 
-    const existingTips = JSON.parse(localStorage.getItem('decorationTips') || '[]');
-    let updatedTips;
-    if (editTip) {
-      updatedTips = existingTips.map((tip) =>
-        tip.id === editTip.id ? tipData : tip
-      );
-    } else {
-      updatedTips = [...existingTips, tipData];
+    try {
+      if (editTip) {
+        await axios.put(`http://localhost:8080/api/decoration-tips/${editTip.id}`, tipData);
+      } else {
+        await axios.post('http://localhost:8080/api/decoration-tips', tipData);
+      }
+      navigate('/decorationtips');
+    } catch (err) {
+      setError('Failed to save tip. Please try again.');
     }
-    localStorage.setItem('decorationTips', JSON.stringify(updatedTips));
-
-    navigate('/decorationtips');
   };
 
   const handleMediaTypeChange = (type) => {
