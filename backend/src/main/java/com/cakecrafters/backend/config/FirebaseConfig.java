@@ -17,7 +17,7 @@ public class FirebaseConfig {
         FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-service-account.json");
         FirebaseOptions options = FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://cakecrafters-3f214-default-rtdb.asia-southeast1.firebasedatabase.app") // Replace with your URL
+                .setDatabaseUrl("https://cakecrafters-3f214-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .build();
         if (FirebaseApp.getApps().isEmpty()) {
             FirebaseApp.initializeApp(options);
