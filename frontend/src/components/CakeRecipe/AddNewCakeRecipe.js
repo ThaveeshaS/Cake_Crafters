@@ -39,18 +39,6 @@ const CreateRecipeForm = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const imageFiles = files.filter(file => file.type.startsWith('image/'));
-      const selectedFiles = imageFiles.slice(0, 4 - images.length);
-
-      const previews = selectedFiles.map(file => URL.createObjectURL(file));
-      setImages([...images, ...selectedFiles]);
-      setImagePreviews([...imagePreviews, ...previews]);
-    }
-  };
-
   const removeImage = (index) => {
     URL.revokeObjectURL(imagePreviews[index]);
     const newImages = [...images];
@@ -89,31 +77,68 @@ const CreateRecipeForm = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    if (e.target.files) {
+        const files = Array.from(e.target.files);
+        const imageFiles = files.filter(file => file.type.startsWith('image/'));
+        const selectedFiles = imageFiles.slice(0, 4 - images.length);
+
+        const previews = [];
+        const base64Promises = selectedFiles.map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    previews.push(URL.createObjectURL(file));
+                    resolve(reader.result); // Base64 string
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        Promise.all(base64Promises).then(base64Images => {
+            setImages([...images, ...base64Images]);
+            setImagePreviews([...imagePreviews, ...previews]);
+        });
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const submittedData = {
-      ...formData,
-      servings: parseInt(formData.servings, 10),
-      images: images.map((_, index) => imagePreviews[index]), // Include image previews for reference
+        ...formData,
+        servings: parseInt(formData.servings, 10),
+        images: images, // Now Base64 strings
     };
-    console.log('Form submitted:', submittedData);
 
-    // Reset form
-    setFormData({
-      authorName: '',
-      cakeName: '',
-      subTitle: '',
-      cakeType: '',
-      skillLevel: '',
-      prepTime: '',
-      cookTime: '',
-      servings: '',
-      ingredients: '',
-      instructions: '',
-      date: new Date().toISOString().split('T')[0],
-    });
-    setImages([]);
-    setImagePreviews([]);
+    // Send to backend
+    fetch('http://localhost:8080/api/cake-recipes', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submittedData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // Reset form
+        setFormData({
+            authorName: '',
+            cakeName: '',
+            subTitle: '',
+            cakeType: '',
+            skillLevel: '',
+            prepTime: '',
+            cookTime: '',
+            servings: '',
+            ingredients: '',
+            instructions: '',
+            date: new Date().toISOString().split('T')[0],
+        });
+        setImages([]);
+        setImagePreviews([]);
+    })
+    .catch(error => console.error('Error:', error));
   };
 
   return (

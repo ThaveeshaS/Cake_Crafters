@@ -9,7 +9,7 @@ const CakeRecipe = () => {
       {/* Only the Create Recipe Button remains */}
       <div className="d-flex justify-content-end mb-4">
         <Link to="/addnewcakerecipe" className="btn btn-success">
-          <i className="bi bi-plus-circle me-2"></i> Create Cake Recipe
+          <i className="bi bi-plus-circle me-2"></i> Add New Cake Recipe
         </Link>
       </div>
     </div>
