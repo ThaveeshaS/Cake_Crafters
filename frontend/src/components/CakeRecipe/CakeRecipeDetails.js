@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const CakeRecipeDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -26,6 +27,23 @@ const CakeRecipeDetails = () => {
         setLoading(false);
       });
   }, [id]);
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this recipe?')) {
+      fetch(`http://localhost:8080/api/cake-recipes/${id}`, {
+        method: 'DELETE',
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to delete recipe');
+          }
+          navigate('/displaycakerecipe');
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    }
+  };
 
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
@@ -124,13 +142,47 @@ const CakeRecipeDetails = () => {
           .back-btn:hover {
             background: #1e4ac4;
           }
+          .update-btn {
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s;
+            margin-right: 10px;
+          }
+          .update-btn:hover {
+            background: #218838;
+          }
+          .delete-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background 0.3s;
+          }
+          .delete-btn:hover {
+            background: #c82333;
+          }
+          .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+          }
         `}
       </style>
 
       <div className="recipe-details">
-        <Link to="/displaycakerecipe" className="btn back-btn mb-4">
-          <i className="bi bi-arrow-left me-2"></i> Back to Recipes
-        </Link>
+        <div className="action-buttons">
+          <Link to="/displaycakerecipe" className="btn back-btn">
+            <i className="bi bi-arrow-left me-2"></i> Back to Recipes
+          </Link>
+          <Link to={`/recipe/${id}/update`} className="btn update-btn">
+            <i className="bi bi-pencil-square me-2"></i> Update Recipe
+          </Link>
+          <button onClick={handleDelete} className="btn delete-btn">
+            <i className="bi bi-trash me-2"></i> Delete Recipe
+          </button>
+        </div>
         <h1 className="recipe-header">{recipe.cakeName}</h1>
         {recipe.images && recipe.images.length > 0 && (
           <img

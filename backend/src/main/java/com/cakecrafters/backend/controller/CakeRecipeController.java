@@ -48,6 +48,13 @@ public class CakeRecipeController {
                 .exceptionally(throwable -> ResponseEntity.badRequest().build());
     }
 
+    @DeleteMapping("/{id}")
+    public CompletableFuture<ResponseEntity<Void>> deleteCakeRecipe(@PathVariable String id) {
+        return cakeRecipeService.deleteCakeRecipe(id)
+                .thenApply(aVoid -> ResponseEntity.ok().<Void>build())
+                .exceptionally(throwable -> ResponseEntity.badRequest().build());
+    }
+
     @PostMapping("/{id}/like")
     public CompletableFuture<ResponseEntity<CakeRecipe>> likeCakeRecipe(@PathVariable String id) {
         return cakeRecipeService.likeCakeRecipe(id)

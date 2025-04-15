@@ -11,6 +11,7 @@ import Footer from './components/Elements/Footer';
 import DisplayCakeRecipe from './components/CakeRecipe/DisplayCakeRecipe';
 import AddNewCakeRecipe from './components/CakeRecipe/AddNewCakeRecipe';
 import CakeRecipeDetails from './components/CakeRecipe/CakeRecipeDetails';
+import UpdateRecipeForm from './components/CakeRecipe/UpdateRecipeForm';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/displaycakerecipe" element={<DisplayCakeRecipe />} />
           <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
           <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
+          <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
         </Routes>
       </Container>
       <Footer />
