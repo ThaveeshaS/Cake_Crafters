@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const UpdateRecipeForm = () => {
   const { id } = useParams();
@@ -16,14 +17,15 @@ const UpdateRecipeForm = () => {
     servings: '',
     ingredients: '',
     instructions: '',
-    date: '',
+    date: new Date().toISOString().split('T')[0],
     likes: 0,
     comments: [],
+    images: [],
   });
-  const [images, setImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
   const cakeTypes = [
@@ -33,28 +35,41 @@ const UpdateRecipeForm = () => {
     'Cheesecakes',
     'Butter cake',
   ];
+  const skillLevels = ['Beginner', 'Intermediate', 'Advanced'];
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/cake-recipes/${id}`)
-      .then((response) => {
+    const fetchRecipe = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/cake-recipes/${id}`);
         if (!response.ok) {
           throw new Error('Recipe not found');
         }
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setFormData({
-          ...data,
-          servings: data.servings.toString(),
+          authorName: data.authorName || '',
+          cakeName: data.cakeName || '',
+          subTitle: data.subTitle || '',
+          cakeType: data.cakeType || '',
+          skillLevel: data.skillLevel || '',
+          prepTime: data.prepTime || '',
+          cookTime: data.cookTime || '',
+          servings: data.servings ? data.servings.toString() : '1',
+          ingredients: data.ingredients || '',
+          instructions: data.instructions || '',
+          date: data.date || new Date().toISOString().split('T')[0],
+          likes: data.likes || 0,
+          comments: data.comments || [],
+          images: data.images || [],
         });
-        setImages(data.images || []);
         setImagePreviews(data.images || []);
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message);
         setLoading(false);
-      });
+      }
+    };
+
+    fetchRecipe();
 
     return () => {
       imagePreviews.forEach((preview) => {
@@ -63,7 +78,7 @@ const UpdateRecipeForm = () => {
         }
       });
     };
-  }, [id, imagePreviews]);
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -71,15 +86,19 @@ const UpdateRecipeForm = () => {
   };
 
   const removeImage = (index) => {
-    if (imagePreviews[index].startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreviews[index]);
-    }
-    const newImages = [...images];
-    const newPreviews = [...imagePreviews];
-    newImages.splice(index, 1);
-    newPreviews.splice(index, 1);
-    setImages(newImages);
-    setImagePreviews(newPreviews);
+    setFormData((prev) => {
+      const newImages = [...prev.images];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev];
+      if (newPreviews[index]?.startsWith('blob:')) {
+        URL.revokeObjectURL(newPreviews[index]);
+      }
+      newPreviews.splice(index, 1);
+      return newPreviews;
+    });
   };
 
   const handleDragEvents = (e) => {
@@ -113,15 +132,19 @@ const UpdateRecipeForm = () => {
   const handleImageChange = (e) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const imageFiles = files.filter((file) => file.type.startsWith('image/'));
-      const selectedFiles = imageFiles.slice(0, 4 - images.length);
+      const imageFiles = files.filter(
+        (file) => file.type.startsWith('image/') && file.size < 5 * 1024 * 1024
+      );
+      const selectedFiles = imageFiles.slice(0, 4 - formData.images.length);
 
-      const previews = [];
+      if (selectedFiles.length < files.length) {
+        alert('Max 4 images allowed, each under 5MB.');
+      }
+
       const base64Promises = selectedFiles.map((file) => {
         return new Promise((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => {
-            previews.push(URL.createObjectURL(file));
             resolve(reader.result);
           };
           reader.readAsDataURL(file);
@@ -129,47 +152,75 @@ const UpdateRecipeForm = () => {
       });
 
       Promise.all(base64Promises).then((base64Images) => {
-        setImages([...images, ...base64Images]);
-        setImagePreviews([...imagePreviews, ...previews]);
+        const newPreviews = selectedFiles.map((file) => URL.createObjectURL(file));
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, ...base64Images],
+        }));
+        setImagePreviews((prev) => [...prev, ...newPreviews]);
       });
     }
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    if (!formData.authorName.trim()) return 'Author Name is required.';
+    if (!formData.cakeName.trim()) return 'Cake Name is required.';
+    if (!cakeTypes.includes(formData.cakeType)) return 'Please select a valid Cake Type.';
+    if (!skillLevels.includes(formData.skillLevel)) return 'Please select a valid Skill Level.';
+    if (!formData.prepTime.trim()) return 'Prep Time is required.';
+    if (!formData.cookTime.trim()) return 'Cook Time is required.';
+    const servings = parseInt(formData.servings, 10);
+    if (isNaN(servings) || servings <= 0) return 'Servings must be a positive number.';
+    if (!formData.ingredients.trim()) return 'Ingredients are required.';
+    if (!formData.instructions.trim()) return 'Instructions are required.';
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setSubmitting(false);
+      return;
+    }
+
     const submittedData = {
       ...formData,
       servings: parseInt(formData.servings, 10),
-      images: images,
     };
 
-    fetch(`http://localhost:8080/api/cake-recipes/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(submittedData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to update recipe');
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log('Success:', data);
-        navigate(`/recipe/${id}`);
-      })
-      .catch((error) => {
-        setError(error.message);
+    try {
+      const response = await fetch(`http://localhost:8080/api/cake-recipes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submittedData),
       });
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(errorData || 'Failed to update recipe');
+      }
+
+      await response.json();
+      navigate(`/recipe/${id}`);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
     return <div className="text-center py-5">Loading...</div>;
   }
 
-  if (error) {
+  if (error && !formData.cakeName) {
     return (
       <div className="text-center py-5">
         <h5>{error}</h5>
@@ -225,6 +276,10 @@ const UpdateRecipeForm = () => {
           .submit-btn:hover {
             background: #1e4ac4;
             transform: translateY(-2px);
+          }
+          .submit-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
           }
           .form-control:focus,
           .form-select:focus {
@@ -329,6 +384,11 @@ const UpdateRecipeForm = () => {
           .max-files {
             color: #999;
           }
+          .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-bottom: 1rem;
+          }
           @media (max-width: 576px) {
             .image-previews {
               grid-template-columns: repeat(2, 1fr);
@@ -338,6 +398,8 @@ const UpdateRecipeForm = () => {
       </style>
 
       <h1 className="form-header">Update Cake Recipe</h1>
+
+      {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-section">
@@ -422,9 +484,11 @@ const UpdateRecipeForm = () => {
                 required
               >
                 <option value="">Select level</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
+                {skillLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -449,7 +513,7 @@ const UpdateRecipeForm = () => {
               <label htmlFor="cookTime" className="form-label">
                 Cook Time
               </label>
-              <input
+ #             <input
                 type="text"
                 className="form-control"
                 id="cookTime"
@@ -505,15 +569,15 @@ const UpdateRecipeForm = () => {
               accept="image/*"
               multiple
               onChange={handleImageChange}
-              disabled={images.length >= 4}
+              disabled={formData.images.length >= 4}
             />
           </div>
 
           <div className="upload-status">
             <div className="upload-count">
-              {images.length} {images.length === 1 ? 'image' : 'images'} selected
+              {formData.images.length} {formData.images.length === 1 ? 'image' : 'images'} selected
             </div>
-            <div className="max-files">Max 4 images allowed</div>
+            <div className="max-files">Max 4 images, 5MB each</div>
           </div>
 
           {imagePreviews.length > 0 && (
@@ -588,8 +652,19 @@ const UpdateRecipeForm = () => {
           <div className="text-muted">
             <small>Date: {formData.date}</small>
           </div>
-          <button type="submit" className="btn submit-btn text-white">
-            Update Cake Recipe
+          <button
+            type="submit"
+            className="btn submit-btn text-white"
+            disabled={submitting}
+          >
+            {submitting ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Updating...
+              </>
+            ) : (
+              'Update Cake Recipe'
+            )}
           </button>
         </div>
       </form>
