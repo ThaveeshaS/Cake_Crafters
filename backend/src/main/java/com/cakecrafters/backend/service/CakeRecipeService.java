@@ -106,4 +106,69 @@ public class CakeRecipeService {
         });
         return future;
     }
+
+    // Like a cake recipe
+    public CompletableFuture<CakeRecipe> likeCakeRecipe(String id) {
+        CompletableFuture<CakeRecipe> future = new CompletableFuture<>();
+        databaseReference.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CakeRecipe recipe = snapshot.getValue(CakeRecipe.class);
+                if (recipe != null) {
+                    recipe.setId(id);
+                    recipe.setLikes(recipe.getLikes() + 1);
+                    databaseReference.child(id).setValue(recipe, (error, ref) -> {
+                        if (error == null) {
+                            future.complete(recipe);
+                        } else {
+                            future.completeExceptionally(new RuntimeException(error.getMessage()));
+                        }
+                    });
+                } else {
+                    future.completeExceptionally(new RuntimeException("Recipe not found"));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(new RuntimeException(error.getMessage()));
+            }
+        });
+        return future;
+    }
+
+    // Add a comment to a cake recipe
+    public CompletableFuture<CakeRecipe> addComment(String id, String comment) {
+        CompletableFuture<CakeRecipe> future = new CompletableFuture<>();
+        databaseReference.child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CakeRecipe recipe = snapshot.getValue(CakeRecipe.class);
+                if (recipe != null) {
+                    recipe.setId(id);
+                    List<String> comments = recipe.getComments();
+                    if (comments == null) {
+                        comments = new ArrayList<>();
+                    }
+                    comments.add(comment);
+                    recipe.setComments(comments);
+                    databaseReference.child(id).setValue(recipe, (error, ref) -> {
+                        if (error == null) {
+                            future.complete(recipe);
+                        } else {
+                            future.completeExceptionally(new RuntimeException(error.getMessage()));
+                        }
+                    });
+                } else {
+                    future.completeExceptionally(new RuntimeException("Recipe not found"));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(new RuntimeException(error.getMessage()));
+            }
+        });
+        return future;
+    }
 }

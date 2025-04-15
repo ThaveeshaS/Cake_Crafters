@@ -14,6 +14,8 @@ const CreateRecipeForm = () => {
     ingredients: '',
     instructions: '',
     date: new Date().toISOString().split('T')[0],
+    likes: 0, // Initialize likes
+    comments: [], // Initialize comments
   });
 
   const [images, setImages] = useState([]);
@@ -30,13 +32,13 @@ const CreateRecipeForm = () => {
 
   useEffect(() => {
     return () => {
-      imagePreviews.forEach(preview => URL.revokeObjectURL(preview));
+      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
     };
   }, [imagePreviews]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const removeImage = (index) => {
@@ -79,66 +81,68 @@ const CreateRecipeForm = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files) {
-        const files = Array.from(e.target.files);
-        const imageFiles = files.filter(file => file.type.startsWith('image/'));
-        const selectedFiles = imageFiles.slice(0, 4 - images.length);
+      const files = Array.from(e.target.files);
+      const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+      const selectedFiles = imageFiles.slice(0, 4 - images.length);
 
-        const previews = [];
-        const base64Promises = selectedFiles.map(file => {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    previews.push(URL.createObjectURL(file));
-                    resolve(reader.result); // Base64 string
-                };
-                reader.readAsDataURL(file);
-            });
+      const previews = [];
+      const base64Promises = selectedFiles.map((file) => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            previews.push(URL.createObjectURL(file));
+            resolve(reader.result); // Base64 string
+          };
+          reader.readAsDataURL(file);
         });
+      });
 
-        Promise.all(base64Promises).then(base64Images => {
-            setImages([...images, ...base64Images]);
-            setImagePreviews([...imagePreviews, ...previews]);
-        });
+      Promise.all(base64Promises).then((base64Images) => {
+        setImages([...images, ...base64Images]);
+        setImagePreviews([...imagePreviews, ...previews]);
+      });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     const submittedData = {
-        ...formData,
-        servings: parseInt(formData.servings, 10),
-        images: images, // Now Base64 strings
+      ...formData,
+      servings: parseInt(formData.servings, 10),
+      images: images, // Base64 strings
     };
 
     // Send to backend
     fetch('http://localhost:8080/api/cake-recipes', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submittedData),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submittedData),
     })
-    .then(response => response.json())
-    .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         console.log('Success:', data);
         // Reset form
         setFormData({
-            authorName: '',
-            cakeName: '',
-            subTitle: '',
-            cakeType: '',
-            skillLevel: '',
-            prepTime: '',
-            cookTime: '',
-            servings: '',
-            ingredients: '',
-            instructions: '',
-            date: new Date().toISOString().split('T')[0],
+          authorName: '',
+          cakeName: '',
+          subTitle: '',
+          cakeType: '',
+          skillLevel: '',
+          prepTime: '',
+          cookTime: '',
+          servings: '',
+          ingredients: '',
+          instructions: '',
+          date: new Date().toISOString().split('T')[0],
+          likes: 0,
+          comments: [],
         });
         setImages([]);
         setImagePreviews([]);
-    })
-    .catch(error => console.error('Error:', error));
+      })
+      .catch((error) => console.error('Error:', error));
   };
 
   return (
@@ -153,7 +157,6 @@ const CreateRecipeForm = () => {
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
           }
-          
           .form-header {
             color: #2a5bd7;
             text-align: center;
@@ -162,7 +165,6 @@ const CreateRecipeForm = () => {
             text-transform: uppercase;
             letter-spacing: 1px;
           }
-          
           .form-section {
             background: white;
             padding: 1.5rem;
@@ -170,14 +172,12 @@ const CreateRecipeForm = () => {
             margin-bottom: 1.5rem;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
           }
-          
           .form-section h3 {
             color: #2a5bd7;
             border-bottom: 2px solid #d6e4ff;
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
           }
-          
           .submit-btn {
             background: #2a5bd7;
             border: none;
@@ -187,21 +187,18 @@ const CreateRecipeForm = () => {
             letter-spacing: 1px;
             transition: all 0.3s;
           }
-          
           .submit-btn:hover {
             background: #1e4ac4;
             transform: translateY(-2px);
           }
-          
-          .form-control:focus, .form-select:focus {
+          .form-control:focus,
+          .form-select:focus {
             border-color: #2a5bd7;
             box-shadow: 0 0 0 0.25rem rgba(42, 91, 215, 0.25);
           }
-          
           textarea.form-control {
             min-height: 120px;
           }
-
           .upload-area {
             border: 2px dashed ${isDragging ? '#2a5bd7' : '#d3d3d3'};
             border-radius: 10px;
@@ -212,32 +209,26 @@ const CreateRecipeForm = () => {
             transition: all 0.3s ease;
             cursor: pointer;
           }
-
           .upload-area:hover {
             border-color: #2a5bd7;
             background: #f0f5ff;
           }
-
           .upload-icon {
             font-size: 48px;
             color: #2a5bd7;
             margin-bottom: 15px;
           }
-
           .upload-text {
             margin-bottom: 15px;
           }
-
           .upload-text h5 {
             color: #2a5bd7;
             font-weight: 600;
           }
-
           .upload-text p {
             color: #666;
             font-size: 14px;
           }
-
           .browse-btn {
             background: #2a5bd7;
             color: white;
@@ -248,36 +239,30 @@ const CreateRecipeForm = () => {
             transition: all 0.3s;
             display: inline-block;
           }
-
           .browse-btn:hover {
             background: #1e4ac4;
           }
-
           .file-input {
             display: none;
           }
-
           .image-previews {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 20px;
           }
-
           .preview-item {
             position: relative;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             aspect-ratio: 1/1;
           }
-
           .preview-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
           }
-
           .remove-btn {
             position: absolute;
             top: 5px;
@@ -294,7 +279,6 @@ const CreateRecipeForm = () => {
             cursor: pointer;
             font-size: 12px;
           }
-
           .upload-status {
             display: flex;
             justify-content: space-between;
@@ -303,16 +287,13 @@ const CreateRecipeForm = () => {
             font-size: 14px;
             color: #666;
           }
-
           .upload-count {
             font-weight: 600;
             color: #2a5bd7;
           }
-
           .max-files {
             color: #999;
           }
-
           @media (max-width: 576px) {
             .image-previews {
               grid-template-columns: repeat(2, 1fr);
@@ -327,7 +308,9 @@ const CreateRecipeForm = () => {
         <div className="form-section">
           <div className="row mb-3">
             <div className="col-md-12">
-              <label htmlFor="authorName" className="form-label">Author Name</label>
+              <label htmlFor="authorName" className="form-label">
+                Author Name
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -342,7 +325,9 @@ const CreateRecipeForm = () => {
 
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="cakeName" className="form-label">Cake Name</label>
+              <label htmlFor="cakeName" className="form-label">
+                Cake Name
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -354,7 +339,9 @@ const CreateRecipeForm = () => {
               />
             </div>
             <div className="col-md-6">
-              <label htmlFor="subTitle" className="form-label">Sub Title</label>
+              <label htmlFor="subTitle" className="form-label">
+                Sub Title
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -368,7 +355,9 @@ const CreateRecipeForm = () => {
 
           <div className="row mb-3">
             <div className="col-md-6">
-              <label htmlFor="cakeType" className="form-label">Cake Type</label>
+              <label htmlFor="cakeType" className="form-label">
+                Cake Type
+              </label>
               <select
                 className="form-select"
                 id="cakeType"
@@ -379,12 +368,16 @@ const CreateRecipeForm = () => {
               >
                 <option value="">Select cake type</option>
                 {cakeTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
                 ))}
               </select>
             </div>
             <div className="col-md-6">
-              <label htmlFor="skillLevel" className="form-label">Skill Level</label>
+              <label htmlFor="skillLevel" className="form-label">
+                Skill Level
+              </label>
               <select
                 className="form-select"
                 id="skillLevel"
@@ -403,7 +396,9 @@ const CreateRecipeForm = () => {
 
           <div className="row mb-3">
             <div className="col-md-4 mb-3">
-              <label htmlFor="prepTime" className="form-label">Prep Time</label>
+              <label htmlFor="prepTime" className="form-label">
+                Prep Time
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -416,7 +411,9 @@ const CreateRecipeForm = () => {
               />
             </div>
             <div className="col-md-4 mb-3">
-              <label htmlFor="cookTime" className="form-label">Cook Time</label>
+              <label htmlFor="cookTime" className="form-label">
+                Cook Time
+              </label>
               <input
                 type="text"
                 className="form-control"
@@ -429,7 +426,9 @@ const CreateRecipeForm = () => {
               />
             </div>
             <div className="col-md-4 mb-3">
-              <label htmlFor="servings" className="form-label">Servings</label>
+              <label htmlFor="servings" className="form-label">
+                Servings
+              </label>
               <input
                 type="number"
                 className="form-control"
@@ -479,9 +478,7 @@ const CreateRecipeForm = () => {
             <div className="upload-count">
               {images.length} {images.length === 1 ? 'image' : 'images'} selected
             </div>
-            <div className="max-files">
-              Max 4 images allowed
-            </div>
+            <div className="max-files">Max 4 images allowed</div>
           </div>
 
           {imagePreviews.length > 0 && (

@@ -48,4 +48,17 @@ public class CakeRecipeController {
                 .exceptionally(throwable -> ResponseEntity.badRequest().build());
     }
 
+    @PostMapping("/{id}/like")
+    public CompletableFuture<ResponseEntity<CakeRecipe>> likeCakeRecipe(@PathVariable String id) {
+        return cakeRecipeService.likeCakeRecipe(id)
+                .thenApply(recipe -> ResponseEntity.ok(recipe))
+                .exceptionally(throwable -> ResponseEntity.badRequest().build());
+    }
+
+    @PostMapping("/{id}/comment")
+    public CompletableFuture<ResponseEntity<CakeRecipe>> addComment(@PathVariable String id, @RequestBody String comment) {
+        return cakeRecipeService.addComment(id, comment)
+                .thenApply(recipe -> ResponseEntity.ok(recipe))
+                .exceptionally(throwable -> ResponseEntity.badRequest().build());
+    }
 }

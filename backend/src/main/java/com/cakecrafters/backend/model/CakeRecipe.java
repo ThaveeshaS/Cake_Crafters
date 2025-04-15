@@ -1,5 +1,6 @@
 package com.cakecrafters.backend.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CakeRecipe {
@@ -15,10 +16,15 @@ public class CakeRecipe {
     private String ingredients;
     private String instructions;
     private String date;
-    private List<String> images; // Base64 strings or URLs (if any)
+    private List<String> images; // Base64 strings or URLs
+    private int likes; // New field for likes count
+    private List<String> comments; // New field for comments
 
     // Default constructor
-    public CakeRecipe() {}
+    public CakeRecipe() {
+        this.likes = 0;
+        this.comments = new ArrayList<>();
+    }
 
     // Getters and Setters
     public String getId() {
@@ -123,5 +129,21 @@ public class CakeRecipe {
 
     public void setImages(List<String> images) {
         this.images = images;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public List<String> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<String> comments) {
+        this.comments = comments;
     }
 }

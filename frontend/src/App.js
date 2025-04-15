@@ -10,6 +10,7 @@ import Navbar from './components/Elements/Navbar';
 import Footer from './components/Elements/Footer';
 import DisplayCakeRecipe from './components/CakeRecipe/DisplayCakeRecipe';
 import AddNewCakeRecipe from './components/CakeRecipe/AddNewCakeRecipe';
+import CakeRecipeDetails from './components/CakeRecipe/CakeRecipeDetails';
 
 function App() {
   return (
@@ -20,8 +21,10 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
+          
           <Route path="/displaycakerecipe" element={<DisplayCakeRecipe />} />
           <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
+          <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
         </Routes>
       </Container>
       <Footer />
