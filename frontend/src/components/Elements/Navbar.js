@@ -6,6 +6,7 @@ function Navbar() {
   const location = useLocation();
 
   return (
+
     <nav className="navbar-container">
       <style>
         {`
@@ -112,10 +113,16 @@ function Navbar() {
             Cake Recipes
             </Link>
           </li>
+          <li className="nav-item">
+            <Link 
+              className={`nav-link ${location.pathname === '/decorationtips' ? 'active' : ''}`}
+              to="/decorationtips">
+            Decoration Tips
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
   );
 }
-
 export default Navbar;

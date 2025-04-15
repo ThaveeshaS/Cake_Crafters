@@ -13,6 +13,12 @@ import AddNewCakeRecipe from './components/CakeRecipe/AddNewCakeRecipe';
 import CakeRecipeDetails from './components/CakeRecipe/CakeRecipeDetails';
 import UpdateRecipeForm from './components/CakeRecipe/UpdateRecipeForm';
 
+
+import DecoratingForm from './components/DecorationTips/DecoratingForm';
+import DecorationTips from './components/DecorationTips/DecorationTips';
+
+
+
 function App() {
   return (
     <Router>
@@ -22,11 +28,20 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
+
+
+
+
+          <Route path="/decorationtips" element={<DecorationTips />} />
+          <Route path="/create-decoration-tips" element={<DecoratingForm />} />
+          
+
           
           <Route path="/displaycakerecipe" element={<DisplayCakeRecipe />} />
           <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
           <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
+
         </Routes>
       </Container>
       <Footer />
