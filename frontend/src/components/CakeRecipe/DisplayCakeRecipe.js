@@ -24,8 +24,8 @@ const CakeRecipe = () => {
       });
   }, []);
 
-  // Handle like button click
-  const handleLike = (id) => {
+  // Handle vote button click
+  const handleVote = (id) => {
     fetch(`http://localhost:8080/api/cake-recipes/${id}/like`, {
       method: 'POST',
     })
@@ -37,7 +37,7 @@ const CakeRecipe = () => {
           )
         );
       })
-      .catch((error) => console.error('Error liking recipe:', error));
+      .catch((error) => console.error('Error voting for recipe:', error));
   };
 
   // Handle comment submission
@@ -145,7 +145,7 @@ const CakeRecipe = () => {
             font-size: 0.9rem;
             margin-bottom: 1rem;
             display: flex;
-            align-items: center;
+            flex-direction: column;
           }
           
           .recipe-author i {
@@ -153,7 +153,18 @@ const CakeRecipe = () => {
             color: var(--secondary-color);
           }
           
-          .like-btn {
+          .recipe-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+          }
+          
+          .recipe-meta i {
+            margin-right: 5px;
+            color: var(--secondary-color);
+          }
+          
+          .vote-btn, .comment-btn {
             background: none;
             border: none;
             color: var(--accent-color);
@@ -161,15 +172,16 @@ const CakeRecipe = () => {
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            padding: 0.5rem 0;
+            padding: 0.5rem;
+            margin-right: 1rem;
           }
           
-          .like-btn:hover {
+          .vote-btn:hover, .comment-btn:hover {
             color: #e84393;
             transform: scale(1.1);
           }
           
-          .like-count {
+          .vote-count, .comment-count {
             margin-left: 5px;
             font-size: 0.9rem;
             color: var(--dark-color);
@@ -211,36 +223,6 @@ const CakeRecipe = () => {
           .comment-submit:hover {
             background: #5649d1;
             transform: translateY(-2px);
-          }
-          
-          .comment-list {
-            max-height: 150px;
-            overflow-y: auto;
-            margin-top: 1rem;
-            padding: 0.75rem;
-            background: #f9f9f9;
-            border-radius: 8px;
-          }
-          
-          .comment-item {
-            font-size: 0.85rem;
-            color: #495057;
-            margin-bottom: 0.75rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid #eee;
-            position: relative;
-            padding-left: 1rem;
-          }
-          
-          .comment-item:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 5px;
-            height: 60%;
-            width: 3px;
-            background: var(--secondary-color);
-            border-radius: 3px;
           }
           
           .add-recipe-btn {
@@ -385,44 +367,49 @@ const CakeRecipe = () => {
                   </div>
                 </div>
                 <div className="recipe-body">
-                  <p className="recipe-author">
-                    <i className="bi bi-person"></i> By {recipe.authorName || 'Anonymous'}
-                  </p>
+                  <div className="recipe-author">
+                    <span>
+                      <b><i className="bi bi-person"></i> Provided By : {recipe.authorName || 'Anonymous'}</b>
+                    </span>
+                    <span className="recipe-meta">
+                      <i className="bi bi-bar-chart"></i> Skill Level : {recipe.skillLevel || 'Not specified'}
+                    </span>
+                    <span className="recipe-meta">
+                      <i className="bi bi-calendar"></i> Published Date : {recipe.date ? new Date(recipe.date).toLocaleDateString() : 'Unknown'}
+                    </span>
+                  </div>
                   <div className="d-flex align-items-center mb-3">
                     <button
-                      className="like-btn"
-                      onClick={() => handleLike(recipe.id)}
+                      className="vote-btn"
+                      onClick={() => handleVote(recipe.id)}
                     >
-                      <i className="bi bi-heart-fill"></i>
-                      <span className="like-count">{recipe.likes || 0}</span>
+                      <i className="bi bi-hand-thumbs-up"></i>
+                      <span className="vote-count">{recipe.likes || 0} Likes</span>
                     </button>
-                  </div>
-                  <div className="comment-area">
-                    <textarea
-                      className="form-control comment-input mb-2"
-                      placeholder="Share your thoughts..."
-                      value={commentInputs[recipe.id] || ''}
-                      onChange={(e) => handleCommentChange(recipe.id, e.target.value)}
-                    />
                     <button
-                      className="btn comment-submit"
-                      onClick={() => handleCommentSubmit(recipe.id)}
+                      className="comment-btn"
+                      onClick={() => setCommentInputs((prev) => ({ ...prev, [recipe.id]: prev[recipe.id] || '' }))}
                     >
-                      <i className="bi bi-send me-2"></i>Post Comment
+                      <i className="bi bi-chat-left-text"></i>
+                      <span className="comment-count">{recipe.comments?.length || 0} Comments</span>
                     </button>
-                    {recipe.comments && recipe.comments.length > 0 && (
-                      <div className="comment-list mt-3">
-                        <h6 className="mb-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                          <i className="bi bi-chat-left-text me-2"></i>Comments
-                        </h6>
-                        {recipe.comments.map((comment, index) => (
-                          <p key={index} className="comment-item">
-                            {comment}
-                          </p>
-                        ))}
-                      </div>
-                    )}
                   </div>
+                  {commentInputs[recipe.id] !== undefined && (
+                    <div className="comment-area">
+                      <textarea
+                        className="form-control comment-input mb-2"
+                        placeholder="Share your thoughts..."
+                        value={commentInputs[recipe.id] || ''}
+                        onChange={(e) => handleCommentChange(recipe.id, e.target.value)}
+                      />
+                      <button
+                        className="btn comment-submit"
+                        onClick={() => handleCommentSubmit(recipe.id)}
+                      >
+                        <i className="bi bi-send me-2"></i>Send Comment
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

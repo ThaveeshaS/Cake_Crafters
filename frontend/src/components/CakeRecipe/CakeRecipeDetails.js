@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const CakeRecipeDetails = () => {
   const { id } = useParams();
@@ -10,6 +12,7 @@ const CakeRecipeDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [pdfGenerating, setPdfGenerating] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:8080/api/cake-recipes/${id}`)
@@ -43,6 +46,138 @@ const CakeRecipeDetails = () => {
         .catch((err) => {
           setError(err.message);
         });
+    }
+  };
+
+  const handleCommentDelete = (commentIndex) => {
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      const updatedComments = recipe.comments.filter((_, index) => index !== commentIndex);
+      fetch(`http://localhost:8080/api/cake-recipes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...recipe, comments: updatedComments }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to delete comment');
+          }
+          return response.json();
+        })
+        .then((updatedRecipe) => {
+          setRecipe(updatedRecipe);
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    }
+  };
+
+  const downloadPDF = async () => {
+    if (!recipe || pdfGenerating) return;
+    
+    setPdfGenerating(true);
+    try {
+      // Create a temporary container for PDF generation
+      const pdfContainer = document.createElement('div');
+      pdfContainer.style.position = 'absolute';
+      pdfContainer.style.left = '-9999px';
+      pdfContainer.style.width = '800px';
+      pdfContainer.style.padding = '40px';
+      pdfContainer.style.backgroundColor = 'white';
+      pdfContainer.style.fontFamily = 'Arial, sans-serif';
+
+      // Build PDF content
+      pdfContainer.innerHTML = `
+        <div style="margin-bottom: 30px;">
+          <h1 style="color: #343a40; border-bottom: 2px solid #6c5ce7; padding-bottom: 10px; margin-bottom: 10px;">
+            ${recipe.cakeName}
+          </h1>
+          ${recipe.subTitle ? `<p style="color: #6c757d; font-style: italic;">${recipe.subTitle}</p>` : ''}
+        </div>
+
+        <div style="margin: 20px 0; padding: 15px; background: #f9f9ff; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 20px;">
+          <div><strong>Author:</strong> ${recipe.authorName || 'Anonymous'}</div>
+          <div><strong>Type:</strong> ${recipe.cakeType}</div>
+          <div><strong>Skill:</strong> ${recipe.skillLevel}</div>
+          <div><strong>Prep Time:</strong> ${recipe.prepTime}</div>
+          <div><strong>Cook Time:</strong> ${recipe.cookTime}</div>
+          <div><strong>Servings:</strong> ${recipe.servings}</div>
+        </div>
+
+        <h2 style="color: #343a40; border-bottom: 1px solid #dfe6e9; padding-bottom: 5px; margin-top: 30px;">
+          Ingredients
+        </h2>
+        <ul style="columns: 2; column-gap: 30px; list-style-type: none; padding: 0; margin-top: 15px;">
+          ${recipe.ingredients.split('\n').map(item => `
+            <li style="margin-bottom: 8px; break-inside: avoid; padding-left: 20px; position: relative;">
+              <span style="position: absolute; left: 0; color: #6c5ce7; font-weight: bold;">•</span>
+              ${item}
+            </li>
+          `).join('')}
+        </ul>
+
+        <h2 style="color: #343a40; border-bottom: 1px solid #dfe6e9; padding-bottom: 5px; margin-top: 30px;">
+          Instructions
+        </h2>
+        <ol style="counter-reset: step-counter; list-style-type: none; padding: 0; margin-top: 15px;">
+          ${recipe.instructions.split('\n').map((step, index) => `
+            <li style="margin-bottom: 15px; counter-increment: step-counter; position: relative; padding-left: 30px;">
+              <span style="
+                position: absolute;
+                left: 0;
+                top: 0;
+                background: #6c5ce7;
+                color: white;
+                width: 22px;
+                height: 22px;
+                border-radius: 50%;
+                text-align: center;
+                line-height: 22px;
+                font-size: 12px;
+              ">
+                ${index + 1}
+              </span>
+              ${step}
+            </li>
+          `).join('')}
+        </ol>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #dfe6e9; font-size: 12px; color: #636e72;">
+          <p>Generated from Cake Crafters on ${new Date().toLocaleDateString()}</p>
+        </div>
+      `;
+
+      document.body.appendChild(pdfContainer);
+
+      // Generate canvas
+      const canvas = await html2canvas(pdfContainer, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: pdfContainer.scrollWidth,
+        windowHeight: pdfContainer.scrollHeight
+      });
+
+      // Create PDF
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgWidth = 210; 
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      pdf.save(`${recipe.cakeName.replace(/\s+/g, '_')}_recipe.pdf`);
+
+      // Clean up
+      document.body.removeChild(pdfContainer);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setPdfGenerating(false);
     }
   };
 
@@ -85,6 +220,7 @@ const CakeRecipeDetails = () => {
             --dark-color: #343a40;
             --success-color: #00b894;
             --danger-color: #d63031;
+            --info-color: #0984e3;
           }
           
           .recipe-details-container {
@@ -343,6 +479,32 @@ const CakeRecipeDetails = () => {
             color: white;
           }
           
+          .pdf-btn {
+            background: var(--info-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            border: none;
+          }
+          
+          .pdf-btn:hover {
+            background: #0767b1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(9, 132, 227, 0.3);
+            color: white;
+          }
+          
+          .pdf-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+          }
+          
           .comments-section {
             background: #f9f9ff;
             padding: 2rem;
@@ -362,6 +524,9 @@ const CakeRecipeDetails = () => {
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
           }
           
           .comment-item:before {
@@ -373,6 +538,20 @@ const CakeRecipeDetails = () => {
             width: 4px;
             background: var(--secondary-color);
             border-radius: 0 4px 4px 0;
+          }
+          
+          .comment-delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s;
+          }
+          
+          .comment-delete-btn:hover {
+            color: #c0392b;
+            transform: scale(1.1);
           }
           
           .empty-state {
@@ -407,10 +586,23 @@ const CakeRecipeDetails = () => {
             
             .back-btn,
             .update-btn,
-            .delete-btn {
+            .delete-btn,
+            .pdf-btn {
               width: 100%;
               justify-content: center;
             }
+          }
+
+          .button-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          }
+
+          .action-buttons {
+          display: flex;
+          gap: 10px; /* Adjust spacing between buttons */
           }
         `}
       </style>
@@ -423,8 +615,7 @@ const CakeRecipeDetails = () => {
           )}
         </div>
 
-        <div className="recipe-content">
-          
+        <div className="recipe-content" id="recipe-content">
           {recipe.images && recipe.images.length > 0 && (
             <div className="main-image-container">
               <img
@@ -512,17 +703,40 @@ const CakeRecipeDetails = () => {
           </div>
 
           <hr className="my-3" />
+          <hr className="my-3" />
 
-          <div className="action-buttons">
-            <Link to="/displaycakerecipe" className="btn back-btn" style={{ marginRight: '365px' }}>
-              <i className="bi bi-arrow-left me-2"></i> Back to Recipes
-            </Link>
-            <Link to={`/recipe/${id}/update`} className="btn update-btn" style={{ marginRight: '5px' }}>
-              <i className="bi bi-pencil-square me-2"></i> Update Recipe
-            </Link>
-            <button onClick={handleDelete} className="btn delete-btn">
-              <i className="bi bi-trash me-2"></i> Delete Recipe
-            </button>
+          <div className="button-container">
+            <div className="action-buttons">
+              <Link to="/displaycakerecipe" className="btn back-btn">
+                <i className="bi bi-arrow-left me-2"></i> Back to Recipes
+              </Link>
+              <button
+                onClick={downloadPDF}
+                className="btn pdf-btn"
+                disabled={pdfGenerating}
+              >
+              {pdfGenerating ? (
+              <>
+              <span
+                className="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+                Generating...
+              </>
+              ) : (
+              <>
+                <i className="bi bi-file-earmark-pdf me-2"></i> Download PDF
+              </>
+              )}
+              </button>
+                <Link to={`/recipe/${id}/update`} className="btn update-btn">
+                  <i className="bi bi-pencil-square me-2"></i> Update Recipe
+                </Link>
+              <button onClick={handleDelete} className="btn delete-btn">
+                <i className="bi bi-trash me-2"></i> Delete Recipe
+              </button>
+            </div>
           </div>
 
           {recipe.comments && recipe.comments.length > 0 ? (
@@ -531,7 +745,14 @@ const CakeRecipeDetails = () => {
               <ul className="comment-list">
                 {recipe.comments.map((comment, index) => (
                   <li key={index} className="comment-item">
-                    {comment}
+                    <span>{comment}</span>
+                    <button 
+                      className="comment-delete-btn" 
+                      onClick={() => handleCommentDelete(index)}
+                      title="Delete comment"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
                   </li>
                 ))}
               </ul>
