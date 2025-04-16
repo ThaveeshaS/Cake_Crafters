@@ -145,10 +145,21 @@ const CakeRecipe = () => {
             font-size: 0.9rem;
             margin-bottom: 1rem;
             display: flex;
-            align-items: center;
+            flex-direction: column;
           }
           
           .recipe-author i {
+            margin-right: 5px;
+            color: var(--secondary-color);
+          }
+          
+          .recipe-meta {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+          }
+          
+          .recipe-meta i {
             margin-right: 5px;
             color: var(--secondary-color);
           }
@@ -356,9 +367,17 @@ const CakeRecipe = () => {
                   </div>
                 </div>
                 <div className="recipe-body">
-                  <p className="recipe-author">
-                    <i className="bi bi-person"></i> By {recipe.authorName || 'Anonymous'}
-                  </p>
+                  <div className="recipe-author">
+                    <span>
+                      <b><i className="bi bi-person"></i> Provided By : {recipe.authorName || 'Anonymous'}</b>
+                    </span>
+                    <span className="recipe-meta">
+                      <i className="bi bi-bar-chart"></i> Skill Level : {recipe.skillLevel || 'Not specified'}
+                    </span>
+                    <span className="recipe-meta">
+                      <i className="bi bi-calendar"></i> Published Date : {recipe.date ? new Date(recipe.date).toLocaleDateString() : 'Unknown'}
+                    </span>
+                  </div>
                   <div className="d-flex align-items-center mb-3">
                     <button
                       className="vote-btn"
