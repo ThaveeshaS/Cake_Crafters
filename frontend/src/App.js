@@ -16,6 +16,7 @@ import UpdateRecipeForm from './components/CakeRecipe/UpdateRecipeForm';
 
 import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
+import DisplayDecorationTip from './components/DecorationTips/DisplayDecorationTip';
 
 
 
@@ -34,6 +35,7 @@ function App() {
 
           <Route path="/decorationtips" element={<DecorationTips />} />
           <Route path="/create-decoration-tips" element={<DecoratingForm />} />
+          <Route path="/display-decoration-tip/:id" element={<DisplayDecorationTip />} />
           
 
           

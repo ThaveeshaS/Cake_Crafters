@@ -24,6 +24,7 @@ function DecoratingForm() {
   const [previews, setPreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editTip?.media?.length > 0) {
@@ -43,12 +44,15 @@ function DecoratingForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (formData.mediaType === 'images' && formData.media.length === 0) {
       setError('Please upload at least one image');
+      setIsSubmitting(false);
       return;
     }
     if (formData.mediaType === 'video' && formData.media.length === 0) {
       setError('Please upload a video');
+      setIsSubmitting(false);
       return;
     }
 
@@ -81,6 +85,8 @@ function DecoratingForm() {
       navigate('/decorationtips');
     } catch (err) {
       setError('Failed to save tip. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -208,163 +214,392 @@ function DecoratingForm() {
   };
 
   return (
-    <div className="container py-5">
+    <div className="create-recipe-page">
       <style>
         {`
-          .form-container {
-            max-width: 600px;
+          :root {
+            --primary-color: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary-color: #00b894;
+            --accent-color: #fd79a8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --danger-color: #d63031;
+            --text-color: #2d3436;
+            --border-color: #dfe6e9;
+          }
+
+          .create-recipe-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #f8f9ff 100%);
+            min-height: 100vh;
+            padding: 3rem 0;
+          }
+
+          .create-recipe-container {
+            max-width: 900px;
             margin: 0 auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
           }
-          .submit-btn {
-            background: #007bff;
-            border: none;
-            padding: 10px 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 50px;
-            transition: all 0.3s;
-            color: white;
+
+          .create-recipe-container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
           }
-          .submit-btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-          }
-          .back-btn {
-            background: #6c757d;
-            border: none;
-            padding: 10px 25px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 50px;
-            transition: all 0.3s;
-            color: white;
-          }
-          .back-btn:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-          }
-          .form-card {
-            background: #e7f1ff;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-          }
-          .form-label {
-            color: #003087;
-            font-weight: 600;
-          }
-          .upload-area {
-            border: 2px dashed #007bff;
-            border-radius: 8px;
-            padding: 2rem;
+
+          .form-header {
+            color: var(--dark-color);
             text-align: center;
+            margin-bottom: 2.5rem;
+            font-weight: 800;
+            position: relative;
+            padding-bottom: 1rem;
+          }
+
+          .form-header:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+          }
+
+          .form-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+          }
+
+          .form-section:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+          }
+
+          .form-section h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+          }
+
+          .form-section h3 i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+          }
+
+          .form-label {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+          }
+
+          .form-control, .form-select {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+          }
+
+          .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.2);
+          }
+
+          textarea.form-control {
+            min-height: 150px;
+          }
+
+          .submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          }
+
+          .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+          }
+
+          .submit-btn:disabled {
+            opacity: 0.7;
+            transform: none !important;
+          }
+
+          .back-btn {
+            background: linear-gradient(135deg, #6c757d, #adb5bd);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-radius: 10px;
+            color: white;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+          }
+
+          .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+          }
+
+          .upload-area {
+            border: 2px dashed ${isDragging ? 'var(--primary-color)' : 'var(--border-color)'};
+            border-radius: 12px;
+            padding: 2.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            background: ${isDragging ? 'rgba(162, 155, 254, 0.1)' : 'rgba(248, 249, 255, 0.5)'};
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .upload-area:hover {
+            border-color: var(--primary-color);
+            background: rgba(162, 155, 254, 0.1);
+          }
+
+          .upload-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0.8;
+          }
+
+          .upload-text h5 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+          }
+
+          .upload-text p {
+            color: #636e72;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+          }
+
+          .browse-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
-            background-color: ${isDragging ? 'rgba(0, 123, 255, 0.1)' : 'white'};
+            font-weight: 500;
           }
-          .upload-area:hover {
-            background-color: rgba(0, 123, 255, 0.05);
+
+          .browse-btn:hover {
+            background: var(--primary-light);
           }
-          .upload-icon {
-            font-size: 2.5rem;
-            color: #007bff;
-            margin-bottom: 1rem;
+
+          .file-input {
+            display: none;
           }
-          .media-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-top: 1rem;
-            object-fit: contain;
+
+          .image-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
           }
-          .remove-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            padding: 5px 15px;
-            font-size: 0.8rem;
-            margin-top: 1rem;
+
+          .preview-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            aspect-ratio: 1/1;
             transition: all 0.3s;
           }
-          .remove-btn:hover {
-            background: #c82333;
+
+          .preview-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
           }
-          .file-info {
+
+          .preview-item img,
+          .preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            opacity: 0.9;
+          }
+
+          .remove-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+          }
+
+          .upload-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-top: 1rem;
             font-size: 0.9rem;
-            color: #6c757d;
           }
+
+          .upload-count {
+            font-weight: 600;
+            color: var(--primary-color);
+          }
+
+          .max-files {
+            color: #b2bec3;
+          }
+
+          .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+          }
+
+          .date-display {
+            color: #636e72;
+            font-size: 0.9rem;
+          }
+
+          .form-group {
+            margin-bottom: 1.5rem;
+          }
+
+          .form-group:last-child {
+            margin-bottom: 0;
+          }
+
+          .required-field:after {
+            content: ' *';
+            color: var(--danger-color);
+          }
+
+          .error-message {
+            color: var(--danger-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+          }
+
           .media-selector {
             display: flex;
             margin-bottom: 1rem;
             border-radius: 8px;
             overflow: hidden;
           }
+
           .media-option {
             flex: 1;
             text-align: center;
-            padding: 0.5rem;
+            padding: 0.75rem;
             cursor: pointer;
-            background: ${formData.mediaType === 'images' ? '#e7f1ff' : '#f8f9fa'};
-            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
           }
+
           .media-option:first-child {
             border-right: none;
             border-top-left-radius: 8px;
             border-bottom-left-radius: 8px;
           }
+
           .media-option:last-child {
             border-left: none;
             border-top-right-radius: 8px;
             border-bottom-right-radius: 8px;
           }
+
           .media-option.active {
-            background: #007bff;
+            background: var(--primary-color);
             color: white;
           }
-          .media-option:nth-child(1).active {
-            background: ${formData.mediaType === 'images' ? '#007bff' : '#f8f9fa'};
-          }
-          .media-option:nth-child(2).active {
-            background: ${formData.mediaType === 'video' ? '#007bff' : '#f8f9fa'};
-          }
-          .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-          }
-          .preview-item {
-            position: relative;
-            width: calc(33.333% - 1rem);
-          }
-          .preview-item video {
-            width: 100%;
-            max-height: 150px;
-            border-radius: 8px;
-          }
-          .error-message {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-          }
-          .button-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+
+          @media (max-width: 768px) {
+            .create-recipe-container {
+              padding: 1.5rem;
+              border-radius: 0;
+            }
+
+            .form-section {
+              padding: 1.5rem;
+            }
+
+            .image-previews {
+              grid-template-columns: repeat(2, 1fr);
+            }
+
+            .form-footer {
+              flex-direction: column;
+              gap: 1rem;
+            }
+
+            .submit-btn, .back-btn {
+              width: 100%;
+            }
           }
         `}
       </style>
-      <div className="form-container">
-        <div className="form-card">
-          <h1 className="display-5 text-center mb-4" style={{ color: '#003087' }}>
-            {editTip ? 'Edit Decoration Tip' : 'Create a Decoration Tip'}
-          </h1>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="author" className="form-label">
-                Author
+
+      <div className="create-recipe-container">
+        <h1 className="form-header">{editTip ? 'Edit Decoration Tip' : 'Create a Decoration Tip'}</h1>
+
+        <form onSubmit={handleSubmit}>
+          <div className="form-section">
+            <h3><i className="bi bi-person-badge"></i> Basic Information</h3>
+
+            <div className="form-group">
+              <label htmlFor="author" className="form-label required-field">
+                Author Name
               </label>
               <input
                 type="text"
@@ -374,10 +609,12 @@ function DecoratingForm() {
                 value={formData.author}
                 onChange={handleChange}
                 required
+                placeholder="Your name or nickname"
               />
             </div>
-            <div className="mb-3">
-              <label htmlFor="title" className="form-label">
+
+            <div className="form-group">
+              <label htmlFor="title" className="form-label required-field">
                 Title
               </label>
               <input
@@ -388,10 +625,12 @@ function DecoratingForm() {
                 value={formData.title}
                 onChange={handleChange}
                 required
+                placeholder="e.g. Perfect Frosting Technique"
               />
             </div>
-            <div className="mb-3">
-              <label htmlFor="description" className="form-label">
+
+            <div className="form-group">
+              <label htmlFor="description" className="form-label required-field">
                 Description
               </label>
               <textarea
@@ -402,47 +641,55 @@ function DecoratingForm() {
                 onChange={handleChange}
                 rows="4"
                 required
-              ></textarea>
+                placeholder="Briefly describe your decorating tip"
+              />
             </div>
-            <div className="mb-3">
-              <label htmlFor="category" className="form-label">
-                Category
-              </label>
-              <select
-                className="form-control"
-                id="category"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select a category</option>
-                <option value="Beginner">Beginner</option>
-                <option value="Intermediate">Intermediate</option>
-                <option value="Advanced">Advanced</option>
-              </select>
+
+            <div className="row">
+              <div className="col-md-6 form-group">
+                <label htmlFor="category" className="form-label required-field">
+                  Category
+                </label>
+                <select
+                  className="form-select"
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select a category</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+              <div className="col-md-6 form-group">
+                <label htmlFor="difficulty" className="form-label required-field">
+                  Difficulty
+                </label>
+                <select
+                  className="form-select"
+                  id="difficulty"
+                  name="difficulty"
+                  value={formData.difficulty}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select difficulty</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
             </div>
-            <div className="mb-3">
-              <label htmlFor="difficulty" className="form-label">
-                Difficulty
-              </label>
-              <select
-                className="form-control"
-                id="difficulty"
-                name="difficulty"
-                value={formData.difficulty}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select difficulty</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="tip" className="form-label">
-                Tip Details
+          </div>
+
+          <div className="form-section">
+            <h3><i className="bi bi-lightbulb"></i> Tip Details</h3>
+            <div className="form-group">
+              <label htmlFor="tip" className="form-label required-field">
+                Decoration Tip
               </label>
               <textarea
                 className="form-control"
@@ -450,106 +697,135 @@ function DecoratingForm() {
                 name="tip"
                 value={formData.tip}
                 onChange={handleChange}
-                rows="4"
+                rows="6"
                 required
-              ></textarea>
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Upload Media</label>
-              <div className="media-selector">
-                <div
-                  className={`media-option ${formData.mediaType === 'images' ? 'active' : ''}`}
-                  onClick={() => handleMediaTypeChange('images')}
-                >
-                  <i className="bi bi-images me-2"></i>
-                  Images (Max 3)
-                </div>
-                <div
-                  className={`media-option ${formData.mediaType === 'video' ? 'active' : ''}`}
-                  onClick={() => handleMediaTypeChange('video')}
-                >
-                  <i className="bi bi-camera-reels me-2"></i>
-                  Video (Max 30s)
-                </div>
-              </div>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept={formData.mediaType === 'images' ? 'image/*' : 'video/*'}
-                className="d-none"
-                multiple={formData.mediaType === 'images'}
+                placeholder="Explain your decorating tip in detail"
               />
+            </div>
+          </div>
+
+          <div className="form-section">
+            <h3><i className="bi bi-images"></i> Media Upload</h3>
+            <div className="media-selector">
               <div
-                className="upload-area"
-                onClick={triggerFileInput}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
+                className={`media-option ${formData.mediaType === 'images' ? 'active' : ''}`}
+                onClick={() => handleMediaTypeChange('images')}
               >
-                {previews.length === 0 ? (
-                  <>
-                    <i
-                      className={`bi ${
-                        formData.mediaType === 'images' ? 'bi-images' : 'bi-camera-reels'
-                      } upload-icon`}
-                    ></i>
+                <i className="bi bi-images me-2"></i>
+                Images (Max 3)
+              </div>
+              <div
+                className={`media-option ${formData.mediaType === 'video' ? 'active' : ''}`}
+                onClick={() => handleMediaTypeChange('video')}
+              >
+                <i className="bi bi-camera-reels me-2"></i>
+                Video (Max 30s)
+              </div>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept={formData.mediaType === 'images' ? 'image/*' : 'video/*'}
+              className="file-input"
+              multiple={formData.mediaType === 'images'}
+            />
+            <div
+              className="upload-area"
+              onClick={triggerFileInput}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {previews.length === 0 ? (
+                <>
+                  <div className="upload-icon">
+                    <i className={`bi ${formData.mediaType === 'images' ? 'bi-images' : 'bi-camera-reels'}`}></i>
+                  </div>
+                  <div className="upload-text">
                     <h5>
                       {formData.mediaType === 'images'
                         ? 'Drag & Drop your images here'
                         : 'Drag & Drop your video here'}
                     </h5>
-                    <p className="text-muted">or click to browse files</p>
-                    <p className="text-muted small">
+                    <p>or click to browse files</p>
+                    <p className="small">
                       {formData.mediaType === 'images'
                         ? 'Supports: JPG, PNG, GIF (Max 5MB each)'
                         : 'Supports: MP4, MOV (Max 30 seconds)'}
                     </p>
-                  </>
-                ) : (
-                  <div className="preview-container">
-                    {previews.map((preview, index) => (
-                      <div key={index} className="preview-item">
-                        {preview.isVideo ? (
-                          <video controls className="media-preview">
-                            <source src={preview.url} type={preview.file?.type || 'video/mp4'} />
-                          </video>
-                        ) : (
-                          <img src={preview.url} alt="Preview" className="media-preview" />
-                        )}
-                        <div className="file-info">
-                          {(preview.file?.name || `Image ${index + 1}`) +
-                            (preview.file ? ` (${(preview.file.size / 1024).toFixed(2)} KB)` : '')}
-                        </div>
-                        <button
-                          type="button"
-                          className="remove-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeMedia(index);
-                          }}
-                        >
-                          <i className="bi bi-trash me-1"></i> Remove
-                        </button>
-                      </div>
-                    ))}
                   </div>
-                )}
-              </div>
-              {error && <div className="error-message">{error}</div>}
+                  <button type="button" className="browse-btn">
+                    <i className="bi bi-folder2-open me-2"></i> Browse Files
+                  </button>
+                </>
+              ) : (
+                <div className="image-previews">
+                  {previews.map((preview, index) => (
+                    <div key={index} className="preview-item">
+                      {preview.isVideo ? (
+                        <video controls>
+                          <source src={preview.url} type={preview.file?.type || 'video/mp4'} />
+                        </video>
+                      ) : (
+                        <img src={preview.url} alt={`Preview ${index + 1}`} />
+                      )}
+                      <button
+                        type="button"
+                        className="remove-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeMedia(index);
+                        }}
+                      >
+                        <i className="bi bi-x"></i>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="button-group">
-              <button type="button" className="btn back-btn" onClick={handleBack}>
+            <div className="upload-status">
+              <div className="upload-count">
+                {previews.length} {previews.length === 1 ? 'file' : 'files'} selected
+              </div>
+              <div className="max-files">
+                {formData.mediaType === 'images' ? 'Max 3 images' : 'Max 1 video'}
+              </div>
+            </div>
+            {error && <div className="error-message">{error}</div>}
+          </div>
+
+          <div className="form-footer">
+            <div className="date-display">
+              <i className="bi bi-calendar me-2"></i>
+              {new Date(formData.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </div>
+            <div>
+              <button type="button" className="btn back-btn me-2" onClick={handleBack}>
                 <i className="bi bi-arrow-left-circle me-2"></i>
                 Back
               </button>
-              <button type="submit" className="btn submit-btn">
-                <i className="bi bi-check-circle me-2"></i>
-                {editTip ? 'Update Tip' : 'Submit Tip'}
+              <button type="submit" className="btn submit-btn" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle me-2"></i>
+                    {editTip ? 'Update Tip' : 'Add Tip'}
+                  </>
+                )}
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );
