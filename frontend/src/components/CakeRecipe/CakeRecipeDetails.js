@@ -46,6 +46,31 @@ const CakeRecipeDetails = () => {
     }
   };
 
+  const handleCommentDelete = (commentIndex) => {
+    if (window.confirm('Are you sure you want to delete this comment?')) {
+      const updatedComments = recipe.comments.filter((_, index) => index !== commentIndex);
+      fetch(`http://localhost:8080/api/cake-recipes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ...recipe, comments: updatedComments }),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to delete comment');
+          }
+          return response.json();
+        })
+        .then((updatedRecipe) => {
+          setRecipe(updatedRecipe);
+        })
+        .catch((err) => {
+          setError(err.message);
+        });
+    }
+  };
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center" style={{ height: '80vh' }}>
@@ -362,6 +387,9 @@ const CakeRecipeDetails = () => {
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
           }
           
           .comment-item:before {
@@ -373,6 +401,20 @@ const CakeRecipeDetails = () => {
             width: 4px;
             background: var(--secondary-color);
             border-radius: 0 4px 4px 0;
+          }
+          
+          .comment-delete-btn {
+            background: transparent;
+            border: none;
+            color: var(--danger-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: all 0.3s;
+          }
+          
+          .comment-delete-btn:hover {
+            color: #c0392b;
+            transform: scale(1.1);
           }
           
           .empty-state {
@@ -531,7 +573,14 @@ const CakeRecipeDetails = () => {
               <ul className="comment-list">
                 {recipe.comments.map((comment, index) => (
                   <li key={index} className="comment-item">
-                    {comment}
+                    <span>{comment}</span>
+                    <button 
+                      className="comment-delete-btn" 
+                      onClick={() => handleCommentDelete(index)}
+                      title="Delete comment"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
                   </li>
                 ))}
               </ul>
