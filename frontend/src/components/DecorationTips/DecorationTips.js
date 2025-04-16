@@ -284,7 +284,7 @@ function DecorationTips() {
           }
 
           .create-btn {
-            background: var(--success-color);
+            background: var(--secondary-color);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -296,9 +296,9 @@ function DecorationTips() {
           }
 
           .create-btn:hover {
-            background: #00997b;
+            background: #8a84fb;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 184, 148, 0.3);
+            box-shadow: 0 4px 12px rgba(162, 155, 254, 0.3);
             color: white;
           }
 
@@ -480,7 +480,7 @@ function DecorationTips() {
           <div className="col-lg-12 mx-auto">
             {tips.length === 0 ? (
               <div className="no-tips-card">
-                <i className="bi bi-cake no-tips-icon"></i>
+                <i className="bi bi-lightbulb no-tips-icon"></i>
                 <h3>No Decorating Tips Yet</h3>
                 <p className="no-tips-text">Be the first to share a creative decorating tip!</p>
                 <Link to="/create-decoration-tips" className="btn create-btn mt-3">
