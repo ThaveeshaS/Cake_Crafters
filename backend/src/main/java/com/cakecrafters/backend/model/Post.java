@@ -9,6 +9,7 @@ public class Post {
     private List<String> mediaUrls;
     private String ownerId;
     private int likesCount;
+    private int dislikesCount; // New field for dislikes
     private Map<String, Comment> comments;
 
     public Post() {}
@@ -18,9 +19,9 @@ public class Post {
         this.mediaUrls = mediaUrls;
         this.ownerId = ownerId;
         this.likesCount = 0;
+        this.dislikesCount = 0; // Initialize dislikesCount
     }
 
-    // Getters and setters
     public String getPostId() { return postId; }
     public void setPostId(String postId) { this.postId = postId; }
     public String getDescription() { return description; }
@@ -31,6 +32,8 @@ public class Post {
     public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
     public int getLikesCount() { return likesCount; }
     public void setLikesCount(int likesCount) { this.likesCount = likesCount; }
+    public int getDislikesCount() { return dislikesCount; } // Getter for dislikesCount
+    public void setDislikesCount(int dislikesCount) { this.dislikesCount = dislikesCount; } // Setter for dislikesCount
     public Map<String, Comment> getComments() { return comments; }
     public void setComments(Map<String, Comment> comments) { this.comments = comments; }
 

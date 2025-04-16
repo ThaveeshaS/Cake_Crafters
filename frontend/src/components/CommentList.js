@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Box, Paper } from '@mui/material';
-import { getPosts } from '../services/api';
+import { Typography, Box, Paper, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { getPosts, deleteComment } from '../services/api';
 
 function CommentList({ postId }) {
   const [comments, setComments] = useState([]);
@@ -22,6 +23,16 @@ function CommentList({ postId }) {
       });
   }, [postId]);
 
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await deleteComment(postId, commentId);
+      window.location.reload(); // Refresh to update the UI
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      setError('Failed to delete comment');
+    }
+  };
+
   return (
     <Box sx={{ mt: 2 }}>
       <Typography variant="h6" color="#ff6f61">
@@ -36,11 +47,16 @@ function CommentList({ postId }) {
         <Typography color="text.secondary">No comments yet.</Typography>
       ) : (
         comments.map((comment) => (
-          <Paper key={comment.commentId} sx={{ p: 2, mb: 1, bgcolor: '#fff8f0' }}>
-            <Typography>{comment.content}</Typography>
-            <Typography variant="caption" color="text.secondary">
-              {comment.createdAt}
-            </Typography>
+          <Paper key={comment.commentId} sx={{ p: 2, mb: 1, bgcolor: '#fff8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography>{comment.content}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {comment.createdAt}
+              </Typography>
+            </Box>
+            <IconButton onClick={() => handleDeleteComment(comment.commentId)} sx={{ color: '#ff6f61' }}>
+              <DeleteIcon />
+            </IconButton>
           </Paper>
         ))
       )}
