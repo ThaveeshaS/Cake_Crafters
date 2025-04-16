@@ -107,6 +107,31 @@ public class PostService {
         return future;
     }
 
+    public CompletableFuture<Void> dislikePost(String postId) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        database.child("posts").child(postId).child("dislikesCount").runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                Integer count = currentData.getValue(Integer.class);
+                if (count == null) {
+                    count = 0;
+                }
+                currentData.setValue(count + 1);
+                return Transaction.success(currentData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (error == null && committed) {
+                    future.complete(null);
+                } else {
+                    future.completeExceptionally(new RuntimeException(error != null ? error.getMessage() : "Transaction failed"));
+                }
+            }
+        });
+        return future;
+    }
+
     public CompletableFuture<String> addComment(String postId, Comment comment) {
         CompletableFuture<String> future = new CompletableFuture<>();
         String commentId = database.child("posts").child(postId).child("comments").push().getKey();
