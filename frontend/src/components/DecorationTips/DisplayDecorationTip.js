@@ -417,10 +417,6 @@ const DisplayDecorationTip = () => {
               <strong>Difficulty:</strong> {tip.difficulty}
             </span>
             <span className="meta-item">
-              <i className="bi bi-camera-reels meta-icon"></i>
-              <strong>Media Type:</strong> {tip.mediaType}
-            </span>
-            <span className="meta-item">
               <i className="bi bi-calendar meta-icon"></i>
               <strong>Created:</strong> {new Date(tip.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',

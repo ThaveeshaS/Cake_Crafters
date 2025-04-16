@@ -504,11 +504,18 @@ function DecoratingForm() {
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid var(--border-color);
+            gap: 2rem;
           }
 
           .date-display {
             color: #636e72;
             font-size: 0.9rem;
+          }
+
+          .form-footer-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
           }
 
           .form-group {
@@ -580,6 +587,12 @@ function DecoratingForm() {
 
             .form-footer {
               flex-direction: column;
+              gap: 1.5rem;
+            }
+
+            .form-footer-buttons {
+              flex-direction: column;
+              width: 100%;
               gap: 1rem;
             }
 
@@ -805,8 +818,8 @@ function DecoratingForm() {
                 day: 'numeric',
               })}
             </div>
-            <div>
-              <button type="button" className="btn back-btn me-2" onClick={handleBack}>
+            <div className="form-footer-buttons">
+              <button type="button" className="btn back-btn" onClick={handleBack}>
                 <i className="bi bi-arrow-left-circle me-2"></i>
                 Back
               </button>
