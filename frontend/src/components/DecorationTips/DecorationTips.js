@@ -141,12 +141,20 @@ function DecorationTips() {
             position: relative;
             overflow: hidden;
             cursor: pointer;
+            height: 220px;
+          }
+
+          .tip-image-carousel {
+            display: flex;
+            width: 100%;
+            height: 100%;
           }
 
           .tip-image {
             width: 100%;
             height: 220px;
             object-fit: cover;
+            flex-shrink: 0;
             transition: transform 0.5s ease;
           }
 
@@ -489,134 +497,171 @@ function DecorationTips() {
               </div>
             ) : (
               <div className="row">
-                {tips.map((tip) => (
-                  <div key={tip.id} className="col-lg-4 col-md-6 mb-4">
-                    <div className="tip-card h-100">
-                      <div className="tip-image-container">
-                        <Link to={`/display-decoration-tip/${tip.id}`}>
-                          {tip.media && tip.media.length > 0 ? (
-                            tip.mediaType === 'video' ? (
-                              <video
-                                src={tip.media[0]}
-                                className="tip-image"
-                                muted
-                                loop
-                                autoPlay
-                              />
+                {tips.map((tip) => {
+                  const imageCount = tip.media && tip.mediaType !== 'video' ? tip.media.length : 1;
+                  const slideDuration = imageCount * 10; // 10 seconds per image (as per original code)
+                  const percentagePerImage = 100 / imageCount;
+                  const keyframes = Array.from({ length: imageCount }, (_, i) => {
+                    const start = i * percentagePerImage;
+                    const end = (i + 1) * percentagePerImage;
+                    const translateX = -(i * 100);
+                    return `
+                      ${start}% { transform: translateX(${translateX}%); }
+                      ${end}% { transform: translateX(${translateX}%); }
+                    `;
+                  }).join('');
+
+                  return (
+                    <div key={tip.id} className="col-lg-4 col-md-6 mb-4">
+                      <style>
+                        {`
+                          .tip-image-carousel-${tip.id} {
+                            animation: slide-${tip.id} ${slideDuration}s infinite linear;
+                          }
+                          @keyframes slide-${tip.id} {
+                            ${keyframes}
+                            100% { transform: translateX(0); }
+                          }
+                        `}
+                      </style>
+                      <div className="tip-card h-100">
+                        <div className="tip-image-container">
+                          <Link to={`/display-decoration-tip/${tip.id}`}>
+                            {tip.media && tip.media.length > 0 ? (
+                              tip.mediaType === 'video' ? (
+                                <video
+                                  src={tip.media[0]}
+                                  className="tip-image"
+                                  muted
+                                  loop
+                                  autoPlay
+                                />
+                              ) : tip.media.length > 1 ? (
+                                <div className={`tip-image-carousel tip-image-carousel-${tip.id}`}>
+                                  {tip.media.map((media, index) => (
+                                    <img
+                                      key={index}
+                                      src={media}
+                                      alt={`${tip.title} ${index + 1}`}
+                                      className="tip-image"
+                                    />
+                                  ))}
+                                </div>
+                              ) : (
+                                <img
+                                  src={tip.media[0]}
+                                  alt={tip.title}
+                                  className="tip-image"
+                                />
+                              )
                             ) : (
-                              <img
-                                src={tip.media[0]}
-                                alt={tip.title}
-                                className="tip-image"
-                              />
-                            )
-                          ) : (
-                            <div
-                              className="tip-image bg-light d-flex align-items-center justify-content-center"
-                              style={{ height: '220px' }}
-                            >
-                              <i className="bi bi-cake2 text-muted" style={{ fontSize: '3rem' }}></i>
-                            </div>
-                          )}
-                        </Link>
-                        <div className="tip-overlay">
-                          <h5 className="tip-title">{tip.title}</h5>
-                        </div>
-                        <div 
-                          className="menu-container" 
-                          ref={(el) => (menuRefs.current[tip.id] = el)}
-                        >
-                          <i
-                            className="bi bi-three-dots menu-icon"
-                            onClick={() => toggleMenu(tip.id)}
-                          ></i>
-                          {menuOpen === tip.id && (
-                            <div className="dropdown-menu">
                               <div
-                                className="dropdown-item edit"
-                                onClick={() => handleEdit(tip)}
+                                className="tip-image bg-light d-flex align-items-center justify-content-center"
+                                style={{ height: '220px' }}
                               >
-                                <i className="bi bi-pencil"></i>
-                                Edit
+                                <i className="bi bi-cake2 text-muted" style={{ fontSize: '3rem' }}></i>
                               </div>
-                              <div
-                                className="dropdown-item delete"
-                                onClick={() => handleDelete(tip.id)}
-                              >
-                                <i className="bi bi-trash"></i>
-                                Delete
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="tip-body">
-                        <p className="tip-author">
-                          <i className="bi bi-person"></i> {tip.author}
-                        </p>
-                        <div className="d-flex align-items-center mb-3">
-                          <button 
-                            className="like-btn"
-                            onClick={() => handleLike(tip.id)}
+                            )}
+                          </Link>
+                          <div className="tip-overlay">
+                            <h5 className="tip-title">{tip.title}</h5>
+                          </div>
+                          <div 
+                            className="menu-container" 
+                            ref={(el) => (menuRefs.current[tip.id] = el)}
                           >
-                            <i className="bi bi-heart-fill"></i>
-                            <span className="like-count">{tip.likes || 0}</span>
-                          </button>
-                          <button 
-                            className="comment-btn"
-                            onClick={() => toggleComments(tip.id)}
-                          >
-                            <i className="bi bi-chat"></i>
-                            <span className="comment-count">{(tip.comments || []).length}</span>
-                          </button>
-                        </div>
-                        {showComments[tip.id] && (
-                          <div className="comment-section">
-                            <form 
-                              className="comment-form" 
-                              onSubmit={(e) => handleCommentSubmit(tip.id, e)}
-                            >
-                              <textarea
-                                className="form-control comment-input mb-2"
-                                placeholder="Share your thoughts..."
-                                value={newComment[tip.id] || ''}
-                                onChange={(e) => setNewComment({
-                                  ...newComment,
-                                  [tip.id]: e.target.value
-                                })}
-                              />
-                              <button type="submit" className="comment-submit">
-                                <i className="bi bi-send me-2"></i>
-                                Post Comment
-                              </button>
-                            </form>
-                            {(tip.comments || []).length > 0 && (
-                              <div className="comment-list mt-3">
-                                <h6 className="mb-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                                  <i className="bi bi-chat-left-text me-2"></i>Comments
-                                </h6>
-                                {(tip.comments || []).map((comment) => (
-                                  <div key={comment.id} className="comment-item">
-                                    <div className="comment-content">
-                                      <p className="comment-text">{comment.text}</p>
-                                    </div>
-                                    <button 
-                                      className="comment-delete"
-                                      onClick={() => handleCommentDelete(tip.id, comment.id)}
-                                      title="Delete comment"
-                                    >
-                                      <i className="bi bi-trash"></i>
-                                    </button>
-                                  </div>
-                                ))}
+                            <i
+                              className="bi bi-three-dots menu-icon"
+                              onClick={() => toggleMenu(tip.id)}
+                            ></i>
+                            {menuOpen === tip.id && (
+                              <div className="dropdown-menu">
+                                <div
+                                  className="dropdown-item edit"
+                                  onClick={() => handleEdit(tip)}
+                                >
+                                  <i className="bi bi-pencil"></i>
+                                  Edit
+                                </div>
+                                <div
+                                  className="dropdown-item delete"
+                                  onClick={() => handleDelete(tip.id)}
+                                >
+                                  <i className="bi bi-trash"></i>
+                                  Delete
+                                </div>
                               </div>
                             )}
                           </div>
-                        )}
+                        </div>
+                        <div className="tip-body">
+                          <p className="tip-author">
+                            <i className="bi bi-person"></i> {tip.author}
+                          </p>
+                          <div className="d-flex align-items-center mb-3">
+                            <button 
+                              className="like-btn"
+                              onClick={() => handleLike(tip.id)}
+                            >
+                              <i className="bi bi-heart-fill"></i>
+                              <span className="like-count">{tip.likes || 0}</span>
+                            </button>
+                            <button 
+                              className="comment-btn"
+                              onClick={() => toggleComments(tip.id)}
+                            >
+                              <i className="bi bi-chat"></i>
+                              <span className="comment-count">{(tip.comments || []).length}</span>
+                            </button>
+                          </div>
+                          {showComments[tip.id] && (
+                            <div className="comment-section">
+                              <form 
+                                className="comment-form" 
+                                onSubmit={(e) => handleCommentSubmit(tip.id, e)}
+                              >
+                                <textarea
+                                  className="form-control comment-input mb-2"
+                                  placeholder="Share your thoughts..."
+                                  value={newComment[tip.id] || ''}
+                                  onChange={(e) => setNewComment({
+                                    ...newComment,
+                                    [tip.id]: e.target.value
+                                  })}
+                                />
+                                <button type="submit" className="comment-submit">
+                                  <i className="bi bi-send me-2"></i>
+                                  Post Comment
+                                </button>
+                              </form>
+                              {(tip.comments || []).length > 0 && (
+                                <div className="comment-list mt-3">
+                                  <h6 className="mb-3 text-muted" style={{ fontSize: '0.8rem' }}>
+                                    <i className="bi bi-chat-left-text me-2"></i>Comments
+                                  </h6>
+                                  {(tip.comments || []).map((comment) => (
+                                    <div key={comment.id} className="comment-item">
+                                      <div className="comment-content">
+                                        <p className="comment-text">{comment.text}</p>
+                                      </div>
+                                      <button 
+                                        className="comment-delete"
+                                        onClick={() => handleCommentDelete(tip.id, comment.id)}
+                                        title="Delete comment"
+                                      >
+                                        <i className="bi bi-trash"></i>
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

@@ -140,6 +140,31 @@ const DisplayDecorationTip = () => {
             font-size: 0.9rem;
           }
 
+          .nav-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+          }
+
+          .nav-dot {
+            width: 10px;
+            height: 10px;
+            background: #d1c4e9;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.3s;
+          }
+
+          .nav-dot.active {
+            background: var(--secondary-color);
+          }
+
+          .nav-dot:hover {
+            background: #b39ddb;
+          }
+
           .tip-meta {
             display: flex;
             flex-wrap: wrap;
@@ -189,34 +214,6 @@ const DisplayDecorationTip = () => {
             border-radius: 12px;
             margin-bottom: 2rem;
             line-height: 1.6;
-          }
-
-          .media-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-          }
-
-          .gallery-media {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-          }
-
-          .gallery-media:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            border-color: var(--primary-color);
-          }
-
-          .gallery-media.active {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3);
           }
 
           .action-buttons {
@@ -403,6 +400,18 @@ const DisplayDecorationTip = () => {
             </div>
           )}
 
+          {tip.media && tip.media.length > 1 && (
+            <div className="nav-dots">
+              {tip.media.map((_, index) => (
+                <span
+                  key={index}
+                  className={`nav-dot ${index === activeMedia ? 'active' : ''}`}
+                  onClick={() => setActiveMedia(index)}
+                ></span>
+              ))}
+            </div>
+          )}
+
           <div className="tip-meta">
             <span className="meta-item">
               <i className="bi bi-person meta-icon"></i>
@@ -425,33 +434,6 @@ const DisplayDecorationTip = () => {
               })}
             </span>
           </div>
-
-          {tip.media && tip.media.length > 1 && (
-            <div>
-              <h3 className="section-title">Media Gallery</h3>
-              <div className="media-gallery">
-                {tip.media.map((media, index) => (
-                  <div key={index}>
-                    {tip.mediaType === 'video' ? (
-                      <video
-                        src={media}
-                        className={`gallery-media ${index === activeMedia ? 'active' : ''}`}
-                        onClick={() => setActiveMedia(index)}
-                        muted
-                      />
-                    ) : (
-                      <img
-                        src={media}
-                        alt={`Media ${index + 1}`}
-                        className={`gallery-media ${index === activeMedia ? 'active' : ''}`}
-                        onClick={() => setActiveMedia(index)}
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div>
             <h3 className="section-title">Decoration Tip</h3>
