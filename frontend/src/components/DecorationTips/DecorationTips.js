@@ -103,6 +103,12 @@ function DecorationTips() {
     });
   };
 
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  };
+
   return (
     <div className="container py-5">
       <style>
@@ -183,28 +189,38 @@ function DecorationTips() {
             font-size: 1.25rem;
           }
 
-          .tip-author {
+          .tip-details {
             color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
           }
 
-          .tip-author i {
+          .tip-details i {
             margin-right: 5px;
-            color: var(--secondary-color);
+            color: var(--primary-color);
+            font-size: 0.9rem;
+          }
+
+          .tip-details span {
+            font-weight: 500;
+            color: #6c757d;
+          }
+
+          .provided-by span {
+            font-weight: bold;
           }
 
           .like-btn, .comment-btn {
             background: none;
             border: none;
             color: var(--accent-color);
-            font-size: 1.2rem;
+            font-size: 0.85rem;
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            padding: 0.5rem 0;
+            padding: 0;
             margin-right: 1rem;
           }
 
@@ -213,10 +229,14 @@ function DecorationTips() {
             transform: scale(1.1);
           }
 
-          .like-count, .comment-count {
-            margin-left: 5px;
+          .like-btn i, .comment-btn i {
             font-size: 0.9rem;
-            color: var(--dark-color);
+            margin-right: 4px;
+          }
+
+          .like-count, .comment-count {
+            font-size: 0.85rem;
+            color: #6c757d;
           }
 
           .comment-section {
@@ -595,23 +615,32 @@ function DecorationTips() {
                           </div>
                         </div>
                         <div className="tip-body">
-                          <p className="tip-author">
-                            <i className="bi bi-person"></i> {tip.author}
+                          <p className="tip-details provided-by">
+                            <i className="bi bi-person"></i>
+                            <span>Provided By: {tip.author}</span>
+                          </p>
+                          <p className="tip-details">
+                            <i className="bi bi-bar-chart"></i>
+                            <span>Difficulty: {tip.difficulty || 'N/A'}</span>
+                          </p>
+                          <p className="tip-details">
+                            <i className="bi bi-calendar"></i>
+                            <span>Published Date: {formatDate(tip.createdAt)}</span>
                           </p>
                           <div className="d-flex align-items-center mb-3">
                             <button 
                               className="like-btn"
                               onClick={() => handleLike(tip.id)}
                             >
-                              <i className="bi bi-heart-fill"></i>
-                              <span className="like-count">{tip.likes || 0}</span>
+                              <i className="bi bi-hand-thumbs-up-fill"></i>
+                              <span className="like-count">{tip.likes || 0} Likes</span>
                             </button>
                             <button 
                               className="comment-btn"
                               onClick={() => toggleComments(tip.id)}
                             >
-                              <i className="bi bi-chat"></i>
-                              <span className="comment-count">{(tip.comments || []).length}</span>
+                              <i className="bi bi-chat-square-text-fill"></i>
+                              <span className="comment-count">{(tip.comments || []).length} Comments</span>
                             </button>
                           </div>
                           {showComments[tip.id] && (
