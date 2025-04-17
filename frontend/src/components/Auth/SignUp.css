@@ -1,0 +1,79 @@
+/* signup.css */
+
+.signup-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 20px;
+  }
+  
+  .signup-card {
+    border-radius: 15px;
+    animation: fadeIn 0.5s ease-in;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  .signup-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+  
+  .signup-form .form-label {
+    font-weight: 500;
+  }
+  
+  .signup-form .input-group-text {
+    background-color: #f8f9fa;
+  }
+  
+  .signup-form .form-control {
+    transition: all 0.3s ease;
+  }
+  
+  .signup-form .form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    border-color: #80bdff;
+  }
+  
+  .signup-btn {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border: none;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+  }
+  
+  .signup-btn:hover {
+    opacity: 0.9;
+  }
+  
+  .signup-link {
+    color: #007bff;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  
+  .signup-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .signup-card {
+      margin: 0 15px;
+    }
+  }

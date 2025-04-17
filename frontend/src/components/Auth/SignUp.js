@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-
+import './SignUp.css'; // Import your CSS file for custom styles
 
 function SignUp() {
   const [formData, setFormData] = useState({
