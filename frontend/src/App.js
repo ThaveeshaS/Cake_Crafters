@@ -17,6 +17,7 @@ import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
 import DisplayDecorationTip from './components/DecorationTips/DisplayDecorationTip';
 import SignUp from './components/Auth/SignUp';
+import Login from './components/Auth/Login';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
 
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<Login />} />
         </Routes>
       </Container>
       <Footer />
