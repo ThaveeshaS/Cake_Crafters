@@ -726,7 +726,7 @@ const CakeRecipeDetails = () => {
               </>
               ) : (
               <>
-                <i className="bi bi-file-earmark-pdf me-2"></i> Download PDF
+                <i className="bi bi-file-earmark-pdf me-2"></i> Download Recipe
               </>
               )}
               </button>
