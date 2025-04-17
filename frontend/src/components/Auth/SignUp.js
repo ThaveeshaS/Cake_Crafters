@@ -12,7 +12,11 @@ import {
   faTimesCircle,
   faUserPlus,
   faFacebookF,
-  faGoogle
+  faGoogle,
+  faStar,
+  faShield,
+  faGem,
+  faInfoCircle
 } from '@fortawesome/free-solid-svg-icons';
 // Need to import additional brand icons
 import { faFacebookF as fabFacebookF, faGoogle as fabGoogle } from '@fortawesome/free-brands-svg-icons';
@@ -145,7 +149,7 @@ function SignUp() {
 
   return (
     <div className="min-vh-100 d-flex align-items-center" style={{
-      background: 'radial-gradient(circle, rgb(255, 255, 255) 0%, rgb(255, 255, 255) 100%)',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%)',
       padding: '20px'
     }}>
       <div className="container">
@@ -154,7 +158,8 @@ function SignUp() {
             <div className="card shadow-lg border-0" style={{
               borderRadius: '20px',
               overflow: 'hidden',
-              animation: 'fadeIn 0.7s ease-out'
+              animation: 'fadeIn 0.7s ease-out',
+              background: 'linear-gradient(to bottom, #ffffff, #f9f9ff)'
             }}>
               <div className="card-body p-5">
                 <div className="text-center mb-4">
@@ -173,13 +178,33 @@ function SignUp() {
                   <h2 style={{
                     color: '#2c3e50',
                     fontWeight: '700',
-                    textShadow: '0px 1px 2px rgba(0,0,0,0.1)'
+                    textShadow: '0px 1px 2px rgba(0,0,0,0.1)',
+                    background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
                   }}>Join With Cake Crafters</h2>
-                  <p className="text-muted">Fill in your details to get started</p>
+                  <p className="text-muted" style={{
+                    fontSize: '1.1rem',
+                    fontWeight: '500',
+                    letterSpacing: '0.5px',
+                    color: '#6c757d',
+                    textShadow: '0px 1px 1px rgba(255,255,255,0.8)'
+                  }}>
+                    <FontAwesomeIcon icon={faGem} className="me-2" style={{color: '#ffc107'}} />
+                    Fill in your details to get started
+                    <FontAwesomeIcon icon={faGem} className="ms-2" style={{color: '#ffc107'}} />
+                  </p>
                 </div>
                 
                 {errors.form && (
-                  <div className="alert alert-danger d-flex align-items-center" role="alert">
+                  <div className="alert alert-danger d-flex align-items-center" role="alert" style={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 10px rgba(255, 77, 77, 0.2)',
+                    border: 'none',
+                    background: 'linear-gradient(to right, #ff9a9e, #fad0c4)',
+                    color: '#842029',
+                    fontWeight: '500'
+                  }}>
                     <FontAwesomeIcon icon={faTimesCircle} className="me-2" />
                     <div>{errors.form}</div>
                   </div>
@@ -187,10 +212,25 @@ function SignUp() {
 
                 <form onSubmit={handleSubmit}>
                   <div className="mb-3 position-relative">
-                    <label htmlFor="username" className="form-label fw-medium">Username</label>
+                    <label htmlFor="username" className="form-label fw-medium" style={{
+                      fontSize: '0.95rem',
+                      color: '#495057',
+                      marginBottom: '0.5rem',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <FontAwesomeIcon icon={faStar} className="me-2" style={{fontSize: '0.7rem', color: '#6a11cb'}} />
+                      Username
+                    </label>
                     <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light">
-                        <FontAwesomeIcon icon={faUser} className="text-primary" />
+                      <span className="input-group-text" style={{
+                        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                        border: 'none',
+                        color: 'white'
+                      }}>
+                        <FontAwesomeIcon icon={faUser} />
                       </span>
                       <input
                         type="text"
@@ -201,7 +241,14 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Enter your username"
-                        style={{ borderRadius: '0 8px 8px 0', fontSize: '16px' }}
+                        style={{ 
+                          borderRadius: '0 8px 8px 0', 
+                          fontSize: '16px',
+                          boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)',
+                          border: '1px solid #ced4da',
+                          padding: '0.75rem 1rem',
+                          transition: 'all 0.3s ease'
+                        }}
                       />
                       {formData.username && !errors.username && (
                         <div className="position-absolute end-0 top-50 translate-middle-y pe-3" style={{ zIndex: 5 }}>
@@ -209,14 +256,40 @@ function SignUp() {
                         </div>
                       )}
                     </div>
-                    {errors.username && <div className="invalid-feedback d-block">{errors.username}</div>}
+                    {errors.username && (
+                      <div className="invalid-feedback d-block" style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        color: '#dc3545',
+                        marginTop: '0.5rem',
+                        animation: 'fadeIn 0.3s ease-in'
+                      }}>
+                        <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+                        {errors.username}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mb-3 position-relative">
-                    <label htmlFor="email" className="form-label fw-medium">Email Address</label>
+                    <label htmlFor="email" className="form-label fw-medium" style={{
+                      fontSize: '0.95rem',
+                      color: '#495057',
+                      marginBottom: '0.5rem',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <FontAwesomeIcon icon={faStar} className="me-2" style={{fontSize: '0.7rem', color: '#6a11cb'}} />
+                      Email Address
+                    </label>
                     <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light">
-                        <FontAwesomeIcon icon={faEnvelope} className="text-primary" />
+                      <span className="input-group-text" style={{
+                        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                        border: 'none',
+                        color: 'white'
+                      }}>
+                        <FontAwesomeIcon icon={faEnvelope} />
                       </span>
                       <input
                         type="email"
@@ -227,7 +300,14 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Enter your email"
-                        style={{ borderRadius: '0 8px 8px 0', fontSize: '16px' }}
+                        style={{ 
+                          borderRadius: '0 8px 8px 0', 
+                          fontSize: '16px',
+                          boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)',
+                          border: '1px solid #ced4da',
+                          padding: '0.75rem 1rem',
+                          transition: 'all 0.3s ease'
+                        }}
                       />
                       {formData.email && !errors.email && (
                         <div className="position-absolute end-0 top-50 translate-middle-y pe-3" style={{ zIndex: 5 }}>
@@ -235,14 +315,40 @@ function SignUp() {
                         </div>
                       )}
                     </div>
-                    {errors.email && <div className="invalid-feedback d-block">{errors.email}</div>}
+                    {errors.email && (
+                      <div className="invalid-feedback d-block" style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        color: '#dc3545',
+                        marginTop: '0.5rem',
+                        animation: 'fadeIn 0.3s ease-in'
+                      }}>
+                        <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+                        {errors.email}
+                      </div>
+                    )}
                   </div>
 
                   <div className="mb-3 position-relative">
-                    <label htmlFor="password" className="form-label fw-medium">Password</label>
+                    <label htmlFor="password" className="form-label fw-medium" style={{
+                      fontSize: '0.95rem',
+                      color: '#495057',
+                      marginBottom: '0.5rem',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <FontAwesomeIcon icon={faStar} className="me-2" style={{fontSize: '0.7rem', color: '#6a11cb'}} />
+                      Password
+                    </label>
                     <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light">
-                        <FontAwesomeIcon icon={faLock} className="text-primary" />
+                      <span className="input-group-text" style={{
+                        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                        border: 'none',
+                        color: 'white'
+                      }}>
+                        <FontAwesomeIcon icon={faLock} />
                       </span>
                       <input
                         type={showPassword ? "text" : "password"}
@@ -253,48 +359,126 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Create a password"
-                        style={{ borderRadius: '0', fontSize: '16px' }}
+                        style={{ 
+                          borderRadius: '0', 
+                          fontSize: '16px',
+                          boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)',
+                          border: '1px solid #ced4da',
+                          padding: '0.75rem 1rem',
+                          transition: 'all 0.3s ease'
+                        }}
                       />
                       <button
-                        className="input-group-text bg-light"
+                        className="input-group-text"
                         type="button"
                         onClick={togglePasswordVisibility}
-                        style={{ cursor: 'pointer', borderRadius: '0 8px 8px 0' }}
+                        style={{ 
+                          cursor: 'pointer', 
+                          borderRadius: '0 8px 8px 0',
+                          background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                          border: 'none',
+                          color: 'white'
+                        }}
                       >
                         <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
                       </button>
                     </div>
-                    {errors.password && <div className="invalid-feedback d-block">{errors.password}</div>}
+                    {errors.password && (
+                      <div className="invalid-feedback d-block" style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        color: '#dc3545',
+                        marginTop: '0.5rem',
+                        animation: 'fadeIn 0.3s ease-in'
+                      }}>
+                        <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+                        {errors.password}
+                      </div>
+                    )}
                     
                     {formData.password && (
-                      <div className="mt-2">
+                      <div className="mt-2 p-3" style={{
+                        background: 'rgba(106, 17, 203, 0.05)',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(106, 17, 203, 0.1)',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+                      }}>
                         <div className="d-flex justify-content-between align-items-center mb-1">
-                          <small>Password Strength:</small>
-                          <small className="fw-bold" style={{ color: getStrengthColor() }}>{getStrengthText()}</small>
+                          <small style={{
+                            fontWeight: '600',
+                            color: '#495057',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            <FontAwesomeIcon icon={faShield} className="me-2" style={{color: '#6a11cb'}} />
+                            Password Strength:
+                          </small>
+                          <small className="fw-bold" style={{ 
+                            color: getStrengthColor(),
+                            padding: '2px 8px',
+                            borderRadius: '20px',
+                            background: `${getStrengthColor()}20`,
+                            fontSize: '0.8rem'
+                          }}>
+                            {getStrengthText()}
+                          </small>
                         </div>
-                        <div className="progress" style={{ height: '8px', borderRadius: '4px' }}>
+                        <div className="progress" style={{ 
+                          height: '10px', 
+                          borderRadius: '5px',
+                          background: 'rgba(0,0,0,0.05)',
+                          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+                        }}>
                           <div 
                             className="progress-bar" 
                             role="progressbar" 
                             style={{ 
                               width: `${passwordStrength * 20}%`,
                               backgroundColor: getStrengthColor(),
-                              transition: 'width 0.3s ease'
+                              transition: 'width 0.3s ease',
+                              borderRadius: '5px'
                             }} 
                             aria-valuenow={passwordStrength * 20} 
                             aria-valuemin="0" 
                             aria-valuemax="100">
                           </div>
                         </div>
+                        <div className="mt-2">
+                          <small style={{
+                            fontSize: '0.75rem',
+                            color: '#6c757d',
+                            fontStyle: 'italic',
+                            display: 'flex',
+                            alignItems: 'center'
+                          }}>
+                            <FontAwesomeIcon icon={faInfoCircle} className="me-1" style={{color: '#6a11cb'}} />
+                            Use 8+ characters with a mix of letters, numbers & symbols
+                          </small>
+                        </div>
                       </div>
                     )}
                   </div>
 
                   <div className="mb-4 position-relative">
-                    <label htmlFor="confirmPassword" className="form-label fw-medium">Confirm Password</label>
+                    <label htmlFor="confirmPassword" className="form-label fw-medium" style={{
+                      fontSize: '0.95rem',
+                      color: '#495057',
+                      marginBottom: '0.5rem',
+                      fontWeight: '600',
+                      letterSpacing: '0.5px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}>
+                      <FontAwesomeIcon icon={faStar} className="me-2" style={{fontSize: '0.7rem', color: '#6a11cb'}} />
+                      Confirm Password
+                    </label>
                     <div className="input-group input-group-lg">
-                      <span className="input-group-text bg-light">
-                        <FontAwesomeIcon icon={faLock} className="text-primary" />
+                      <span className="input-group-text" style={{
+                        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                        border: 'none',
+                        color: 'white'
+                      }}>
+                        <FontAwesomeIcon icon={faLock} />
                       </span>
                       <input
                         type={showConfirmPassword ? "text" : "password"}
@@ -305,18 +489,42 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Confirm your password"
-                        style={{ borderRadius: '0', fontSize: '16px' }}
+                        style={{ 
+                          borderRadius: '0', 
+                          fontSize: '16px',
+                          boxShadow: 'inset 0 2px 5px rgba(0,0,0,0.05)',
+                          border: '1px solid #ced4da',
+                          padding: '0.75rem 1rem',
+                          transition: 'all 0.3s ease'
+                        }}
                       />
                       <button
-                        className="input-group-text bg-light"
+                        className="input-group-text"
                         type="button"
                         onClick={toggleConfirmPasswordVisibility}
-                        style={{ cursor: 'pointer', borderRadius: '0 8px 8px 0' }}
+                        style={{ 
+                          cursor: 'pointer', 
+                          borderRadius: '0 8px 8px 0',
+                          background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                          border: 'none',
+                          color: 'white'
+                        }}
                       >
                         <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
                       </button>
                     </div>
-                    {errors.confirmPassword && <div className="invalid-feedback d-block">{errors.confirmPassword}</div>}
+                    {errors.confirmPassword && (
+                      <div className="invalid-feedback d-block" style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '500',
+                        color: '#dc3545',
+                        marginTop: '0.5rem',
+                        animation: 'fadeIn 0.3s ease-in'
+                      }}>
+                        <FontAwesomeIcon icon={faTimesCircle} className="me-1" />
+                        {errors.confirmPassword}
+                      </div>
+                    )}
                   </div>
 
                   <div className="d-grid mt-4">
@@ -324,14 +532,14 @@ function SignUp() {
                       type="submit" 
                       className="btn btn-primary btn-lg" 
                       style={{
-                        background: 'linear-gradient(135deg,rgb(119, 0, 247) 0%, #2575fc 100%)',
+                        background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
                         border: 'none',
                         transition: 'all 0.3s ease',
                         borderRadius: '12px',
                         padding: '14px',
                         fontWeight: '600',
                         letterSpacing: '0.5px',
-                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                        boxShadow: '0 4px 15px rgba(106, 17, 203, 0.3)'
                       }}
                       disabled={isSubmitting}
                     >
@@ -341,15 +549,31 @@ function SignUp() {
                           Creating Account...
                         </>
                       ) : (
-                        'Create Account'
+                        <>
+                          <FontAwesomeIcon icon={faUserPlus} className="me-2" />
+                          Create Account
+                        </>
                       )}
                     </button>
                   </div>
                   
                   <div className="position-relative my-4">
-                    <hr className="my-4" />
-                    <div className="position-absolute top-50 start-50 translate-middle bg-white px-3">
-                      <p className="mb-0 text-muted">or continue with</p>
+                    <hr className="my-4" style={{
+                      background: 'linear-gradient(to right, transparent, rgba(106, 17, 203, 0.2), transparent)',
+                      height: '2px',
+                      border: 'none'
+                    }} />
+                    <div className="position-absolute top-50 start-50 translate-middle px-3" style={{
+                      background: 'linear-gradient(to right, #ffffff, #f9f9ff)',
+                      borderRadius: '20px',
+                      padding: '5px 15px',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+                    }}>
+                      <p className="mb-0" style={{
+                        color: '#6c757d',
+                        fontWeight: '500',
+                        fontSize: '0.9rem'
+                      }}>or continue with</p>
                     </div>
                   </div>
                   
@@ -358,49 +582,76 @@ function SignUp() {
                     <button 
                       type="button" 
                       onClick={() => handleSocialLogin('facebook')}
-                      className="btn btn-outline-primary social-btn"
+                      className="btn social-btn"
                       style={{
                         borderRadius: '50%',
-                        width: '50px',
-                        height: '50px',
+                        width: '55px',
+                        height: '55px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '20px',
+                        fontSize: '22px',
                         transition: 'all 0.3s ease',
-                        backgroundColor: '#f8f9fa',
-                        borderColor: '#dee2e6'
+                        backgroundColor: '#3b5998',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 10px rgba(59, 89, 152, 0.3)'
                       }}
                     >
-                      <FontAwesomeIcon icon={fabFacebookF} style={{ color: '#3b5998' }} />
+                      <FontAwesomeIcon icon={fabFacebookF} />
                     </button>
                     
                     <button 
                       type="button" 
                       onClick={() => handleSocialLogin('google')}
-                      className="btn btn-outline-danger social-btn"
+                      className="btn social-btn"
                       style={{
                         borderRadius: '50%',
-                        width: '50px',
-                        height: '50px',
+                        width: '55px',
+                        height: '55px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '20px',
+                        fontSize: '22px',
                         transition: 'all 0.3s ease',
-                        backgroundColor: '#f8f9fa',
-                        borderColor: '#dee2e6'
+                        backgroundColor: '#db4437',
+                        color: 'white',
+                        border: 'none',
+                        boxShadow: '0 4px 10px rgba(219, 68, 55, 0.3)'
                       }}
                     >
-                      <FontAwesomeIcon icon={fabGoogle} style={{ color: '#db4437' }} />
+                      <FontAwesomeIcon icon={fabGoogle} />
                     </button>
                   </div>
 
                   <div className="text-center mt-4">
-                    <p className="text-muted mb-0">
+                    <p style={{
+                      color: '#6c757d',
+                      fontSize: '1rem',
+                      fontWeight: '500',
+                      marginBottom: '0'
+                    }}>
                       Already have an account?{' '}
-                      <Link to="/login" className="text-primary fw-medium text-decoration-none">
+                      <Link to="/login" style={{
+                        color: '#6a11cb',
+                        fontWeight: '600',
+                        textDecoration: 'none',
+                        position: 'relative',
+                        transition: 'all 0.3s ease'
+                      }}>
                         Log in
+                        <span style={{
+                          position: 'absolute',
+                          bottom: '-2px',
+                          left: '0',
+                          width: '100%',
+                          height: '2px',
+                          background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
+                          transform: 'scaleX(0)',
+                          transformOrigin: 'bottom right',
+                          transition: 'transform 0.3s ease',
+                          borderRadius: '2px'
+                        }}></span>
                       </Link>
                     </p>
                   </div>
@@ -409,7 +660,17 @@ function SignUp() {
             </div>
             
             <div className="text-center mt-3">
-              <small className="text-muted">By signing up, you agree to our Terms and Privacy Policy</small>
+              <small style={{
+                color: '#6c757d',
+                fontSize: '0.85rem',
+                fontWeight: '500',
+                padding: '8px 15px',
+                background: 'rgba(255,255,255,0.7)',
+                borderRadius: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+              }}>
+                By signing up, you agree to our Terms and Privacy Policy
+              </small>
             </div>
           </div>
         </div>
@@ -447,15 +708,39 @@ function SignUp() {
         }
         
         .signup-icon {
-          background: rgba(106, 17, 203, 0.1);
-          width: 70px;
-          height: 70px;
+          background: linear-gradient(135deg, rgba(106, 17, 203, 0.1) 0%, rgba(37, 117, 252, 0.1) 100%);
+          width: 80px;
+          height: 80px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 0 auto;
           box-shadow: 0 4px 15px rgba(106, 17, 203, 0.2);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .signup-icon::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: conic-gradient(transparent, rgba(106, 17, 203, 0.1), transparent 30%);
+          animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+          100% {
+            transform: rotate(1turn);
+          }
+        }
+        
+        a:hover span {
+          transform: scaleX(1);
+          transformOrigin: bottom left;
         }
       `}</style>
     </div>
