@@ -149,7 +149,7 @@ function SignUp() {
 
   return (
     <div className="min-vh-100 d-flex align-items-center" style={{
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #e4efe9 100%)',
+      background: 'linear-gradient(135deg,rgb(255, 255, 255) 0%,rgb(255, 255, 255) 100%)',
       padding: '20px'
     }}>
       <div className="container">
