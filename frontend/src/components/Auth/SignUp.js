@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import './SignUp.css'; // Import your CSS file for custom styles
+import { faUser, faEnvelope, faLock, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import './SignUp.css';
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -13,6 +13,8 @@ function SignUp() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -20,6 +22,14 @@ function SignUp() {
       ...formData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const handleSubmit = (e) => {
@@ -113,7 +123,7 @@ function SignUp() {
                         <FontAwesomeIcon icon={faLock} />
                       </span>
                       <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         className="form-control"
                         id="password"
                         name="password"
@@ -121,8 +131,16 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Enter your password"
-                        style={{ borderRadius: '0 5px 5px 0' }}
+                        style={{ borderRadius: '0' }}
                       />
+                      <button
+                        className="input-group-text bg-light"
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        style={{ cursor: 'pointer', borderRadius: '0 5px 5px 0' }}
+                      >
+                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                      </button>
                     </div>
                   </div>
 
@@ -133,7 +151,7 @@ function SignUp() {
                         <FontAwesomeIcon icon={faLock} />
                       </span>
                       <input
-                        type="password"
+                        type={showConfirmPassword ? "text" : "password"}
                         className="form-control"
                         id="confirmPassword"
                         name="confirmPassword"
@@ -141,8 +159,16 @@ function SignUp() {
                         onChange={handleChange}
                         required
                         placeholder="Confirm your password"
-                        style={{ borderRadius: '0 5px 5px 0' }}
+                        style={{ borderRadius: '0' }}
                       />
+                      <button
+                        className="input-group-text bg-light"
+                        type="button"
+                        onClick={toggleConfirmPasswordVisibility}
+                        style={{ cursor: 'pointer', borderRadius: '0 5px 5px 0' }}
+                      >
+                        <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                      </button>
                     </div>
                   </div>
 
