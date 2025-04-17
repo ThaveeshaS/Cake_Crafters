@@ -33,6 +33,7 @@ public class PostController {
     public ResponseEntity<List<Post>> getAllPosts() {
         try {
             List<Post> posts = postService.getAllPosts().get();
+            logger.info("Fetched {} posts", posts.size());
             return new ResponseEntity<>(posts, HttpStatus.OK);
         } catch (InterruptedException | ExecutionException e) {
             logger.error("Error fetching posts", e);
@@ -81,6 +82,16 @@ public class PostController {
     public ResponseEntity<Void> likePost(@PathVariable String postId) {
         try {
             postService.likePost(postId).get();
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (InterruptedException | ExecutionException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/{postId}/dislikes")
+    public ResponseEntity<Void> dislikePost(@PathVariable String postId) {
+        try {
+            postService.dislikePost(postId).get();
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (InterruptedException | ExecutionException e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
