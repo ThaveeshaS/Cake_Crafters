@@ -174,7 +174,7 @@ function SignUp() {
                     color: '#2c3e50',
                     fontWeight: '700',
                     textShadow: '0px 1px 2px rgba(0,0,0,0.1)'
-                  }}>Create Your Account</h2>
+                  }}>Join With Cake Crafters</h2>
                   <p className="text-muted">Fill in your details to get started</p>
                 </div>
                 
