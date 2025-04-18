@@ -7,7 +7,6 @@ import axios from 'axios';
 function DecorationTips() {
   const [tips, setTips] = useState([]);
   const [menuOpen, setMenuOpen] = useState(null);
-  const [showComments, setShowComments] = useState({});
   const [newComment, setNewComment] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -96,11 +95,10 @@ function DecorationTips() {
     }
   };
 
-  const toggleComments = (id) => {
-    setShowComments({
-      ...showComments,
-      [id]: !showComments[id]
-    });
+  // Function to format date to MM/DD/YYYY
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
   };
 
   return (
@@ -183,20 +181,30 @@ function DecorationTips() {
             font-size: 1.25rem;
           }
 
-          .tip-author {
+          .tip-details {
             color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
           }
 
-          .tip-author i {
+          .tip-details i {
             margin-right: 5px;
-            color: var(--secondary-color);
+            color: var(--primary-color);
+            font-size: 0.9rem;
           }
 
-          .like-btn, .comment-btn {
+          .tip-details span {
+            font-weight: 500;
+            color: #6c757d;
+          }
+
+          .provided-by span {
+            font-weight: bold;
+          }
+
+          .vote-btn, .comment-btn {
             background: none;
             border: none;
             color: var(--accent-color);
@@ -204,16 +212,16 @@ function DecorationTips() {
             transition: all 0.3s;
             display: flex;
             align-items: center;
-            padding: 0.5rem 0;
+            padding: 0.5rem;
             margin-right: 1rem;
           }
 
-          .like-btn:hover, .comment-btn:hover {
+          .vote-btn:hover, .comment-btn:hover {
             color: #e84393;
             transform: scale(1.1);
           }
 
-          .like-count, .comment-count {
+          .vote-count, .comment-count {
             margin-left: 5px;
             font-size: 0.9rem;
             color: var(--dark-color);
@@ -292,7 +300,7 @@ function DecorationTips() {
           }
 
           .create-btn {
-            background: var(--secondary-color);
+            background: var(--primary-color);
             color: white;
             padding: 12px 24px;
             border-radius: 8px;
@@ -304,9 +312,9 @@ function DecorationTips() {
           }
 
           .create-btn:hover {
-            background: #8a84fb;
+            background: #5649d1;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(162, 155, 254, 0.3);
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
             color: white;
           }
 
@@ -333,7 +341,7 @@ function DecorationTips() {
 
           .no-tips-icon {
             font-size: 4rem;
-            color: var(--secondary-color);
+            color: var(--primary-color);
             margin-bottom: 1rem;
           }
 
@@ -401,7 +409,7 @@ function DecorationTips() {
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
+            display: flexdenly;
             align-items: center;
             gap: 0.5rem;
           }
@@ -595,26 +603,35 @@ function DecorationTips() {
                           </div>
                         </div>
                         <div className="tip-body">
-                          <p className="tip-author">
-                            <i className="bi bi-person"></i> {tip.author}
+                          <p className="tip-details provided-by">
+                            <i className="bi bi-person"></i>
+                            <span>Provided By: {tip.author}</span>
+                          </p>
+                          <p className="tip-details">
+                            <i className="bi bi-bar-chart"></i>
+                            <span>Difficulty: {tip.difficulty || 'N/A'}</span>
+                          </p>
+                          <p className="tip-details">
+                            <i className="bi bi-calendar"></i>
+                            <span>Published Date: {formatDate(tip.createdAt)}</span>
                           </p>
                           <div className="d-flex align-items-center mb-3">
                             <button 
-                              className="like-btn"
+                              className="vote-btn"
                               onClick={() => handleLike(tip.id)}
                             >
-                              <i className="bi bi-heart-fill"></i>
-                              <span className="like-count">{tip.likes || 0}</span>
+                              <i className="bi bi-hand-thumbs-up"></i>
+                              <span className="vote-count">{tip.likes || 0} Likes</span>
                             </button>
                             <button 
                               className="comment-btn"
-                              onClick={() => toggleComments(tip.id)}
+                              onClick={() => setNewComment((prev) => ({ ...prev, [tip.id]: prev[tip.id] || '' }))}
                             >
-                              <i className="bi bi-chat"></i>
-                              <span className="comment-count">{(tip.comments || []).length}</span>
+                              <i className="bi bi-chat-left-text"></i>
+                              <span className="comment-count">{(tip.comments || []).length} Comments</span>
                             </button>
                           </div>
-                          {showComments[tip.id] && (
+                          {newComment[tip.id] !== undefined && (
                             <div className="comment-section">
                               <form 
                                 className="comment-form" 
