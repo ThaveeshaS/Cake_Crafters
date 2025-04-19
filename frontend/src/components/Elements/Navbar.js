@@ -120,6 +120,13 @@ function Navbar() {
             Decoration Tips
             </Link>
           </li>
+          <li className="nav-item">
+            <Link 
+              className={`nav-link ${location.pathname === '/Voice' ? 'active' : ''}`}
+              to="/Voice">
+            <i className="bi bi-mic"></i> Voice Navigator
+            </Link>
+          </li> 
         </ul>
       </div>
     </nav>
