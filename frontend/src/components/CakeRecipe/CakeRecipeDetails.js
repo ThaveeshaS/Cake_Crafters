@@ -85,102 +85,73 @@ const CakeRecipeDetails = () => {
       pdfContainer.style.left = '-9999px';
       pdfContainer.style.width = '800px';
       pdfContainer.style.padding = '40px';
-      pdfContainer.style.background = 'linear-gradient(to right, #ffffff 70%, #f5f1e9 30%)'; // Split background
+      pdfContainer.style.background = 'linear-gradient(to right, #ffffff 70%, #f5f1e9 30%)';
       pdfContainer.style.fontFamily = 'Arial, sans-serif';
 
-      // Build PDF content with improved design
+      // Build PDF content with new layout: image on right, ingredients on left, and a page border
       pdfContainer.innerHTML = `
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #4a2c2a; font-weight: 700; margin-bottom: 10px; font-size: 32px;">
-            ${recipe.cakeName}
-          </h1>
-          ${recipe.subTitle ? `<p style="color: #7f8c8d; font-size: 16px; margin-bottom: 20px;">${recipe.subTitle}</p>` : ''}
-          <div style="height: 2px; background: linear-gradient(to right, transparent, #4a2c2a, transparent); margin: 0 auto 20px; width: 80%;"></div>
-        </div>
+        <div style="border: 2px solid #4a2c2a; border-radius: 8px; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #4a2c2a; font-weight: 700; margin-bottom: 10px; font-size: 32px;">
+              ${recipe.cakeName}
+            </h1>
+            ${recipe.subTitle ? `<p style="color: #7f8c8d; font-size: 16px; margin-bottom: 20px;">${recipe.subTitle}</p>` : ''}
+            <div style="height: 2px; background: linear-gradient(to right, transparent, #4a2c2a, transparent); margin: 0 auto 20px; width: 80%;"></div>
+          </div>
 
-        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
-          ${recipe.images && recipe.images.length > 0 ? `
-            <img src="${recipe.images[0]}" style="max-height: 300px; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
-          ` : ''}
-        </div>
+          <div style="display: flex; margin-bottom: 30px; gap: 20px;">
+            <div style="width: 50%;">
+              <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
+                Ingredients
+              </h2>
+              <ul style="list-style-type: none; padding: 0;">
+                ${recipe.ingredients.split('\n').map(item => `
+                  <li style="margin-bottom: 10px; padding-left: 25px; position: relative; line-height: 1.5;">
+                    <span style="position: absolute; left: 0; top: 6px; width: 8px; height: 8px; background: #4a2c2a; border-radius: 50%;"></span>
+                    ${item}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+            <div style="width: 50%; display: flex; justify-content: center; align-items: flex-start;">
+              ${recipe.images && recipe.images.length > 0 ? `
+                <img src="${recipe.images[0]}" style="max-height: 300px; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+              ` : ''}
+            </div>
+          </div>
 
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px;">
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Author</div>
-            <div>${recipe.authorName || 'Anonymous'}</div>
+          <div style="margin-bottom: 30px;">
+            <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
+              Instructions
+            </h2>
+            <ol style="counter-reset: step-counter; list-style-type: none; padding: 0;">
+              ${recipe.instructions.split('\n').map((step, index) => `
+                <li style="margin-bottom: 20px; counter-increment: step-counter; position: relative; padding-left: 40px; line-height: 1.6;">
+                  <div style="
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    background: #4a2c2a;
+                    color: white;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: bold;
+                  ">
+                    ${index + 1}
+                  </div>
+                  <div style="margin-top: 5px;">${step}</div>
+                </li>
+              `).join('')}
+            </ol>
           </div>
-          
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Type</div>
-            <div>${recipe.cakeType}</div>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Skill Level</div>
-            <div>${recipe.skillLevel}</div>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Prep Time</div>
-            <div>${recipe.prepTime}</div>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Cook Time</div>
-            <div>${recipe.cookTime}</div>
-          </div>
-          
-          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
-            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Servings</div>
-            <div>${recipe.servings}</div>
-          </div>
-        </div>
 
-        <div style="margin-bottom: 30px;">
-          <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
-            Ingredients
-          </h2>
-          <ul style="columns: 2; column-gap: 30px; list-style-type: none; padding: 0;">
-            ${recipe.ingredients.split('\n').map(item => `
-              <li style="margin-bottom: 10px; break-inside: avoid; padding-left: 25px; position: relative; line-height: 1.5;">
-                <span style="position: absolute; left: 0; top: 6px; width: 8px; height: 8px; background: #4a2c2a; border-radius: 50%;"></span>
-                ${item}
-              </li>
-            `).join('')}
-          </ul>
-        </div>
-
-        <div style="margin-bottom: 30px;">
-          <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
-            Instructions
-          </h2>
-          <ol style="counter-reset: step-counter; list-style-type: none; padding: 0;">
-            ${recipe.instructions.split('\n').map((step, index) => `
-              <li style="margin-bottom: 20px; counter-increment: step-counter; position: relative; padding-left: 40px; line-height: 1.6;">
-                <div style="
-                  position: absolute;
-                  left: 0;
-                  top: 0;
-                  background: #4a2c2a;
-                  color: white;
-                  width: 28px;
-                  height: 28px;
-                  border-radius: 50%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  font-weight: bold;
-                ">
-                  ${index + 1}
-                </div>
-                <div style="margin-top: 5px;">${step}</div>
-              </li>
-            `).join('')}
-          </ol>
-        </div>
-
-        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #f1f1f1; color: #95a5a6; font-size: 14px;">
-          <p>Recipe generated from Cake Crafters • ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #f1f1f1; color: #95a5a6; font-size: 14px;">
+            <p>Recipe generated from Cake Crafters • ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          </div>
         </div>
       `;
 
@@ -197,12 +168,19 @@ const CakeRecipeDetails = () => {
         windowHeight: pdfContainer.scrollHeight
       });
 
-      // Create PDF
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
-      const imgWidth = 210; 
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      // Calculate dimensions
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+      const pageHeight = imgHeight + 0; // Add some margin
 
+      // Create PDF with dynamic height
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [imgWidth, pageHeight]
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
       pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
       pdf.save(`${recipe.cakeName.replace(/\s+/g, '_')}_recipe.pdf`);
 
@@ -263,7 +241,7 @@ const CakeRecipeDetails = () => {
             margin: 0 auto;
             background: #fff;
             border-radius: 16px;
-            box-shadow: 0ргт10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
           }
           
@@ -676,7 +654,6 @@ const CakeRecipeDetails = () => {
             borderRadius: '10px',
             border: '1px solid #e2e8f0'
           }}>
-            {/* Author */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -693,7 +670,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Cake Type */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -710,7 +686,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Skill Level */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -727,7 +702,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Prep Time */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -744,7 +718,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Cook Time */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -761,7 +734,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Servings */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -778,7 +750,6 @@ const CakeRecipeDetails = () => {
               </div>
             </div>
 
-            {/* Date */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
