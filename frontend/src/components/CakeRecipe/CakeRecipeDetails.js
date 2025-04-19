@@ -85,67 +85,102 @@ const CakeRecipeDetails = () => {
       pdfContainer.style.left = '-9999px';
       pdfContainer.style.width = '800px';
       pdfContainer.style.padding = '40px';
-      pdfContainer.style.backgroundColor = 'white';
+      pdfContainer.style.background = 'linear-gradient(to right, #ffffff 70%, #f5f1e9 30%)'; // Split background
       pdfContainer.style.fontFamily = 'Arial, sans-serif';
 
-      // Build PDF content
+      // Build PDF content with improved design
       pdfContainer.innerHTML = `
-        <div style="margin-bottom: 30px;">
-          <h1 style="color: #343a40; border-bottom: 2px solid #6c5ce7; padding-bottom: 10px; margin-bottom: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #4a2c2a; font-weight: 700; margin-bottom: 10px; font-size: 32px;">
             ${recipe.cakeName}
           </h1>
-          ${recipe.subTitle ? `<p style="color: #6c757d; font-style: italic;">${recipe.subTitle}</p>` : ''}
+          ${recipe.subTitle ? `<p style="color: #7f8c8d; font-size: 16px; margin-bottom: 20px;">${recipe.subTitle}</p>` : ''}
+          <div style="height: 2px; background: linear-gradient(to right, transparent, #4a2c2a, transparent); margin: 0 auto 20px; width: 80%;"></div>
         </div>
 
-        <div style="margin: 20px 0; padding: 15px; background: #f9f9ff; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 20px;">
-          <div><strong>Author:</strong> ${recipe.authorName || 'Anonymous'}</div>
-          <div><strong>Type:</strong> ${recipe.cakeType}</div>
-          <div><strong>Skill:</strong> ${recipe.skillLevel}</div>
-          <div><strong>Prep Time:</strong> ${recipe.prepTime}</div>
-          <div><strong>Cook Time:</strong> ${recipe.cookTime}</div>
-          <div><strong>Servings:</strong> ${recipe.servings}</div>
+        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+          ${recipe.images && recipe.images.length > 0 ? `
+            <img src="${recipe.images[0]}" style="max-height: 300px; max-width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
+          ` : ''}
         </div>
 
-        <h2 style="color: #343a40; border-bottom: 1px solid #dfe6e9; padding-bottom: 5px; margin-top: 30px;">
-          Ingredients
-        </h2>
-        <ul style="columns: 2; column-gap: 30px; list-style-type: none; padding: 0; margin-top: 15px;">
-          ${recipe.ingredients.split('\n').map(item => `
-            <li style="margin-bottom: 8px; break-inside: avoid; padding-left: 20px; position: relative;">
-              <span style="position: absolute; left: 0; color: #6c5ce7; font-weight: bold;">•</span>
-              ${item}
-            </li>
-          `).join('')}
-        </ul>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 30px;">
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Author</div>
+            <div>${recipe.authorName || 'Anonymous'}</div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Type</div>
+            <div>${recipe.cakeType}</div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Skill Level</div>
+            <div>${recipe.skillLevel}</div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Prep Time</div>
+            <div>${recipe.prepTime}</div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Cook Time</div>
+            <div>${recipe.cookTime}</div>
+          </div>
+          
+          <div style="background: #f8f9fa; padding: 12px 20px; border-radius: 8px; min-width: 150px; text-align: center;">
+            <div style="font-weight: 600; color: #4a2c2a; margin-bottom: 5px;">Servings</div>
+            <div>${recipe.servings}</div>
+          </div>
+        </div>
 
-        <h2 style="color: #343a40; border-bottom: 1px solid #dfe6e9; padding-bottom: 5px; margin-top: 30px;">
-          Instructions
-        </h2>
-        <ol style="counter-reset: step-counter; list-style-type: none; padding: 0; margin-top: 15px;">
-          ${recipe.instructions.split('\n').map((step, index) => `
-            <li style="margin-bottom: 15px; counter-increment: step-counter; position: relative; padding-left: 30px;">
-              <span style="
-                position: absolute;
-                left: 0;
-                top: 0;
-                background: #6c5ce7;
-                color: white;
-                width: 22px;
-                height: 22px;
-                border-radius: 50%;
-                text-align: center;
-                line-height: 22px;
-                font-size: 12px;
-              ">
-                ${index + 1}
-              </span>
-              ${step}
-            </li>
-          `).join('')}
-        </ol>
+        <div style="margin-bottom: 30px;">
+          <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
+            Ingredients
+          </h2>
+          <ul style="columns: 2; column-gap: 30px; list-style-type: none; padding: 0;">
+            ${recipe.ingredients.split('\n').map(item => `
+              <li style="margin-bottom: 10px; break-inside: avoid; padding-left: 25px; position: relative; line-height: 1.5;">
+                <span style="position: absolute; left: 0; top: 6px; width: 8px; height: 8px; background: #4a2c2a; border-radius: 50%;"></span>
+                ${item}
+              </li>
+            `).join('')}
+          </ul>
+        </div>
 
-        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #dfe6e9; font-size: 12px; color: #636e72;">
-          <p>Generated from Cake Crafters on ${new Date().toLocaleDateString()}</p>
+        <div style="margin-bottom: 30px;">
+          <h2 style="color: #4a2c2a; border-bottom: 2px solid #f1f1f1; padding-bottom: 8px; margin-bottom: 15px; font-size: 24px;">
+            Instructions
+          </h2>
+          <ol style="counter-reset: step-counter; list-style-type: none; padding: 0;">
+            ${recipe.instructions.split('\n').map((step, index) => `
+              <li style="margin-bottom: 20px; counter-increment: step-counter; position: relative; padding-left: 40px; line-height: 1.6;">
+                <div style="
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  background: #4a2c2a;
+                  color: white;
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: bold;
+                ">
+                  ${index + 1}
+                </div>
+                <div style="margin-top: 5px;">${step}</div>
+              </li>
+            `).join('')}
+          </ol>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #f1f1f1; color: #95a5a6; font-size: 14px;">
+          <p>Recipe generated from Cake Crafters • ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
       `;
 
@@ -228,7 +263,7 @@ const CakeRecipeDetails = () => {
             margin: 0 auto;
             background: #fff;
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0ргт10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
           }
           
@@ -594,15 +629,15 @@ const CakeRecipeDetails = () => {
           }
 
           .button-container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
           }
 
           .action-buttons {
-          display: flex;
-          gap: 10px; /* Adjust spacing between buttons */
+            display: flex;
+            gap: 10px;
           }
         `}
       </style>
@@ -631,135 +666,135 @@ const CakeRecipeDetails = () => {
             </div>
           )}
 
-<div style={{
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '12px',
-  margin: '20px 0',
-  padding: '12px',
-  background: '#f8fafc',
-  borderRadius: '10px',
-  border: '1px solid #e2e8f0'
-}}>
-  {/* Author */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-person" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Author</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.authorName || 'Anonymous'}</div>
-    </div>
-  </div>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '12px',
+            margin: '20px 0',
+            padding: '12px',
+            background: '#f8fafc',
+            borderRadius: '10px',
+            border: '1px solid #e2e8f0'
+          }}>
+            {/* Author */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-person" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Author</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.authorName || 'Anonymous'}</div>
+              </div>
+            </div>
 
-  {/* Cake Type */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-cake" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Type</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.cakeType}</div>
-    </div>
-  </div>
+            {/* Cake Type */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-cake" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Type</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.cakeType}</div>
+              </div>
+            </div>
 
-  {/* Skill Level */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-speedometer2" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Skill</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.skillLevel}</div>
-    </div>
-  </div>
+            {/* Skill Level */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-speedometer2" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Skill</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.skillLevel}</div>
+              </div>
+            </div>
 
-  {/* Prep Time */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-clock" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Prep</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.prepTime}</div>
-    </div>
-  </div>
+            {/* Prep Time */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-clock" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Prep</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.prepTime}</div>
+              </div>
+            </div>
 
-  {/* Cook Time */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-egg-fried" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Cook</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.cookTime}</div>
-    </div>
-  </div>
+            {/* Cook Time */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-egg-fried" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Cook</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.cookTime}</div>
+              </div>
+            </div>
 
-  {/* Servings */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-people" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Servings</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.servings}</div>
-    </div>
-  </div>
+            {/* Servings */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-people" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Servings</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.servings}</div>
+              </div>
+            </div>
 
-  {/* Date */}
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: '8px',
-    padding: '8px 12px',
-    background: 'white',
-    borderRadius: '6px',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-  }}>
-    <i className="bi bi-calendar" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
-    <div>
-      <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Date</div>
-      <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.date}</div>
-    </div>
-  </div>
-</div>
+            {/* Date */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              background: 'white',
+              borderRadius: '6px',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+            }}>
+              <i className="bi bi-calendar" style={{ color: '#7c3aed', fontSize: '16px' }}></i>
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: '600' }}>Date</div>
+                <div style={{ fontSize: '14px', fontWeight: '500' }}>{recipe.date}</div>
+              </div>
+            </div>
+          </div>
 
           {recipe.images && recipe.images.length > 1 && (
             <div>
@@ -814,24 +849,24 @@ const CakeRecipeDetails = () => {
                 className="btn pdf-btn"
                 disabled={pdfGenerating}
               >
-              {pdfGenerating ? (
-              <>
-              <span
-                className="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
-                Generating...
-              </>
-              ) : (
-              <>
-                <i className="bi bi-file-earmark-pdf me-2"></i> Download Recipe
-              </>
-              )}
+                {pdfGenerating ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-file-earmark-pdf me-2"></i> Download Recipe
+                  </>
+                )}
               </button>
-                <Link to={`/recipe/${id}/update`} className="btn update-btn">
-                  <i className="bi bi-pencil-square me-2"></i> Update Recipe
-                </Link>
+              <Link to={`/recipe/${id}/update`} className="btn update-btn">
+                <i className="bi bi-pencil-square me-2"></i> Update Recipe
+              </Link>
               <button onClick={handleDelete} className="btn delete-btn">
                 <i className="bi bi-trash me-2"></i> Delete Recipe
               </button>
