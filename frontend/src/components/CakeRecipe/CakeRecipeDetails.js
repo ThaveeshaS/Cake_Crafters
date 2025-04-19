@@ -95,7 +95,11 @@ const CakeRecipeDetails = () => {
             <h1 style="color: #4a2c2a; font-weight: 700; margin-bottom: 10px; font-size: 32px;">
               ${recipe.cakeName}
             </h1>
-            ${recipe.subTitle ? `<p style="color: #7f8c8d; font-size: 16px; margin-bottom: 20px;">${recipe.subTitle}</p>` : ''}
+            ${recipe.subTitle ? `
+              <p style="background-color:rgb(251, 227, 203); color: #4a2c2a; font-size: 12px; margin-bottom: 20px; padding: 5px 10px; display: inline-block; border-radius: 5px;">
+                ${recipe.subTitle}
+              </p>` : ''
+            }
             <div style="height: 2px; background: linear-gradient(to right, transparent, #4a2c2a, transparent); margin: 0 auto 20px; width: 80%;"></div>
           </div>
 
@@ -133,8 +137,8 @@ const CakeRecipeDetails = () => {
                     top: 0;
                     background: #4a2c2a;
                     color: white;
-                    width: 28px;
-                    height: 28px;
+                    width: 24px;
+                    height: 24px;
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
