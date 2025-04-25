@@ -69,6 +69,13 @@ public class CakeDecTipController {
                 .exceptionally(throwable -> ResponseEntity.badRequest().build());
     }
 
+    @PutMapping("/{id}/comment/{commentId}")
+    public CompletableFuture<ResponseEntity<CakeDecTip>> editComment(@PathVariable String id, @PathVariable String commentId, @RequestBody CakeDecTip.Comment comment) {
+        return tipService.editComment(id, commentId, comment)
+                .thenApply(t -> ResponseEntity.ok(t))
+                .exceptionally(throwable -> ResponseEntity.badRequest().build());
+    }
+
     @DeleteMapping("/{id}/comment/{commentId}")
     public CompletableFuture<ResponseEntity<CakeDecTip>> deleteComment(@PathVariable String id, @PathVariable String commentId) {
         return tipService.deleteComment(id, commentId)

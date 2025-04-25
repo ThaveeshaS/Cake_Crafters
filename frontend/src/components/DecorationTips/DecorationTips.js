@@ -8,6 +8,7 @@ function DecorationTips() {
   const [tips, setTips] = useState([]);
   const [menuOpen, setMenuOpen] = useState(null);
   const [newComment, setNewComment] = useState({});
+  const [editComment, setEditComment] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const menuRefs = useRef({});
@@ -83,6 +84,25 @@ function DecorationTips() {
       setNewComment({ ...newComment, [id]: '' });
     } catch (err) {
       console.error('Failed to add comment:', err);
+    }
+  };
+
+  const handleCommentEdit = async (tipId, commentId, e) => {
+    e.preventDefault();
+    if (!editComment[commentId]?.trim()) return;
+
+    const updatedComment = {
+      text: editComment[commentId],
+      author: 'User',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:8080/api/decoration-tips/${tipId}/comment/${commentId}`, updatedComment);
+      setTips(tips.map(tip => tip.id === tipId ? response.data : tip));
+      setEditComment({ ...editComment, [commentId]: null });
+    } catch (err) {
+      console.error('Failed to edit comment:', err);
     }
   };
 
@@ -250,7 +270,7 @@ function DecorationTips() {
             outline: none;
           }
 
-          .comment-submit {
+          .comment-submit, .comment-edit-submit {
             background: var(--primary-color);
             color: white;
             border: none;
@@ -264,7 +284,7 @@ function DecorationTips() {
             gap: 0.5rem;
           }
 
-          .comment-submit:hover {
+          .comment-submit:hover, .comment-edit-submit:hover {
             background: #5649d1;
             transform: translateY(-2px);
           }
@@ -409,7 +429,7 @@ function DecorationTips() {
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flexdenly;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
           }
@@ -436,14 +456,22 @@ function DecorationTips() {
             color: #dc3545;
           }
 
-          .comment-delete {
+          .comment-delete, .comment-edit {
             background: none;
             border: none;
-            color: #dc3545;
             cursor: pointer;
             font-size: 0.8rem;
             padding: 0.25rem 0.5rem;
             transition: all 0.2s ease;
+            margin-left: 0.5rem;
+          }
+
+          .comment-delete {
+            color: #dc3545;
+          }
+
+          .comment-edit {
+            color: #007bff;
           }
 
           .comment-delete:hover {
@@ -452,7 +480,13 @@ function DecorationTips() {
             border-radius: 4px;
           }
 
-          .comment-delete i {
+          .comment-edit:hover {
+            color: #0056b3;
+            background: #e7f1ff;
+            border-radius: 4px;
+          }
+
+          .comment-delete i, .comment-edit i {
             font-size: 0.9rem;
           }
 
@@ -507,7 +541,7 @@ function DecorationTips() {
               <div className="row">
                 {tips.map((tip) => {
                   const imageCount = tip.media && tip.mediaType !== 'video' ? tip.media.length : 1;
-                  const slideDuration = imageCount * 10; // 10 seconds per image (as per original code)
+                  const slideDuration = imageCount * 10; // 10 seconds per image
                   const percentagePerImage = 100 / imageCount;
                   const keyframes = Array.from({ length: imageCount }, (_, i) => {
                     const start = i * percentagePerImage;
@@ -658,16 +692,58 @@ function DecorationTips() {
                                   </h6>
                                   {(tip.comments || []).map((comment) => (
                                     <div key={comment.id} className="comment-item">
-                                      <div className="comment-content">
-                                        <p className="comment-text">{comment.text}</p>
-                                      </div>
-                                      <button 
-                                        className="comment-delete"
-                                        onClick={() => handleCommentDelete(tip.id, comment.id)}
-                                        title="Delete comment"
-                                      >
-                                        <i className="bi bi-trash"></i>
-                                      </button>
+                                      {editComment[comment.id] ? (
+                                        <form 
+                                          className="comment-form" 
+                                          onSubmit={(e) => handleCommentEdit(tip.id, comment.id, e)}
+                                        >
+                                          <textarea
+                                            className="form-control comment-input mb-2"
+                                            value={editComment[comment.id]}
+                                            onChange={(e) => setEditComment({
+                                              ...editComment,
+                                              [comment.id]: e.target.value
+                                            })}
+                                          />
+                                          <div className="d-flex gap-2">
+                                            <button type="submit" className="comment-edit-submit">
+                                              <i className="bi bi-check me-2"></i>
+                                              Save
+                                            </button>
+                                            <button 
+                                              type="button" 
+                                              className="comment-edit"
+                                              onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                                            >
+                                              <i className="bi bi-x me-2"></i>
+                                              Cancel
+                                            </button>
+                                          </div>
+                                        </form>
+                                      ) : (
+                                        <>
+                                          <div className="comment-content">
+                                            <p className="comment-text">{comment.text}</p>
+                                          </div>
+                                          <button 
+                                            className="comment-edit"
+                                            onClick={() => setEditComment({
+                                              ...editComment,
+                                              [comment.id]: comment.text
+                                            })}
+                                            title="Edit comment"
+                                          >
+                                            <i className="bi bi-pencil"></i>
+                                          </button>
+                                          <button 
+                                            className="comment-delete"
+                                            onClick={() => handleCommentDelete(tip.id, comment.id)}
+                                            title="Delete comment"
+                                          >
+                                            <i className="bi bi-trash"></i>
+                                          </button>
+                                        </>
+                                      )}
                                     </div>
                                   ))}
                                 </div>

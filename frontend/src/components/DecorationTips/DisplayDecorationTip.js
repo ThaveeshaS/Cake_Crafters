@@ -11,6 +11,7 @@ const DisplayDecorationTip = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeMedia, setActiveMedia] = useState(0);
+  const [editComment, setEditComment] = useState({});
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/decoration-tips/${id}`)
@@ -32,6 +33,34 @@ const DisplayDecorationTip = () => {
       } catch (err) {
         setError(err.response?.data || 'Failed to delete tip');
       }
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`);
+      setTip(response.data);
+    } catch (err) {
+      setError(err.response?.data || 'Failed to delete comment');
+    }
+  };
+
+  const handleCommentEdit = async (commentId, e) => {
+    e.preventDefault();
+    if (!editComment[commentId]?.trim()) return;
+
+    const updatedComment = {
+      text: editComment[commentId],
+      author: tip.comments.find(c => c.id === commentId)?.author || 'User',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`, updatedComment);
+      setTip(response.data);
+      setEditComment({ ...editComment, [commentId]: null });
+    } catch (err) {
+      setError(err.response?.data || 'Failed to edit comment');
     }
   };
 
@@ -338,6 +367,76 @@ const DisplayDecorationTip = () => {
             margin-bottom: 1rem;
           }
 
+          .comment-input {
+            resize: none;
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            transition: border 0.3s;
+            width: 100%;
+          }
+
+          .comment-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+            outline: none;
+          }
+
+          .comment-edit-submit {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+
+          .comment-edit-submit:hover {
+            background: #00997b;
+            transform: translateY(-2px);
+          }
+
+          .comment-delete, .comment-edit {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            transition: all 0.2s ease;
+            margin-left: 0.5rem;
+          }
+
+          .comment-delete {
+            color: #dc3545;
+          }
+
+          .comment-edit {
+            color: #007bff;
+          }
+
+          .comment-delete:hover {
+            color: #bd2130;
+            background: #f8d7da;
+            border-radius: 4px;
+          }
+
+          .comment-edit:hover {
+            color: #0056b3;
+            background: #e7f1ff;
+            border-radius: 4px;
+          }
+
+          .comment-delete i, .comment-edit i {
+            font-size: 0.9rem;
+          }
+
           @media (max-width: 768px) {
             .tip-title {
               font-size: 1.8rem;
@@ -466,15 +565,64 @@ const DisplayDecorationTip = () => {
               <ul className="comment-list">
                 {tip.comments.map((comment, index) => (
                   <li key={comment.id || index} className="comment-item">
-                    <div className="comment-meta">
-                      <strong>{comment.author}</strong> on{' '}
-                      {new Date(comment.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </div>
-                    <p>{comment.text}</p>
+                    {editComment[comment.id] ? (
+                      <form 
+                        className="comment-form" 
+                        onSubmit={(e) => handleCommentEdit(comment.id, e)}
+                      >
+                        <textarea
+                          className="form-control comment-input mb-2"
+                          value={editComment[comment.id]}
+                          onChange={(e) => setEditComment({
+                            ...editComment,
+                            [comment.id]: e.target.value
+                          })}
+                        />
+                        <div className="d-flex gap-2">
+                          <button type="submit" className="comment-edit-submit">
+                            <i className="bi bi-check me-2"></i>
+                            Save
+                          </button>
+                          <button 
+                            type="button" 
+                            className="comment-edit"
+                            onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                          >
+                            <i className="bi bi-x me-2"></i>
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <>
+                        <div className="comment-meta">
+                          <strong>{comment.author}</strong> on{' '}
+                          {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </div>
+                        <p>{comment.text}</p>
+                        <button 
+                          className="comment-edit"
+                          onClick={() => setEditComment({
+                            ...editComment,
+                            [comment.id]: comment.text
+                          })}
+                          title="Edit comment"
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+                        <button 
+                          className="comment-delete"
+                          onClick={() => handleCommentDelete(comment.id)}
+                          title="Delete comment"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
