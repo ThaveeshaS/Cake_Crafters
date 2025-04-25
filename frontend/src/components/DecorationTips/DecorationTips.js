@@ -132,6 +132,7 @@ function DecorationTips() {
             --light-color: #f8f9fa;
             --dark-color: #343a40;
             --success-color: #00b894;
+            --danger-color: #d63031;
           }
 
           body {
@@ -270,23 +271,58 @@ function DecorationTips() {
             outline: none;
           }
 
-          .comment-submit, .comment-edit-submit {
-            background: var(--primary-color);
-            color: white;
+          .comment-submit, .comment-edit-submit, .comment-cancel {
             border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-weight: 500;
-            margin-top: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin-top: 0.5rem;
           }
 
-          .comment-submit:hover, .comment-edit-submit:hover {
+          .comment-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-submit:hover {
             background: #5649d1;
-            transform: translateY(-2px);
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-edit-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-edit-submit:hover {
+            background: #5649d1;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-cancel {
+            background: #f8f9fa;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+          }
+
+          .comment-cancel:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-submit i, .comment-edit-submit i, .comment-cancel i {
+            font-size: 1rem;
           }
 
           .comment-list {
@@ -296,6 +332,7 @@ function DecorationTips() {
             padding: 0.75rem;
             background: #f9f9f9;
             border-radius: 8px;
+            position: relative;
           }
 
           .comment-item {
@@ -306,6 +343,7 @@ function DecorationTips() {
             border-bottom: 1px solid #eee;
             position: relative;
             padding-left: 1rem;
+            padding-right: 80px; /* Space for horizontal buttons */
           }
 
           .comment-item:before {
@@ -317,6 +355,20 @@ function DecorationTips() {
             width: 3px;
             background: var(--secondary-color);
             border-radius: 3px;
+          }
+
+          .comment-content {
+            position: relative;
+          }
+
+          .comment-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: row; /* Stack buttons horizontally */
+            gap: 0.5rem;
+            align-items: center;
           }
 
           .create-btn {
@@ -456,38 +508,46 @@ function DecorationTips() {
             color: #dc3545;
           }
 
-          .comment-delete, .comment-edit {
-            background: none;
-            border: none;
+          .comment-edit, .comment-delete {
+            background: #f8f9fa; /* Light background for contrast */
+            border: 1px solid var(--primary-color);
             cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            transition: all 0.2s ease;
-            margin-left: 0.5rem;
-          }
-
-          .comment-delete {
-            color: #dc3545;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
           }
 
           .comment-edit {
-            color: #007bff;
+            color: var(--primary-color);
           }
 
-          .comment-delete:hover {
-            color: #bd2130;
-            background: #f8d7da;
-            border-radius: 4px;
+          .comment-delete {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
           }
 
           .comment-edit:hover {
-            color: #0056b3;
-            background: #e7f1ff;
-            border-radius: 4px;
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
-          .comment-delete i, .comment-edit i {
-            font-size: 0.9rem;
+          .comment-delete:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(214, 48, 49, 0.3);
+          }
+
+          .comment-edit i, .comment-delete i {
+            font-size: 1rem;
           }
 
           /* Custom scrollbar */
@@ -507,6 +567,12 @@ function DecorationTips() {
 
           ::-webkit-scrollbar-thumb:hover {
             background: #888;
+          }
+
+          @media (max-width: 768px) {
+            .comment-item {
+              padding-right: 70px; /* Adjust for smaller screens */
+            }
           }
         `}
       </style>
@@ -679,10 +745,10 @@ function DecorationTips() {
                                     ...newComment,
                                     [tip.id]: e.target.value
                                   })}
+                                  aria-label="New comment"
                                 />
-                                <button type="submit" className="comment-submit">
-                                  <i className="bi bi-send me-2"></i>
-                                  Post Comment
+                                <button type="submit" className="comment-submit" aria-label="Post new comment">
+                                  <i className="bi bi-send"></i>
                                 </button>
                               </form>
                               {(tip.comments || []).length > 0 && (
@@ -704,45 +770,53 @@ function DecorationTips() {
                                               ...editComment,
                                               [comment.id]: e.target.value
                                             })}
+                                            aria-label="Edit comment"
                                           />
                                           <div className="d-flex gap-2">
-                                            <button type="submit" className="comment-edit-submit">
-                                              <i className="bi bi-check me-2"></i>
-                                              Save
+                                            <button 
+                                              type="submit" 
+                                              className="comment-edit-submit"
+                                              aria-label="Save edited comment"
+                                              title="Save comment"
+                                            >
+                                              <i className="bi bi-check"></i>
                                             </button>
                                             <button 
                                               type="button" 
-                                              className="comment-edit"
+                                              className="comment-cancel"
                                               onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                                              aria-label="Cancel editing comment"
+                                              title="Cancel editing"
                                             >
-                                              <i className="bi bi-x me-2"></i>
-                                              Cancel
+                                              <i className="bi bi-x"></i>
                                             </button>
                                           </div>
                                         </form>
                                       ) : (
-                                        <>
-                                          <div className="comment-content">
-                                            <p className="comment-text">{comment.text}</p>
+                                        <div className="comment-content">
+                                          <div className="comment-actions">
+                                            <button 
+                                              className="comment-edit"
+                                              onClick={() => setEditComment({
+                                                ...editComment,
+                                                [comment.id]: comment.text
+                                              })}
+                                              title="Edit comment"
+                                              aria-label="Edit comment"
+                                            >
+                                              <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button 
+                                              className="comment-delete"
+                                              onClick={() => handleCommentDelete(tip.id, comment.id)}
+                                              title="Delete comment"
+                                              aria-label="Delete comment"
+                                            >
+                                              <i className="bi bi-trash"></i>
+                                            </button>
                                           </div>
-                                          <button 
-                                            className="comment-edit"
-                                            onClick={() => setEditComment({
-                                              ...editComment,
-                                              [comment.id]: comment.text
-                                            })}
-                                            title="Edit comment"
-                                          >
-                                            <i className="bi bi-pencil"></i>
-                                          </button>
-                                          <button 
-                                            className="comment-delete"
-                                            onClick={() => handleCommentDelete(tip.id, comment.id)}
-                                            title="Delete comment"
-                                          >
-                                            <i className="bi bi-trash"></i>
-                                          </button>
-                                        </>
+                                          <p className="comment-text">{comment.text}</p>
+                                        </div>
                                       )}
                                     </div>
                                   ))}

@@ -103,6 +103,7 @@ const DisplayDecorationTip = () => {
             --dark-color: #343a40;
             --success-color: #00b894;
             --danger-color: #d63031;
+            --neutral-color: #6c757d;
           }
 
           .tip-details-container {
@@ -354,6 +355,21 @@ const DisplayDecorationTip = () => {
             margin-bottom: 0.5rem;
           }
 
+          .comment-content {
+            position: relative;
+            padding-right: 50px; /* Space for vertical buttons */
+          }
+
+          .comment-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 0.5rem;
+            align-items: flex-end;
+          }
+
           .empty-state {
             text-align: center;
             padding: 3rem;
@@ -384,57 +400,96 @@ const DisplayDecorationTip = () => {
             outline: none;
           }
 
-          .comment-edit-submit {
-            background: var(--success-color);
-            color: white;
+          .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .comment-form-buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-start; /* Align buttons to the left */
+          }
+
+          .comment-edit-submit, .comment-cancel {
             border: none;
             padding: 8px 20px;
             border-radius: 8px;
-            transition: all 0.3s;
+            font-size: 0.9rem;
             font-weight: 500;
-            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 0.5rem;
           }
 
+          .comment-edit-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
           .comment-edit-submit:hover {
-            background: #00997b;
+            background: #5649d1;
             transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
-          .comment-delete, .comment-edit {
-            background: none;
-            border: none;
+          .comment-cancel {
+            background: var(--light-color);
+            color: var(--neutral-color);
+            border: 1px solid var(--neutral-color);
+          }
+
+          .comment-cancel:hover {
+            background: #e9ecef;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.2);
+          }
+
+          .comment-edit, .comment-delete {
+            background: #f8f9fa; /* Light background for contrast */
+            border: 1px solid var(--primary-color);
             cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            transition: all 0.2s ease;
-            margin-left: 0.5rem;
-          }
-
-          .comment-delete {
-            color: #dc3545;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
           }
 
           .comment-edit {
-            color: #007bff;
+            color: var(--primary-color);
           }
 
-          .comment-delete:hover {
-            color: #bd2130;
-            background: #f8d7da;
-            border-radius: 4px;
+          .comment-delete {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
           }
 
           .comment-edit:hover {
-            color: #0056b3;
-            background: #e7f1ff;
-            border-radius: 4px;
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
-          .comment-delete i, .comment-edit i {
-            font-size: 0.9rem;
+          .comment-delete:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(214, 48, 49, 0.3);
+          }
+
+          .comment-edit i, .comment-delete i {
+            font-size: 1rem;
           }
 
           @media (max-width: 768px) {
@@ -460,6 +515,20 @@ const DisplayDecorationTip = () => {
             .back-btn,
             .update-btn,
             .delete-btn {
+              width: 100%;
+              justify-content: center;
+            }
+
+            .comment-content {
+              padding-right: 40px; /* Adjust for smaller screens */
+            }
+
+            .comment-form-buttons {
+              flex-direction: column;
+              gap: 0.5rem;
+            }
+
+            .comment-edit-submit, .comment-cancel {
               width: 100%;
               justify-content: center;
             }
@@ -498,7 +567,6 @@ const DisplayDecorationTip = () => {
               )}
             </div>
           )}
-
           {tip.media && tip.media.length > 1 && (
             <div className="nav-dots">
               {tip.media.map((_, index) => (
@@ -510,7 +578,6 @@ const DisplayDecorationTip = () => {
               ))}
             </div>
           )}
-
           <div className="tip-meta">
             <span className="meta-item">
               <i className="bi bi-person meta-icon"></i>
@@ -533,7 +600,6 @@ const DisplayDecorationTip = () => {
               })}
             </span>
           </div>
-
           <div>
             <h3 className="section-title">Decoration Tip</h3>
             <div className="tip-details">
@@ -542,9 +608,7 @@ const DisplayDecorationTip = () => {
               ))}
             </div>
           </div>
-
           <hr className="my-3" />
-
           <div className="action-buttons">
             <Link to="/decorationtips" className="btn back-btn">
               <i className="bi bi-arrow-left me-2"></i> Back to Tips
@@ -558,7 +622,6 @@ const DisplayDecorationTip = () => {
               </button>
             </div>
           </div>
-
           {tip.comments && tip.comments.length > 0 ? (
             <div className="comments-section">
               <h3 className="section-title">Comments</h3>
@@ -577,16 +640,22 @@ const DisplayDecorationTip = () => {
                             ...editComment,
                             [comment.id]: e.target.value
                           })}
+                          aria-label="Edit comment text"
                         />
-                        <div className="d-flex gap-2">
-                          <button type="submit" className="comment-edit-submit">
+                        <div className="comment-form-buttons">
+                          <button 
+                            type="submit" 
+                            className="comment-edit-submit"
+                            aria-label="Save edited comment"
+                          >
                             <i className="bi bi-check me-2"></i>
                             Save
                           </button>
                           <button 
                             type="button" 
-                            className="comment-edit"
+                            className="comment-cancel"
                             onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                            aria-label="Cancel editing comment"
                           >
                             <i className="bi bi-x me-2"></i>
                             Cancel
@@ -594,7 +663,28 @@ const DisplayDecorationTip = () => {
                         </div>
                       </form>
                     ) : (
-                      <>
+                      <div className="comment-content">
+                        <div className="comment-actions">
+                          <button 
+                            className="comment-edit"
+                            onClick={() => setEditComment({
+                              ...editComment,
+                              [comment.id]: comment.text
+                            })}
+                            title="Edit comment"
+                            aria-label="Edit comment"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button 
+                            className="comment-delete"
+                            onClick={() => handleCommentDelete(comment.id)}
+                            title="Delete comment"
+                            aria-label="Delete comment"
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
                         <div className="comment-meta">
                           <strong>{comment.author}</strong> on{' '}
                           {new Date(comment.createdAt).toLocaleDateString('en-US', {
@@ -604,24 +694,7 @@ const DisplayDecorationTip = () => {
                           })}
                         </div>
                         <p>{comment.text}</p>
-                        <button 
-                          className="comment-edit"
-                          onClick={() => setEditComment({
-                            ...editComment,
-                            [comment.id]: comment.text
-                          })}
-                          title="Edit comment"
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button 
-                          className="comment-delete"
-                          onClick={() => handleCommentDelete(comment.id)}
-                          title="Delete comment"
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </>
+                      </div>
                     )}
                   </li>
                 ))}
