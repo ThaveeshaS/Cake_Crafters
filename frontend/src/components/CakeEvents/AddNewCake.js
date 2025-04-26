@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function CakeEvents() {
@@ -9,7 +8,6 @@ function CakeEvents() {
     cakeType: '',
   });
   const [photo, setPhoto] = useState(null);
-  const navigate = useNavigate();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,14 +23,9 @@ function CakeEvents() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Handle form submission logic here
     console.log('Form submitted:', { ...formData, photo });
   };
-
-  const handleAddNewCake = () => {
-    console.log('Add New Cake button clicked');
-    navigate('/addnewcake');
-  };
-
 
   return (
     <div className="cake-events-container">
@@ -54,37 +47,12 @@ function CakeEvents() {
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
           }
 
-          .header-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-          }
-
           .form-title {
+            text-align: center;
             color: var(--text-color);
+            margin-bottom: 1.5rem;
             font-size: 1.8rem;
             font-weight: 600;
-            margin: 0;
-          }
-
-          .add-new-cake-btn {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: background 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-          }
-
-          .add-new-cake-btn:hover {
-            background: var(--primary-light);
           }
 
           .form-group {
@@ -177,28 +145,11 @@ function CakeEvents() {
             .form-title {
               font-size: 1.5rem;
             }
-
-            .header-section {
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 1rem;
-            }
-
-            .add-new-cake-btn {
-              width: 100%;
-              justify-content: center;
-            }
           }
         `}
       </style>
 
-      <div className="header-section">
-        <h2 className="form-title">Cakes for Events</h2>
-        <button className="add-new-cake-btn" onClick={handleAddNewCake}>
-          <i className="bi bi-plus-circle"></i> Add New Cake
-        </button>
-      </div>
-
+      <h2 className="form-title">Cakes for Events</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="eventType" className="form-label">
