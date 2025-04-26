@@ -6,7 +6,6 @@ function Navbar() {
   const location = useLocation();
 
   return (
-
     <nav className="navbar-container">
       <style>
         {`
@@ -110,21 +109,28 @@ function Navbar() {
             <Link 
               className={`nav-link ${location.pathname === '/displaycakerecipe' ? 'active' : ''}`}
               to="/displaycakerecipe">
-            Cake Recipes
+              Cake Recipes
             </Link>
           </li>
           <li className="nav-item">
             <Link 
               className={`nav-link ${location.pathname === '/decorationtips' ? 'active' : ''}`}
               to="/decorationtips">
-            Decoration Tips
+              Decoration Tips
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
+              className={`nav-link ${location.pathname === '/cakesforevents' ? 'active' : ''}`}
+              to="/cakesforevents">
+              Cakes for Events
             </Link>
           </li>
           <li className="nav-item">
             <Link 
               className={`nav-link ${location.pathname === '/Voice' ? 'active' : ''}`}
               to="/Voice">
-            <i className="bi bi-mic"></i> Voice Navigator
+              <i className="bi bi-mic"></i> Voice Navigator
             </Link>
           </li> 
         </ul>
