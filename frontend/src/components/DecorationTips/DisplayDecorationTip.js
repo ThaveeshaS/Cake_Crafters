@@ -11,6 +11,8 @@ const DisplayDecorationTip = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeMedia, setActiveMedia] = useState(0);
+  const [editComment, setEditComment] = useState({});
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/decoration-tips/${id}`)
@@ -32,6 +34,53 @@ const DisplayDecorationTip = () => {
       } catch (err) {
         setError(err.response?.data || 'Failed to delete tip');
       }
+    }
+  };
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const comment = {
+      text: newComment,
+      author: 'User',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.post(`http://localhost:8080/api/decoration-tips/${id}/comment`, comment);
+      setTip(response.data);
+      setNewComment('');
+    } catch (err) {
+      setError(err.response?.data || 'Failed to add comment');
+    }
+  };
+
+  const handleCommentEdit = async (commentId, e) => {
+    e.preventDefault();
+    if (!editComment[commentId]?.trim()) return;
+
+    const updatedComment = {
+      text: editComment[commentId],
+      author: tip.comments.find(c => c.id === commentId)?.author || 'User',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`, updatedComment);
+      setTip(response.data);
+      setEditComment({ ...editComment, [commentId]: null });
+    } catch (err) {
+      setError(err.response?.data || 'Failed to edit comment');
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`);
+      setTip(response.data);
+    } catch (err) {
+      setError(err.response?.data || 'Failed to delete comment');
     }
   };
 
@@ -74,6 +123,7 @@ const DisplayDecorationTip = () => {
             --dark-color: #343a40;
             --success-color: #00b894;
             --danger-color: #d63031;
+            --neutral-color: #6c757d;
           }
 
           .tip-details-container {
@@ -297,6 +347,9 @@ const DisplayDecorationTip = () => {
           .comment-list {
             list-style-type: none;
             padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
           }
 
           .comment-item {
@@ -306,6 +359,7 @@ const DisplayDecorationTip = () => {
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: relative;
+            padding-right: 50px; /* Reduced space for vertical buttons */
           }
 
           .comment-item:before {
@@ -325,6 +379,20 @@ const DisplayDecorationTip = () => {
             margin-bottom: 0.5rem;
           }
 
+          .comment-content {
+            position: relative;
+          }
+
+          .comment-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column; /* Stack buttons vertically */
+            gap: 0.5rem;
+            align-items: flex-end;
+          }
+
           .empty-state {
             text-align: center;
             padding: 3rem;
@@ -336,6 +404,144 @@ const DisplayDecorationTip = () => {
             font-size: 4rem;
             color: var(--secondary-color);
             margin-bottom: 1rem;
+          }
+
+          .comment-input {
+            resize: none;
+            height: 80px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            font-size: 0.9rem;
+            transition: border 0.3s;
+            width: 100%;
+          }
+
+          .comment-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+            outline: none;
+          }
+
+          .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+          }
+
+          .comment-submit, .comment-edit-submit, .comment-cancel {
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin-top: 0.5rem;
+          }
+
+          .comment-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-submit:hover {
+            background: #5649d1;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-edit-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-edit-submit:hover {
+            background: #5649d1;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-cancel {
+            background: #f8f9fa;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+          }
+
+          .comment-cancel:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-submit i, .comment-edit-submit i, .comment-cancel i {
+            font-size: 1rem;
+          }
+
+          .comment-edit, .comment-delete {
+            background: #f8f9fa; /* Light background for contrast */
+            border: 1px solid var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+          }
+
+          .comment-edit {
+            color: var(--primary-color);
+          }
+
+          .comment-delete {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+          }
+
+          .comment-edit:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-delete:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(214, 48, 49, 0.3);
+          }
+
+          .comment-edit i, .comment-delete i {
+            font-size: 1rem;
+          }
+
+          /* Custom scrollbar */
+          .comment-list::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          .comment-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+          }
+
+          .comment-list::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 3px;
+          }
+
+          .comment-list::-webkit-scrollbar-thumb:hover {
+            background: #888;
           }
 
           @media (max-width: 768px) {
@@ -363,6 +569,10 @@ const DisplayDecorationTip = () => {
             .delete-btn {
               width: 100%;
               justify-content: center;
+            }
+
+            .comment-item {
+              padding-right: 40px; /* Further reduced for vertical buttons on mobile */
             }
           }
         `}
@@ -399,7 +609,6 @@ const DisplayDecorationTip = () => {
               )}
             </div>
           )}
-
           {tip.media && tip.media.length > 1 && (
             <div className="nav-dots">
               {tip.media.map((_, index) => (
@@ -411,7 +620,6 @@ const DisplayDecorationTip = () => {
               ))}
             </div>
           )}
-
           <div className="tip-meta">
             <span className="meta-item">
               <i className="bi bi-person meta-icon"></i>
@@ -434,7 +642,6 @@ const DisplayDecorationTip = () => {
               })}
             </span>
           </div>
-
           <div>
             <h3 className="section-title">Decoration Tip</h3>
             <div className="tip-details">
@@ -443,9 +650,7 @@ const DisplayDecorationTip = () => {
               ))}
             </div>
           </div>
-
           <hr className="my-3" />
-
           <div className="action-buttons">
             <Link to="/decorationtips" className="btn back-btn">
               <i className="bi bi-arrow-left me-2"></i> Back to Tips
@@ -459,33 +664,106 @@ const DisplayDecorationTip = () => {
               </button>
             </div>
           </div>
-
-          {tip.comments && tip.comments.length > 0 ? (
-            <div className="comments-section">
-              <h3 className="section-title">Comments</h3>
+          <div className="comments-section">
+            <h3 className="section-title">Comments</h3>
+            <form 
+              className="comment-form" 
+              onSubmit={handleCommentSubmit}
+            >
+              <textarea
+                className="form-control comment-input mb-2"
+                placeholder="Share your thoughts..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                aria-label="New comment"
+              />
+              <button type="submit" className="comment-submit" aria-label="Post new comment" title="Post comment">
+                <i className="bi bi-send"></i>
+              </button>
+            </form>
+            {tip.comments && tip.comments.length > 0 ? (
               <ul className="comment-list">
                 {tip.comments.map((comment, index) => (
                   <li key={comment.id || index} className="comment-item">
-                    <div className="comment-meta">
-                      <strong>{comment.author}</strong> on{' '}
-                      {new Date(comment.createdAt).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                      })}
-                    </div>
-                    <p>{comment.text}</p>
+                    {editComment[comment.id] ? (
+                      <form 
+                        className="comment-form" 
+                        onSubmit={(e) => handleCommentEdit(comment.id, e)}
+                      >
+                        <textarea
+                          className="form-control comment-input mb-2"
+                          value={editComment[comment.id]}
+                          onChange={(e) => setEditComment({
+                            ...editComment,
+                            [comment.id]: e.target.value
+                          })}
+                          aria-label="Edit comment text"
+                        />
+                        <div className="d-flex gap-2">
+                          <button 
+                            type="submit" 
+                            className="comment-edit-submit"
+                            aria-label="Save edited comment"
+                            title="Save comment"
+                          >
+                            <i className="bi bi-check"></i>
+                          </button>
+                          <button 
+                            type="button" 
+                            className="comment-cancel"
+                            onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                            aria-label="Cancel editing comment"
+                            title="Cancel editing"
+                          >
+                            <i className="bi bi-x"></i>
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="comment-content">
+                        <div className="comment-actions">
+                          <button 
+                            className="comment-edit"
+                            onClick={() => setEditComment({
+                              ...editComment,
+                              [comment.id]: comment.text
+                            })}
+                            title="Edit comment"
+                            aria-label="Edit comment"
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button 
+                            className="comment-delete"
+                            onClick={() => handleCommentDelete(comment.id)}
+                            title="Delete comment"
+                            aria-label="Delete comment"
+                          >
+                            <i className="bi bi-trash"></i>
+                          </button>
+                        </div>
+                        <div className="comment-meta">
+                          <strong>{comment.author}</strong> on{' '}
+                          {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                          })}
+                        </div>
+                        <p>{comment.text}</p>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <i className="bi bi-chat-left-text empty-state-icon"></i>
-              <h4>No Comments Yet</h4>
-              <p className="text-muted">Be the first to share your thoughts!</p>
-            </div>
-          )}
+            ) : (
+              <div className="empty-state">
+                <i className="bi bi-chat-left-text empty-state-icon"></i>
+                <h4>No Comments Yet</h4>
+                <p className="text-muted">Be the first to share your thoughts!</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

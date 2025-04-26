@@ -166,6 +166,53 @@ public class CakeDecTipService {
         return future;
     }
 
+    public CompletableFuture<CakeDecTip> editComment(String tipId, String commentId, CakeDecTip.Comment updatedComment) {
+        CompletableFuture<CakeDecTip> future = new CompletableFuture<>();
+        databaseReference.child(tipId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                CakeDecTip tip = snapshot.getValue(CakeDecTip.class);
+                if (tip != null) {
+                    tip.setId(tipId);
+                    List<CakeDecTip.Comment> comments = tip.getComments();
+                    if (comments != null) {
+                        boolean commentFound = false;
+                        for (int i = 0; i < comments.size(); i++) {
+                            if (comments.get(i).getId().equals(commentId)) {
+                                comments.set(i, updatedComment);
+                                updatedComment.setId(commentId);
+                                commentFound = true;
+                                break;
+                            }
+                        }
+                        if (commentFound) {
+                            tip.setComments(comments);
+                            databaseReference.child(tipId).setValue(tip, (error, ref) -> {
+                                if (error == null) {
+                                    future.complete(tip);
+                                } else {
+                                    future.completeExceptionally(new RuntimeException(error.getMessage()));
+                                }
+                            });
+                        } else {
+                            future.completeExceptionally(new RuntimeException("Comment not found"));
+                        }
+                    } else {
+                        future.completeExceptionally(new RuntimeException("No comments found"));
+                    }
+                } else {
+                    future.completeExceptionally(new RuntimeException("Tip not found"));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                future.completeExceptionally(new RuntimeException(error.getMessage()));
+            }
+        });
+        return future;
+    }
+
     public CompletableFuture<CakeDecTip> deleteComment(String tipId, String commentId) {
         CompletableFuture<CakeDecTip> future = new CompletableFuture<>();
         databaseReference.child(tipId).addListenerForSingleValueEvent(new ValueEventListener() {
