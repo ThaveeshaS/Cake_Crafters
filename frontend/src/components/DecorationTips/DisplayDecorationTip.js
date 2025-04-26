@@ -12,6 +12,7 @@ const DisplayDecorationTip = () => {
   const [error, setError] = useState(null);
   const [activeMedia, setActiveMedia] = useState(0);
   const [editComment, setEditComment] = useState({});
+  const [newComment, setNewComment] = useState('');
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/decoration-tips/${id}`)
@@ -36,12 +37,22 @@ const DisplayDecorationTip = () => {
     }
   };
 
-  const handleCommentDelete = async (commentId) => {
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    const comment = {
+      text: newComment,
+      author: 'User',
+      createdAt: new Date().toISOString(),
+    };
+
     try {
-      const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`);
+      const response = await axios.post(`http://localhost:8080/api/decoration-tips/${id}/comment`, comment);
       setTip(response.data);
+      setNewComment('');
     } catch (err) {
-      setError(err.response?.data || 'Failed to delete comment');
+      setError(err.response?.data || 'Failed to add comment');
     }
   };
 
@@ -61,6 +72,15 @@ const DisplayDecorationTip = () => {
       setEditComment({ ...editComment, [commentId]: null });
     } catch (err) {
       setError(err.response?.data || 'Failed to edit comment');
+    }
+  };
+
+  const handleCommentDelete = async (commentId) => {
+    try {
+      const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${id}/comment/${commentId}`);
+      setTip(response.data);
+    } catch (err) {
+      setError(err.response?.data || 'Failed to delete comment');
     }
   };
 
@@ -327,6 +347,9 @@ const DisplayDecorationTip = () => {
           .comment-list {
             list-style-type: none;
             padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
           }
 
           .comment-item {
@@ -336,6 +359,7 @@ const DisplayDecorationTip = () => {
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: relative;
+            padding-right: 50px; /* Reduced space for vertical buttons */
           }
 
           .comment-item:before {
@@ -357,7 +381,6 @@ const DisplayDecorationTip = () => {
 
           .comment-content {
             position: relative;
-            padding-right: 50px; /* Space for vertical buttons */
           }
 
           .comment-actions {
@@ -406,23 +429,30 @@ const DisplayDecorationTip = () => {
             gap: 0.75rem;
           }
 
-          .comment-form-buttons {
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-start; /* Align buttons to the left */
-          }
-
-          .comment-edit-submit, .comment-cancel {
+          .comment-submit, .comment-edit-submit, .comment-cancel {
             border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
             cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin-top: 0.5rem;
+          }
+
+          .comment-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-submit:hover {
+            background: #5649d1;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
           .comment-edit-submit {
@@ -432,22 +462,25 @@ const DisplayDecorationTip = () => {
 
           .comment-edit-submit:hover {
             background: #5649d1;
-            transform: translateY(-2px);
+            transform: scale(1.1);
             box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
           .comment-cancel {
-            background: var(--light-color);
-            color: var(--neutral-color);
-            border: 1px solid var(--neutral-color);
+            background: #f8f9fa;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
           }
 
           .comment-cancel:hover {
-            background: #e9ecef;
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.2);
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-submit i, .comment-edit-submit i, .comment-cancel i {
+            font-size: 1rem;
           }
 
           .comment-edit, .comment-delete {
@@ -492,6 +525,25 @@ const DisplayDecorationTip = () => {
             font-size: 1rem;
           }
 
+          /* Custom scrollbar */
+          .comment-list::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          .comment-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+          }
+
+          .comment-list::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 3px;
+          }
+
+          .comment-list::-webkit-scrollbar-thumb:hover {
+            background: #888;
+          }
+
           @media (max-width: 768px) {
             .tip-title {
               font-size: 1.8rem;
@@ -519,18 +571,8 @@ const DisplayDecorationTip = () => {
               justify-content: center;
             }
 
-            .comment-content {
-              padding-right: 40px; /* Adjust for smaller screens */
-            }
-
-            .comment-form-buttons {
-              flex-direction: column;
-              gap: 0.5rem;
-            }
-
-            .comment-edit-submit, .comment-cancel {
-              width: 100%;
-              justify-content: center;
+            .comment-item {
+              padding-right: 40px; /* Further reduced for vertical buttons on mobile */
             }
           }
         `}
@@ -622,9 +664,24 @@ const DisplayDecorationTip = () => {
               </button>
             </div>
           </div>
-          {tip.comments && tip.comments.length > 0 ? (
-            <div className="comments-section">
-              <h3 className="section-title">Comments</h3>
+          <div className="comments-section">
+            <h3 className="section-title">Comments</h3>
+            <form 
+              className="comment-form" 
+              onSubmit={handleCommentSubmit}
+            >
+              <textarea
+                className="form-control comment-input mb-2"
+                placeholder="Share your thoughts..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                aria-label="New comment"
+              />
+              <button type="submit" className="comment-submit" aria-label="Post new comment" title="Post comment">
+                <i className="bi bi-send"></i>
+              </button>
+            </form>
+            {tip.comments && tip.comments.length > 0 ? (
               <ul className="comment-list">
                 {tip.comments.map((comment, index) => (
                   <li key={comment.id || index} className="comment-item">
@@ -642,23 +699,23 @@ const DisplayDecorationTip = () => {
                           })}
                           aria-label="Edit comment text"
                         />
-                        <div className="comment-form-buttons">
+                        <div className="d-flex gap-2">
                           <button 
                             type="submit" 
                             className="comment-edit-submit"
                             aria-label="Save edited comment"
+                            title="Save comment"
                           >
-                            <i className="bi bi-check me-2"></i>
-                            Save
+                            <i className="bi bi-check"></i>
                           </button>
                           <button 
                             type="button" 
                             className="comment-cancel"
                             onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
                             aria-label="Cancel editing comment"
+                            title="Cancel editing"
                           >
-                            <i className="bi bi-x me-2"></i>
-                            Cancel
+                            <i className="bi bi-x"></i>
                           </button>
                         </div>
                       </form>
@@ -699,14 +756,14 @@ const DisplayDecorationTip = () => {
                   </li>
                 ))}
               </ul>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <i className="bi bi-chat-left-text empty-state-icon"></i>
-              <h4>No Comments Yet</h4>
-              <p className="text-muted">Be the first to share your thoughts!</p>
-            </div>
-          )}
+            ) : (
+              <div className="empty-state">
+                <i className="bi bi-chat-left-text empty-state-icon"></i>
+                <h4>No Comments Yet</h4>
+                <p className="text-muted">Be the first to share your thoughts!</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

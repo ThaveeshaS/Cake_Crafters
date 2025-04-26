@@ -450,16 +450,26 @@ function DecorationTips() {
           }
 
           .menu-icon {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #fff;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 10px;
             border-radius: 50%;
-            transition: color 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           }
 
           .menu-icon:hover {
-            color: #ddd;
+            background: linear-gradient(135deg, #5649d1, #8e7ce0);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            opacity: 0.9;
           }
 
           .dropdown-menu {
@@ -573,6 +583,13 @@ function DecorationTips() {
             .comment-item {
               padding-right: 70px; /* Adjust for smaller screens */
             }
+
+            .menu-icon {
+              width: 36px;
+              height: 36px;
+              font-size: 1.3rem;
+              padding: 8px;
+            }
           }
         `}
       </style>
@@ -681,6 +698,8 @@ function DecorationTips() {
                             <i
                               className="bi bi-three-dots menu-icon"
                               onClick={() => toggleMenu(tip.id)}
+                              aria-label="Open menu"
+                              title="Open menu"
                             ></i>
                             {menuOpen === tip.id && (
                               <div className="dropdown-menu">
