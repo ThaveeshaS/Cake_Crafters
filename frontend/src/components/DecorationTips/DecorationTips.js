@@ -481,41 +481,69 @@ function DecorationTips() {
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            min-width: 120px;
+            min-width: 140px; /* Increased to fit styled buttons */
             display: block;
+            padding: 0.5rem;
           }
 
           .dropdown-item {
-            padding: 0.5rem 1rem;
-            color: #343a40;
-            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            background: var(--light-color);
+            border: 1px solid transparent;
           }
 
           .dropdown-item:hover {
-            background: #e7f1ff;
-            color: #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          .dropdown-item.edit {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
           }
 
           .dropdown-item.edit i {
-            color: #007bff;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+          }
+
+          .dropdown-item.edit:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+          }
+
+          .dropdown-item.edit:hover i {
+            color: #fff;
           }
 
           .dropdown-item.delete {
-            color: #dc3545;
+            color: var(--danger-color);
+            border-color: var(--danger-color);
           }
 
           .dropdown-item.delete i {
-            color: #dc3545;
+            color: var(--danger-color);
+            font-size: 1.1rem;
           }
 
           .dropdown-item.delete:hover {
-            background: #f8d7da;
-            color: #dc3545;
+            background: var(--danger-color);
+            color: #fff;
+            border-color: var(--danger-color);
+          }
+
+          .dropdown-item.delete:hover i {
+            color: #fff;
           }
 
           .comment-edit, .comment-delete {
@@ -589,6 +617,20 @@ function DecorationTips() {
               height: 36px;
               font-size: 1.3rem;
               padding: 8px;
+            }
+
+            .dropdown-menu {
+              min-width: 120px; /* Slightly smaller for mobile */
+            }
+
+            .dropdown-item {
+              padding: 0.4rem 0.6rem;
+              font-size: 0.9rem;
+              gap: 0.6rem;
+            }
+
+            .dropdown-item i {
+              font-size: 1rem;
             }
           }
         `}
@@ -706,6 +748,8 @@ function DecorationTips() {
                                 <div
                                   className="dropdown-item edit"
                                   onClick={() => handleEdit(tip)}
+                                  aria-label="Edit tip"
+                                  title="Edit tip"
                                 >
                                   <i className="bi bi-pencil"></i>
                                   Edit
@@ -713,6 +757,8 @@ function DecorationTips() {
                                 <div
                                   className="dropdown-item delete"
                                   onClick={() => handleDelete(tip.id)}
+                                  aria-label="Delete tip"
+                                  title="Delete tip"
                                 >
                                   <i className="bi bi-trash"></i>
                                   Delete
