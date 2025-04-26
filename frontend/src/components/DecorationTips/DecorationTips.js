@@ -8,6 +8,7 @@ function DecorationTips() {
   const [tips, setTips] = useState([]);
   const [menuOpen, setMenuOpen] = useState(null);
   const [newComment, setNewComment] = useState({});
+  const [editComment, setEditComment] = useState({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const menuRefs = useRef({});
@@ -86,6 +87,25 @@ function DecorationTips() {
     }
   };
 
+  const handleCommentEdit = async (tipId, commentId, e) => {
+    e.preventDefault();
+    if (!editComment[commentId]?.trim()) return;
+
+    const updatedComment = {
+      text: editComment[commentId],
+      author: 'User',
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axios.put(`http://localhost:8080/api/decoration-tips/${tipId}/comment/${commentId}`, updatedComment);
+      setTips(tips.map(tip => tip.id === tipId ? response.data : tip));
+      setEditComment({ ...editComment, [commentId]: null });
+    } catch (err) {
+      console.error('Failed to edit comment:', err);
+    }
+  };
+
   const handleCommentDelete = async (tipId, commentId) => {
     try {
       const response = await axios.delete(`http://localhost:8080/api/decoration-tips/${tipId}/comment/${commentId}`);
@@ -112,6 +132,7 @@ function DecorationTips() {
             --light-color: #f8f9fa;
             --dark-color: #343a40;
             --success-color: #00b894;
+            --danger-color: #d63031;
           }
 
           body {
@@ -250,23 +271,58 @@ function DecorationTips() {
             outline: none;
           }
 
+          .comment-submit, .comment-edit-submit, .comment-cancel {
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            margin-top: 0.5rem;
+          }
+
           .comment-submit {
             background: var(--primary-color);
             color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            font-weight: 500;
-            margin-top: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
           }
 
           .comment-submit:hover {
             background: #5649d1;
-            transform: translateY(-2px);
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-edit-submit {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          .comment-edit-submit:hover {
+            background: #5649d1;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-cancel {
+            background: #f8f9fa;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+          }
+
+          .comment-cancel:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+          }
+
+          .comment-submit i, .comment-edit-submit i, .comment-cancel i {
+            font-size: 1rem;
           }
 
           .comment-list {
@@ -276,6 +332,7 @@ function DecorationTips() {
             padding: 0.75rem;
             background: #f9f9f9;
             border-radius: 8px;
+            position: relative;
           }
 
           .comment-item {
@@ -286,6 +343,7 @@ function DecorationTips() {
             border-bottom: 1px solid #eee;
             position: relative;
             padding-left: 1rem;
+            padding-right: 80px; /* Space for horizontal buttons */
           }
 
           .comment-item:before {
@@ -297,6 +355,20 @@ function DecorationTips() {
             width: 3px;
             background: var(--secondary-color);
             border-radius: 3px;
+          }
+
+          .comment-content {
+            position: relative;
+          }
+
+          .comment-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            flex-direction: row; /* Stack buttons horizontally */
+            gap: 0.5rem;
+            align-items: center;
           }
 
           .create-btn {
@@ -378,16 +450,26 @@ function DecorationTips() {
           }
 
           .menu-icon {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #fff;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 5px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 10px;
             border-radius: 50%;
-            transition: color 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
           }
 
           .menu-icon:hover {
-            color: #ddd;
+            background: linear-gradient(135deg, #5649d1, #8e7ce0);
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            opacity: 0.9;
           }
 
           .dropdown-menu {
@@ -399,61 +481,111 @@ function DecorationTips() {
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            min-width: 120px;
+            min-width: 140px; /* Increased to fit styled buttons */
             display: block;
+            padding: 0.5rem;
           }
 
           .dropdown-item {
-            padding: 0.5rem 1rem;
-            color: #343a40;
-            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: flexdenly;
+            transition: all 0.3s ease;
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            border-radius: 8px;
+            margin: 0.25rem 0;
+            background: var(--light-color);
+            border: 1px solid transparent;
           }
 
           .dropdown-item:hover {
-            background: #e7f1ff;
-            color: #007bff;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          .dropdown-item.edit {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
           }
 
           .dropdown-item.edit i {
-            color: #007bff;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+          }
+
+          .dropdown-item.edit:hover {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+          }
+
+          .dropdown-item.edit:hover i {
+            color: #fff;
           }
 
           .dropdown-item.delete {
-            color: #dc3545;
+            color: var(--danger-color);
+            border-color: var(--danger-color);
           }
 
           .dropdown-item.delete i {
-            color: #dc3545;
+            color: var(--danger-color);
+            font-size: 1.1rem;
           }
 
           .dropdown-item.delete:hover {
-            background: #f8d7da;
-            color: #dc3545;
+            background: var(--danger-color);
+            color: #fff;
+            border-color: var(--danger-color);
+          }
+
+          .dropdown-item.delete:hover i {
+            color: #fff;
+          }
+
+          .comment-edit, .comment-delete {
+            background: #f8f9fa; /* Light background for contrast */
+            border: 1px solid var(--primary-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+          }
+
+          .comment-edit {
+            color: var(--primary-color);
           }
 
           .comment-delete {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.25rem 0.5rem;
-            transition: all 0.2s ease;
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+          }
+
+          .comment-edit:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
           }
 
           .comment-delete:hover {
-            color: #bd2130;
-            background: #f8d7da;
-            border-radius: 4px;
+            background: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(214, 48, 49, 0.3);
           }
 
-          .comment-delete i {
-            font-size: 0.9rem;
+          .comment-edit i, .comment-delete i {
+            font-size: 1rem;
           }
 
           /* Custom scrollbar */
@@ -473,6 +605,33 @@ function DecorationTips() {
 
           ::-webkit-scrollbar-thumb:hover {
             background: #888;
+          }
+
+          @media (max-width: 768px) {
+            .comment-item {
+              padding-right: 70px; /* Adjust for smaller screens */
+            }
+
+            .menu-icon {
+              width: 36px;
+              height: 36px;
+              font-size: 1.3rem;
+              padding: 8px;
+            }
+
+            .dropdown-menu {
+              min-width: 120px; /* Slightly smaller for mobile */
+            }
+
+            .dropdown-item {
+              padding: 0.4rem 0.6rem;
+              font-size: 0.9rem;
+              gap: 0.6rem;
+            }
+
+            .dropdown-item i {
+              font-size: 1rem;
+            }
           }
         `}
       </style>
@@ -507,7 +666,7 @@ function DecorationTips() {
               <div className="row">
                 {tips.map((tip) => {
                   const imageCount = tip.media && tip.mediaType !== 'video' ? tip.media.length : 1;
-                  const slideDuration = imageCount * 10; // 10 seconds per image (as per original code)
+                  const slideDuration = imageCount * 10; // 10 seconds per image
                   const percentagePerImage = 100 / imageCount;
                   const keyframes = Array.from({ length: imageCount }, (_, i) => {
                     const start = i * percentagePerImage;
@@ -581,12 +740,16 @@ function DecorationTips() {
                             <i
                               className="bi bi-three-dots menu-icon"
                               onClick={() => toggleMenu(tip.id)}
+                              aria-label="Open menu"
+                              title="Open menu"
                             ></i>
                             {menuOpen === tip.id && (
                               <div className="dropdown-menu">
                                 <div
                                   className="dropdown-item edit"
                                   onClick={() => handleEdit(tip)}
+                                  aria-label="Edit tip"
+                                  title="Edit tip"
                                 >
                                   <i className="bi bi-pencil"></i>
                                   Edit
@@ -594,6 +757,8 @@ function DecorationTips() {
                                 <div
                                   className="dropdown-item delete"
                                   onClick={() => handleDelete(tip.id)}
+                                  aria-label="Delete tip"
+                                  title="Delete tip"
                                 >
                                   <i className="bi bi-trash"></i>
                                   Delete
@@ -645,10 +810,10 @@ function DecorationTips() {
                                     ...newComment,
                                     [tip.id]: e.target.value
                                   })}
+                                  aria-label="New comment"
                                 />
-                                <button type="submit" className="comment-submit">
-                                  <i className="bi bi-send me-2"></i>
-                                  Post Comment
+                                <button type="submit" className="comment-submit" aria-label="Post new comment">
+                                  <i className="bi bi-send"></i>
                                 </button>
                               </form>
                               {(tip.comments || []).length > 0 && (
@@ -658,16 +823,66 @@ function DecorationTips() {
                                   </h6>
                                   {(tip.comments || []).map((comment) => (
                                     <div key={comment.id} className="comment-item">
-                                      <div className="comment-content">
-                                        <p className="comment-text">{comment.text}</p>
-                                      </div>
-                                      <button 
-                                        className="comment-delete"
-                                        onClick={() => handleCommentDelete(tip.id, comment.id)}
-                                        title="Delete comment"
-                                      >
-                                        <i className="bi bi-trash"></i>
-                                      </button>
+                                      {editComment[comment.id] ? (
+                                        <form 
+                                          className="comment-form" 
+                                          onSubmit={(e) => handleCommentEdit(tip.id, comment.id, e)}
+                                        >
+                                          <textarea
+                                            className="form-control comment-input mb-2"
+                                            value={editComment[comment.id]}
+                                            onChange={(e) => setEditComment({
+                                              ...editComment,
+                                              [comment.id]: e.target.value
+                                            })}
+                                            aria-label="Edit comment"
+                                          />
+                                          <div className="d-flex gap-2">
+                                            <button 
+                                              type="submit" 
+                                              className="comment-edit-submit"
+                                              aria-label="Save edited comment"
+                                              title="Save comment"
+                                            >
+                                              <i className="bi bi-check"></i>
+                                            </button>
+                                            <button 
+                                              type="button" 
+                                              className="comment-cancel"
+                                              onClick={() => setEditComment({ ...editComment, [comment.id]: null })}
+                                              aria-label="Cancel editing comment"
+                                              title="Cancel editing"
+                                            >
+                                              <i className="bi bi-x"></i>
+                                            </button>
+                                          </div>
+                                        </form>
+                                      ) : (
+                                        <div className="comment-content">
+                                          <div className="comment-actions">
+                                            <button 
+                                              className="comment-edit"
+                                              onClick={() => setEditComment({
+                                                ...editComment,
+                                                [comment.id]: comment.text
+                                              })}
+                                              title="Edit comment"
+                                              aria-label="Edit comment"
+                                            >
+                                              <i className="bi bi-pencil"></i>
+                                            </button>
+                                            <button 
+                                              className="comment-delete"
+                                              onClick={() => handleCommentDelete(tip.id, comment.id)}
+                                              title="Delete comment"
+                                              aria-label="Delete comment"
+                                            >
+                                              <i className="bi bi-trash"></i>
+                                            </button>
+                                          </div>
+                                          <p className="comment-text">{comment.text}</p>
+                                        </div>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
