@@ -16,6 +16,11 @@ export const createPost = (post) => {
   return api.post('', post);
 };
 
+export const updatePost = (postId, post) => {
+  console.log('Updating post:', postId, 'with data:', post);
+  return api.put(`/${postId}`, post);
+};
+
 export const likePost = (postId) => {
   console.log('Liking post:', postId);
   return api.post(`/${postId}/likes`);
@@ -34,6 +39,11 @@ export const deletePost = (postId) => {
 export const addComment = (postId, comment) => {
   console.log('Adding comment to post:', postId, 'comment:', comment);
   return api.post(`/${postId}/comments`, comment);
+};
+
+export const updateComment = (postId, commentId, comment) => {
+  console.log('Updating comment:', commentId, 'for post:', postId, 'with data:', comment);
+  return api.put(`/${postId}/comments/${commentId}`, comment);
 };
 
 export const deleteComment = (postId, commentId) => {

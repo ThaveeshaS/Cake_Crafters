@@ -1,23 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button, TextField, Typography, Box, Paper, CircularProgress } from "@mui/material"
-import { useNavigate } from "react-router-dom"
-import { createPost } from "../services/api"
+import { useNavigate, useParams } from "react-router-dom"
+import { getPosts, updatePost } from "../services/api"
 import { CloudUpload as UploadIcon, Cake as CakeIcon, Close as CloseIcon } from "@mui/icons-material"
 import { motion } from "framer-motion"
 
-function CreatePost() {
+function EditPost() {
   const [description, setDescription] = useState("")
   const [mediaBase64, setMediaBase64] = useState([])
   const [previews, setPreviews] = useState([])
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
+  const { postId } = useParams()
+
+  useEffect(() => {
+    getPosts()
+      .then((response) => {
+        const post = response.data.find((p) => p.postId === postId)
+        if (post) {
+          setDescription(post.description || "")
+          setMediaBase64(post.mediaUrls || [])
+          setPreviews(post.mediaUrls || [])
+        } else {
+          setError("Post not found")
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching post:', error)
+        setError('Failed to fetch post')
+      })
+  }, [postId])
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files)
-    if (files.length > 3) {
+    if (files.length + mediaBase64.length > 3) {
       setError("Max 3 files allowed!")
       return
     }
@@ -34,8 +53,8 @@ function CreatePost() {
 
     Promise.all(base64Promises)
       .then((base64Strings) => {
-        setMediaBase64(base64Strings)
-        setPreviews(base64Strings)
+        setMediaBase64([...mediaBase64, ...base64Strings])
+        setPreviews([...previews, ...base64Strings])
       })
       .catch((error) => {
         setError("Failed to process images: " + error.message)
@@ -48,11 +67,11 @@ function CreatePost() {
     setIsSubmitting(true)
     const post = { description, mediaUrls: mediaBase64 }
     try {
-      await createPost(post)
+      await updatePost(postId, post)
       navigate("/")
     } catch (error) {
-      console.error("Error creating post:", error)
-      setError("Failed to create post: " + (error.response?.data || error.message))
+      console.error("Error updating post:", error)
+      setError("Failed to update post: " + (error.response?.data || error.message))
       setIsSubmitting(false)
     }
   }
@@ -139,7 +158,7 @@ function CreatePost() {
                 zIndex: 2,
               }}
             >
-              Share Your Cake Creation
+              Edit Your Cake Creation
             </Typography>
             <div className="header-circuit"></div>
           </div>
@@ -236,7 +255,7 @@ function CreatePost() {
               className="button-animation cyber-btn"
             >
               Upload Media (Max 3)
-              <input type="file" hidden accept="image/*" multiple onChange={handleFileChange} />
+              <input type="file" hidden accept="image/*,video/*" multiple onChange={handleFileChange} />
             </Button>
 
             <Typography
@@ -244,7 +263,7 @@ function CreatePost() {
               color={mediaBase64.length === 0 ? "error" : "text.secondary"}
               sx={{ display: "block", mb: 2 }}
             >
-              {mediaBase64.length === 0 ? "At least one image is required" : `${mediaBase64.length} image(s) selected`}
+              {mediaBase64.length === 0 ? "At least one image or video is required" : `${mediaBase64.length} item(s) selected`}
             </Typography>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
@@ -268,15 +287,28 @@ function CreatePost() {
                     }}
                     className="cyber-image"
                   >
-                    <Box
-                      component="img"
-                      src={base64}
-                      sx={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
+                    {base64.startsWith('data:video') ? (
+                      <Box
+                        component="video"
+                        src={base64}
+                        controls
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <Box
+                        component="img"
+                        src={base64}
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    )}
                     <Box
                       onClick={() => removeImage(index)}
                       sx={{
@@ -335,7 +367,7 @@ function CreatePost() {
               }}
               className="button-animation neon-button"
             >
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Share Post"}
+              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Update Post"}
               {!isSubmitting && (
                 <Box
                   sx={{
@@ -361,6 +393,13 @@ function CreatePost() {
       </Box>
 
       <style jsx>{`
+        .page-container {
+          position: relative;
+          min-height: 100vh;
+          padding: 20px;
+          animation: fadeIn 0.5s forwards;
+        }
+        
         .futuristic-header {
           display: flex;
           align-items: center;
@@ -510,18 +549,18 @@ function CreatePost() {
         
         .neon-button::before {
           content: "";
-          position: "absolute",
+          position: absolute;
           top: -2px;
           left: -2px;
           right: -2px;
           bottom: -2px;
-          background: "linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc)",
-          backgroundSize: "400% 400%",
-          z-index: -1,
-          borderRadius: "14px",
-          animation: "gradientBorder 3s ease infinite",
-          opacity: 0.7,
-          filter: "blur(5px)",
+          background: linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc);
+          background-size: 400% 400%;
+          z-index: -1;
+          border-radius: 14px;
+          animation: gradientBorder 3s ease infinite;
+          opacity: 0.7;
+          filter: blur(5px);
         }
         
         @keyframes fadeIn {
@@ -613,4 +652,4 @@ function CreatePost() {
   )
 }
 
-export default CreatePost
+export default EditPost
