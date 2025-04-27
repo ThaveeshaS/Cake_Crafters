@@ -5,8 +5,7 @@ import { Button, TextField, Typography, Box, Paper, CircularProgress } from "@mu
 import { useNavigate } from "react-router-dom"
 import { createPost } from "../services/api"
 import { CloudUpload as UploadIcon, Cake as CakeIcon, Close as CloseIcon } from "@mui/icons-material"
-import Particles from "react-tsparticles"
-import { loadSlim } from "tsparticles-slim"
+import { motion } from "framer-motion"
 
 function CreatePost() {
   const [description, setDescription] = useState("")
@@ -15,10 +14,6 @@ function CreatePost() {
   const [error, setError] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
-
-  const particlesInit = async (engine) => {
-    await loadSlim(engine)
-  }
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files)
@@ -72,66 +67,21 @@ function CreatePost() {
   }
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh" }}>
-      {/* Futuristic Particle Background */}
-      <Particles
-        id="tsparticles"
-        init={particlesInit}
-        options={{
-          background: {
-            color: "#0b0b1a",
+    <Box sx={{ position: "relative", minHeight: "calc(100vh - 128px)" /* Adjust for header/footer */ }}>
+      {/* Animated Gradient Background */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: 1,
+          backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+        }}
+        transition={{
+          opacity: { duration: 1 },
+          backgroundPosition: {
+            duration: 10,
+            ease: "easeInOut",
+            repeat: Infinity,
           },
-          fpsLimit: 120,
-          interactivity: {
-            events: {
-              onHover: {
-                enable: true,
-                mode: "repulse",
-              },
-            },
-            modes: {
-              repulse: {
-                distance: 100,
-                duration: 0.4,
-              },
-            },
-          },
-          particles: {
-            color: {
-              value: ["#ff7bac", "#50fafa", "#3393ff"],
-            },
-            links: {
-              color: "#50fafa",
-              distance: 150,
-              enable: true,
-              opacity: 0.3,
-              width: 1,
-            },
-            move: {
-              direction: "none",
-              enable: true,
-              outModes: "bounce",
-              random: true,
-              speed: 1.5,
-              straight: false,
-            },
-            number: {
-              density: {
-                enable: true,
-              },
-              value: 50,
-            },
-            opacity: {
-              value: { min: 0.1, max: 0.5 },
-            },
-            shape: {
-              type: "circle",
-            },
-            size: {
-              value: { min: 1, max: 3 },
-            },
-          },
-          detectRetina: true,
         }}
         style={{
           position: "fixed",
@@ -140,17 +90,20 @@ function CreatePost() {
           right: 0,
           bottom: 0,
           zIndex: -1,
+          background: "linear-gradient(135deg, #ff7bac, #3393ff, #00ffcc)",
+          backgroundSize: "200% 200%",
         }}
       />
 
-      {/* Your Original Content */}
-      <div style={{ position: "relative", zIndex: 1, padding: "20px" }}>
+      {/* Content */}
+      <Box sx={{ position: "relative", zIndex: 1, padding: "20px" }}>
         <Paper
           sx={{
             p: 4,
             maxWidth: 700,
             mx: "auto",
             mt: 4,
+            mb: 4, // Ensure space for footer
             boxShadow: "0 10px 30px rgba(111, 66, 193, 0.3), 0 0 20px rgba(80, 250, 250, 0.2)",
             borderRadius: "16px",
             background: "linear-gradient(135deg, rgba(15, 12, 41, 0.85) 0%, rgba(48, 43, 99, 0.85) 50%, rgba(36, 36, 62, 0.85) 100%)",
@@ -405,16 +358,9 @@ function CreatePost() {
             </Button>
           </Box>
         </Paper>
-      </div>
+      </Box>
 
       <style jsx>{`
-        .page-container {
-          position: relative;
-          min-height: 100vh;
-          padding: 20px;
-          animation: fadeIn 0.5s forwards;
-        }
-        
         .futuristic-header {
           display: flex;
           align-items: center;
@@ -564,18 +510,18 @@ function CreatePost() {
         
         .neon-button::before {
           content: "";
-          position: absolute;
+          position: "absolute",
           top: -2px;
           left: -2px;
           right: -2px;
           bottom: -2px;
-          background: linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc);
-          background-size: 400% 400%;
-          z-index: -1;
-          border-radius: 14px;
-          animation: gradientBorder 3s ease infinite;
-          opacity: 0.7;
-          filter: blur(5px);
+          background: "linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc)",
+          backgroundSize: "400% 400%",
+          z-index: -1,
+          borderRadius: "14px",
+          animation: "gradientBorder 3s ease infinite",
+          opacity: 0.7,
+          filter: "blur(5px)",
         }
         
         @keyframes fadeIn {
@@ -663,7 +609,7 @@ function CreatePost() {
           }
         }
       `}</style>
-    </div>
+    </Box>
   )
 }
 

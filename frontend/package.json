@@ -14,7 +14,7 @@
     "axios": "^1.8.4",
     "bootstrap": "^5.3.5",
     "bootstrap-icons": "^1.11.3",
-    "framer-motion": "^12.7.3",
+    "framer-motion": "^12.9.2",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
     "react": "^19.1.0",
