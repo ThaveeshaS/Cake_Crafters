@@ -175,6 +175,17 @@ function DecorationTips() {
             object-fit: cover;
             flex-shrink: 0;
             transition: transform 0.5s ease;
+            animation: fade 1s ease-in-out; /* Fade animation for images and videos */
+          }
+
+          @keyframes fade {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 1; }
+          }
+
+          .tip-image-carousel .tip-image {
+            animation: fade 1s ease-in-out; /* Ensure carousel images also fade */
           }
 
           .tip-card:hover .tip-image {
@@ -631,6 +642,10 @@ function DecorationTips() {
 
             .dropdown-item i {
               font-size: 1rem;
+            }
+
+            .tip-image {
+              animation: fade 1s ease-in-out; /* Ensure fade animation on mobile */
             }
           }
         `}
