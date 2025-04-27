@@ -46,7 +46,7 @@ The system follows a client-server architecture:
 2. **Backend**:
     ```bash
    cd backend
-   ./mvnw spring-boot:run 
+   mvn spring-boot:run 
      ```
 3. **Environment Variables**
 - Create firebase-service-account.json under resources and add Firebase credentials.
