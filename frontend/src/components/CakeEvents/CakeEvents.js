@@ -26,13 +26,13 @@ function CakeEvents() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Form submitted:', { ...formData, photo });
+    navigate('/cakedetails'); // Redirect to CakeDetails page
   };
 
   const handleAddNewCake = () => {
     console.log('Add New Cake button clicked');
     navigate('/addnewcake');
   };
-
 
   return (
     <div className="cake-events-container">
