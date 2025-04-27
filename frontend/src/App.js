@@ -16,8 +16,12 @@ import UpdateRecipeForm from './components/CakeRecipe/UpdateRecipeForm';
 import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
 import DisplayDecorationTip from './components/DecorationTips/DisplayDecorationTip';
-import CakeEvents from './components/CakeEvents/CakeEvents';
-import CakeDetails from './components/CakeEvents/CakeDeatils';
+
+import UserProjectList from './components/UserProjects/UserProjectList';
+import CreateUserProject from './components/UserProjects/CreateUserProject';
+import UserProjectDetails from './components/UserProjects/UserProjectDetails';
+import UpdateUserProject from './components/UserProjects/UpdateUserProject';
+
 
 function App() {
   return (
@@ -38,8 +42,10 @@ function App() {
           <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
 
-          <Route path="/cakesforevents" element={<CakeEvents />} />
-          <Route path="/cakedetails" element={<CakeDetails />} />
+          <Route path="/cakesforevents" element={<UserProjectList />} />
+          <Route path="/create-user-project" element={<CreateUserProject />} />
+          <Route path="/user-project/:id" element={<UserProjectDetails />} />
+          <Route path="/user-project/:id/update" element={<UpdateUserProject />} />
         </Routes>
       </Container>
       <Footer />
