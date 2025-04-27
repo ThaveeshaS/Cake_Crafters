@@ -17,7 +17,6 @@ import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
 import DisplayDecorationTip from './components/DecorationTips/DisplayDecorationTip';
 import CakeEvents from './components/CakeEvents/CakeEvents';
-import AddNewCake from './components/CakeEvents/AddNewCake';
 
 function App() {
   return (
@@ -39,7 +38,6 @@ function App() {
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
 
           <Route path="/cakesforevents" element={<CakeEvents />} />
-          <Route path="/addnewcake" element={<AddNewCake />} />
         </Routes>
       </Container>
       <Footer />

@@ -194,9 +194,6 @@ function CakeEvents() {
 
       <div className="header-section">
         <h2 className="form-title">Cakes for Events</h2>
-        <button className="add-new-cake-btn" onClick={handleAddNewCake}>
-          <i className="bi bi-plus-circle"></i> Add New Cake
-        </button>
       </div>
 
       <form onSubmit={handleSubmit}>
