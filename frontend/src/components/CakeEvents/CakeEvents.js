@@ -19,19 +19,54 @@ function CakeEvents() {
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Check file size (10MB limit)
+      const maxSizeInBytes = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSizeInBytes) {
+        alert('File size exceeds 10MB. Please upload a smaller file.');
+        setPhoto(null); // Clear the selected file
+        e.target.value = ''; // Reset the file input
+        return;
+      }
       setPhoto(file);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', { ...formData, photo });
-    navigate('/cakedetails'); // Redirect to CakeDetails page
-  };
-
-  const handleAddNewCake = () => {
-    console.log('Add New Cake button clicked');
-    navigate('/addnewcake');
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append('eventType', formData.eventType);
+    formDataToSend.append('description', formData.description);
+    formDataToSend.append('cakeType', formData.cakeType);
+    if (photo) {
+      formDataToSend.append('photo', photo);
+    }
+  
+    try {
+      console.log('Sending POST request to /api/cake-events with data:', {
+        eventType: formData.eventType,
+        description: formData.description,
+        cakeType: formData.cakeType,
+        photo: photo ? photo.name : 'No photo'
+      });
+      const response = await fetch('http://localhost:8080/api/cake-events/test-post', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to submit cake event: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+  
+      const eventId = await response.text();
+      console.log('Cake event submitted with ID:', eventId);
+  
+      navigate('/cakedetails', { state: { eventId } });
+    } catch (error) {
+      console.error('Error submitting form:', error.message);
+      alert(`Failed to submit cake event: ${error.message}. Please check if the backend server is running and try again.`);
+    }
   };
 
   return (
