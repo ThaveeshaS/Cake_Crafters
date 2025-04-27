@@ -3,6 +3,8 @@ import { Card, CardContent, CardMedia, Typography, Box, IconButton, Divider, But
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useNavigate } from 'react-router-dom';
 import { likePost, dislikePost, deletePost } from '../services/api';
 import CommentList from './CommentList';
 import CommentForm from './CommentForm';
@@ -11,6 +13,7 @@ function PostCard({ post }) {
   const [likes, setLikes] = useState(post.likesCount || 0);
   const [dislikes, setDislikes] = useState(post.dislikesCount || 0);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleLike = async () => {
     try {
@@ -35,11 +38,15 @@ function PostCard({ post }) {
   const handleDeletePost = async () => {
     try {
       await deletePost(post.postId);
-      window.location.reload(); // Refresh to update the UI
+      window.location.reload();
     } catch (error) {
       console.error('Error deleting post:', error);
       setError('Failed to delete post');
     }
+  };
+
+  const handleEditPost = () => {
+    navigate(`/edit/${post.postId}`);
   };
 
   return (
@@ -49,17 +56,23 @@ function PostCard({ post }) {
           <Typography variant="h6" color="#ff6f61" gutterBottom>
             {post.description}
           </Typography>
-          <IconButton onClick={handleDeletePost} sx={{ color: '#ff6f61' }}>
-            <DeleteIcon />
-          </IconButton>
+          <Box>
+            <IconButton onClick={handleEditPost} sx={{ color: '#ff6f61' }}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={handleDeletePost} sx={{ color: '#ff6f61' }}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </Box>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
           {post.mediaUrls && post.mediaUrls.length > 0 ? (
             post.mediaUrls.map((base64, index) => (
               <CardMedia
                 key={index}
-                component="img"
+                component={base64.startsWith('data:video') ? 'video' : 'img'}
                 src={base64}
+                controls={base64.startsWith('data:video')}
                 sx={{ width: 180, height: 180, objectFit: 'cover', borderRadius: 2 }}
               />
             ))
