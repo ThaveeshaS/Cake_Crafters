@@ -17,7 +17,7 @@ function CreatePost() {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files)
-    if (files.length + mediaBase64.length > 3) {
+    if (files.length > 3) {
       setError("Max 3 files allowed!")
       return
     }
@@ -34,8 +34,8 @@ function CreatePost() {
 
     Promise.all(base64Promises)
       .then((base64Strings) => {
-        setMediaBase64([...mediaBase64, ...base64Strings])
-        setPreviews([...previews, ...base64Strings])
+        setMediaBase64(base64Strings)
+        setPreviews(base64Strings)
       })
       .catch((error) => {
         setError("Failed to process images: " + error.message)
@@ -103,7 +103,7 @@ function CreatePost() {
             maxWidth: 700,
             mx: "auto",
             mt: 4,
-            mb: 4,
+            mb: 4, // Ensure space for footer
             boxShadow: "0 10px 30px rgba(111, 66, 193, 0.3), 0 0 20px rgba(80, 250, 250, 0.2)",
             borderRadius: "16px",
             background: "linear-gradient(135deg, rgba(15, 12, 41, 0.85) 0%, rgba(48, 43, 99, 0.85) 50%, rgba(36, 36, 62, 0.85) 100%)",
@@ -126,7 +126,7 @@ function CreatePost() {
         >
           <div className="futuristic-header">
             <div className="header-glow"></div>
-            <CakeIcon sx={{ color: "#ff7bac", fontSize: 36 }} className="header-icon" />
+            <CakeIcon sx={{ color: "#ff7bac", fontSize: 40 }} className="header-icon" />
             <Typography
               variant="h4"
               sx={{
@@ -156,7 +156,6 @@ function CreatePost() {
                 alignItems: "center",
                 border: "1px solid rgba(255, 0, 0, 0.3)",
                 boxShadow: "0 0 10px rgba(255, 0, 0, 0.2)",
-                fontSize: 16,
               }}
             >
               <CloseIcon sx={{ mr: 1, fontSize: 18, color: "#ff5555" }} />
@@ -166,7 +165,7 @@ function CreatePost() {
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
-              label="Tell us about your cake"
+              label="Describe your cake"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               fullWidth
@@ -174,9 +173,8 @@ function CreatePost() {
               variant="outlined"
               multiline
               rows={4}
-              inputProps={{ maxLength: 500 }}
               sx={{
-                mb: 1,
+                mb: 3,
                 "& .MuiOutlinedInput-root": {
                   bgcolor: "rgba(20, 20, 40, 0.6)",
                   borderRadius: "12px",
@@ -211,12 +209,6 @@ function CreatePost() {
               helperText={description.trim() === '' ? 'Description is required' : ''}
               error={description.trim() === ''}
             />
-            <Typography
-              variant="caption"
-              sx={{ display: "block", mb: 2, color: "text.secondary" }}
-            >
-              {description.length}/500 characters
-            </Typography>
 
             <Button
               variant="outlined"
@@ -242,10 +234,9 @@ function CreatePost() {
                 },
               }}
               className="button-animation cyber-btn"
-              title="Upload images or videos"
             >
               Upload Media (Max 3)
-              <input type="file" hidden accept="image/*,video/*" multiple onChange={handleFileChange} />
+              <input type="file" hidden accept="image/*" multiple onChange={handleFileChange} />
             </Button>
 
             <Typography
@@ -253,7 +244,7 @@ function CreatePost() {
               color={mediaBase64.length === 0 ? "error" : "text.secondary"}
               sx={{ display: "block", mb: 2 }}
             >
-              {mediaBase64.length === 0 ? "At least one image or video is required" : `${mediaBase64.length} item(s) selected`}
+              {mediaBase64.length === 0 ? "At least one image is required" : `${mediaBase64.length} image(s) selected`}
             </Typography>
 
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
@@ -277,28 +268,15 @@ function CreatePost() {
                     }}
                     className="cyber-image"
                   >
-                    {base64.startsWith('data:video') ? (
-                      <Box
-                        component="video"
-                        src={base64}
-                        controls
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      <Box
-                        component="img"
-                        src={base64}
-                        sx={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    )}
+                    <Box
+                      component="img"
+                      src={base64}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
                     <Box
                       onClick={() => removeImage(index)}
                       sx={{
@@ -356,16 +334,8 @@ function CreatePost() {
                 },
               }}
               className="button-animation neon-button"
-              aria-label="Create post"
             >
-              {isSubmitting ? (
-                <>
-                  <CircularProgress size={24} color="inherit" sx={{ mr: 1 }} />
-                  Creating...
-                </>
-              ) : (
-                "Create post"
-              )}
+              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Share Post"}
               {!isSubmitting && (
                 <Box
                   sx={{
@@ -540,18 +510,25 @@ function CreatePost() {
         
         .neon-button::before {
           content: "";
-          position: absolute;
+          position: "absolute",
           top: -2px;
           left: -2px;
           right: -2px;
           bottom: -2px;
-          background: linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc);
-          background-size: 400% 400%;
-          z-index: -1;
-          borderRadius: 14px;
-          animation: gradientBorder 3s ease infinite;
-          opacity: 0.7;
-          filter: blur(5px);
+          background: "linear-gradient(45deg, #ff00cc, #3393ff, #00ffcc, #ff00cc)",
+          backgroundSize: "400% 400%",
+          z-index: -1,
+          borderRadius: "14px",
+          animation: "gradientBorder 3s ease infinite",
+          opacity: 0.7,
+          filter: "blur(5px)",
+        }
+        
+        @keyframes fadeIn {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         
         @keyframes fadeInScale {
@@ -606,6 +583,15 @@ function CreatePost() {
           }
         }
         
+        @keyframes scanline {
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(100%);
+          }
+        }
+        
         @keyframes circuitMove {
           0% {
             left: 0%;
@@ -628,3 +614,4 @@ function CreatePost() {
 }
 
 export default CreatePost
+
