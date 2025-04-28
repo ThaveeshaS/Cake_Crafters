@@ -253,6 +253,7 @@ function EditPost() {
                 },
               }}
               className="button-animation cyber-btn"
+              title="Upload images or videos"
             >
               Upload Media (Max 3)
               <input type="file" hidden accept="image/*,video/*" multiple onChange={handleFileChange} />
