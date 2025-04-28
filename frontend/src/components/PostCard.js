@@ -44,6 +44,10 @@ function PostCard({ post }) {
                 borderRadius: "8px",
                 overflow: "hidden",
                 boxShadow: "0 0 10px rgba(111, 66, 193, 0.4)",
+                transition: "transform 0.3s ease",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                },
               }}
             >
               {url.startsWith('data:video') ? (
