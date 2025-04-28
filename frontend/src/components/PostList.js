@@ -1,77 +1,41 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { Box, Typography, CircularProgress } from "@mui/material"
-import { motion } from "framer-motion"
-import { getPosts } from "../services/api"
-import PostCard from "./PostCard"
+import React, { useState, useEffect } from 'react';
+import { Typography } from '@mui/material';
+import PostCard from './PostCard';
+import { getPosts } from '../services/api';
 
 function PostList() {
-  const [posts, setPosts] = useState([])
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(true)
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     getPosts()
       .then((response) => {
-        setPosts(response.data)
-        setIsLoading(false)
+        setPosts(response.data || []);
       })
       .catch((error) => {
-        console.error('Error fetching posts:', error)
-        setError('Failed to fetch posts')
-        setIsLoading(false)
-      })
-  }, [])
+        console.error('Error fetching posts:', error);
+        setError('Failed to fetch posts');
+      });
+  }, []);
 
   return (
-    <Box sx={{ position: "relative", minHeight: "calc(100vh - 128px)" }}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-        }}
-        transition={{
-          opacity: { duration: 1 },
-          backgroundPosition: {
-            duration: 10,
-            ease: "easeInOut",
-            repeat: Infinity,
-          },
-        }}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-          background: "linear-gradient(135deg, #ff7bac, #3393ff, #00ffcc)",
-          backgroundSize: "200% 200%",
-        }}
-      />
-      <Box sx={{ position: "relative", zIndex: 1, padding: "20px" }}>
-        {isLoading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress color="inherit" />
-          </Box>
-        ) : error ? (
-          <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
-            {error}
-          </Typography>
-        ) : posts.length === 0 ? (
-          <Typography sx={{ textAlign: "center", color: "#fff" }}>
-            No posts available
-          </Typography>
-        ) : (
-          posts.map((post) => (
-            <PostCard key={post.postId} post={post} />
-          ))
-        )}
-      </Box>
-    </Box>
-  )
+    <div>
+      <Typography variant="h4" color="#ff6f61" gutterBottom>
+        Cake Posts
+      </Typography>
+      {error && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      {posts.length === 0 && !error ? (
+        <Typography color="text.secondary">No posts yet. Create one!</Typography>
+      ) : (
+        posts.map((post) => <PostCard key={post.postId} post={post} />)
+      )}
+    </div>
+  );
 }
 
-export default PostList
+export default PostList;
+
