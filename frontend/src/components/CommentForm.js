@@ -78,8 +78,9 @@ function CommentForm({ postId, onCommentAdded }) {
               variant="outlined"
               multiline
               rows={2}
+              inputProps={{ maxLength: 200 }}
               sx={{
-                mb: 2,
+                mb: 1,
                 "& .MuiOutlinedInput-root": {
                   bgcolor: "rgba(20, 20, 40, 0.6)",
                   borderRadius: "12px",
@@ -114,6 +115,12 @@ function CommentForm({ postId, onCommentAdded }) {
               helperText={error || (text.trim() === '' ? 'Comment is required' : '')}
               error={!!error || text.trim() === ''}
             />
+            <Typography
+              variant="caption"
+              sx={{ display: "block", mb: 2, color: "text.secondary" }}
+            >
+              {text.length}/200 characters
+            </Typography>
             <Button
               type="submit"
               variant="contained"
