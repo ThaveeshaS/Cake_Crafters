@@ -184,7 +184,7 @@ function EditPost() {
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
-              label="Tell us about your cake"
+              label="Describe your cake"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               fullWidth
@@ -253,7 +253,6 @@ function EditPost() {
                 },
               }}
               className="button-animation cyber-btn"
-              title="Upload images or videos"
             >
               Upload Media (Max 3)
               <input type="file" hidden accept="image/*,video/*" multiple onChange={handleFileChange} />
@@ -368,7 +367,7 @@ function EditPost() {
               }}
               className="button-animation neon-button"
             >
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Update post"}
+              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Update Post"}
               {!isSubmitting && (
                 <Box
                   sx={{
