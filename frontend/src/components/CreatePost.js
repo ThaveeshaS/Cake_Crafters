@@ -356,6 +356,7 @@ function CreatePost() {
                 },
               }}
               className="button-animation neon-button"
+              aria-label="Create post"
             >
               {isSubmitting ? (
                 <>
