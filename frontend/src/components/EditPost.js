@@ -367,7 +367,7 @@ function EditPost() {
               }}
               className="button-animation neon-button"
             >
-              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Update Post"}
+              {isSubmitting ? <CircularProgress size={24} color="inherit" /> : "Update post"}
               {!isSubmitting && (
                 <Box
                   sx={{
