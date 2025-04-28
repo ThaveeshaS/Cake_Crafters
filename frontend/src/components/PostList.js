@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Box, Typography } from "@mui/material"
+import { Box, Typography, CircularProgress } from "@mui/material"
 import { motion } from "framer-motion"
 import { getPosts } from "../services/api"
 import PostCard from "./PostCard"
@@ -9,15 +9,18 @@ import PostCard from "./PostCard"
 function PostList() {
   const [posts, setPosts] = useState([])
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     getPosts()
       .then((response) => {
         setPosts(response.data)
+        setIsLoading(false)
       })
       .catch((error) => {
         console.error('Error fetching posts:', error)
         setError('Failed to fetch posts')
+        setIsLoading(false)
       })
   }, [])
 
@@ -49,19 +52,23 @@ function PostList() {
         }}
       />
       <Box sx={{ position: "relative", zIndex: 1, padding: "20px" }}>
-        {error && (
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress color="inherit" />
+          </Box>
+        ) : error ? (
           <Typography color="error" sx={{ mb: 2, textAlign: "center" }}>
             {error}
           </Typography>
-        )}
-        {posts.length === 0 && !error && (
+        ) : posts.length === 0 ? (
           <Typography sx={{ textAlign: "center", color: "#fff" }}>
             No posts available
           </Typography>
+        ) : (
+          posts.map((post) => (
+            <PostCard key={post.postId} post={post} />
+          ))
         )}
-        {posts.map((post) => (
-          <PostCard key={post.postId} post={post} />
-        ))}
       </Box>
     </Box>
   )
