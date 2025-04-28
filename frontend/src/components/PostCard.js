@@ -1,75 +1,114 @@
-"use client"
-
-import { Box, Card, CardContent, Typography } from "@mui/material"
-import { motion } from "framer-motion"
+import React, { useState } from 'react';
+import { Card, CardContent, CardMedia, Typography, Box, IconButton, Divider, Button } from '@mui/material';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useNavigate } from 'react-router-dom';
+import { likePost, dislikePost, deletePost } from '../services/api';
+import CommentList from './CommentList';
+import CommentForm from './CommentForm';
 
 function PostCard({ post }) {
+  const [likes, setLikes] = useState(post.likesCount || 0);
+  const [dislikes, setDislikes] = useState(post.dislikesCount || 0);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLike = async () => {
+    try {
+      await likePost(post.postId);
+      setLikes(likes + 1);
+    } catch (error) {
+      console.error('Error liking post:', error);
+      setError('Failed to like post');
+    }
+  };
+
+  const handleDislike = async () => {
+    try {
+      await dislikePost(post.postId);
+      setDislikes(dislikes + 1);
+    } catch (error) {
+      console.error('Error disliking post:', error);
+      setError('Failed to dislike post');
+    }
+  };
+
+  const handleDeletePost = async () => {
+    try {
+      await deletePost(post.postId);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      setError('Failed to delete post');
+    }
+  };
+
+  const handleEditPost = () => {
+    navigate(`/edit/${post.postId}`);
+  };
+
   return (
-    <Card
-      sx={{
-        maxWidth: 600,
-        mx: "auto",
-        my: 2,
-        borderRadius: "12px",
-        background: "linear-gradient(135deg, rgba(15, 12, 41, 0.85) 0%, rgba(48, 43, 99, 0.85) 50%, rgba(36, 36, 62, 0.85) 100%)",
-        boxShadow: "0 10px 30px rgba(111, 66, 193, 0.3), 0 0 20px rgba(80, 250, 250, 0.2)",
-        border: "1px solid rgba(120, 250, 250, 0.2)",
-        backdropFilter: "blur(10px)",
-      }}
-      component={motion.div}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
+    <Card sx={{ mb: 3, boxShadow: 4, borderRadius: 3, bgcolor: '#fef7f0' }}>
       <CardContent>
-        <Typography
-          variant="h6"
-          sx={{
-            color: "#fff",
-            mb: 2,
-            background: "linear-gradient(90deg, #ff7bac, #ff9a8d, #3393ff)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          {post.description}
-        </Typography>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-          {post.mediaUrls.map((url, index) => (
-            <Box
-              key={index}
-              sx={{
-                width: 140,
-                height: 140,
-                borderRadius: "8px",
-                overflow: "hidden",
-                boxShadow: "0 0 10px rgba(111, 66, 193, 0.4)",
-                transition: "transform 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.05)",
-                },
-              }}
-            >
-              {url.startsWith('data:video') ? (
-                <Box
-                  component="video"
-                  src={url}
-                  controls
-                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <Box
-                  component="img"
-                  src={url}
-                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              )}
-            </Box>
-          ))}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" color="#ff6f61" gutterBottom>
+            {post.description}
+          </Typography>
+          <Box>
+            <IconButton onClick={handleEditPost} sx={{ color: '#ff6f61' }}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={handleDeletePost} sx={{ color: '#ff6f61' }}>
+              <DeleteIcon />
+            </IconButton>
+          </Box>
         </Box>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
+          {post.mediaUrls && post.mediaUrls.length > 0 ? (
+            post.mediaUrls.map((base64, index) => (
+              <CardMedia
+                key={index}
+                component={base64.startsWith('data:video') ? 'video' : 'img'}
+                src={base64}
+                controls={base64.startsWith('data:video')}
+                sx={{ width: 180, height: 180, objectFit: 'cover', borderRadius: 2 }}
+              />
+            ))
+          ) : (
+            <Typography color="text.secondary">No images available</Typography>
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Likes: {likes}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Dislikes: {dislikes}
+          </Typography>
+        </Box>
+        {error && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {error}
+          </Typography>
+        )}
+        <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+          <IconButton onClick={handleLike} sx={{ color: '#ff6f61' }}>
+            <ThumbUpIcon />
+          </IconButton>
+          <IconButton onClick={handleDislike} sx={{ color: '#ff6f61' }}>
+            <ThumbDownIcon />
+          </IconButton>
+        </Box>
+        <Divider sx={{ my: 2 }} />
+        <CommentList postId={post.postId} />
+        <CommentForm postId={post.postId} />
       </CardContent>
     </Card>
-  )
+  );
 }
 
-export default PostCard
+export default PostCard;
+
+
