@@ -1,65 +1,71 @@
-import React, { useState } from 'react';
-import { 
-  Card, CardContent, CardMedia, Typography, Box, 
-  IconButton, Divider, Button, Dialog, DialogActions, 
-  DialogContent, DialogContentText, DialogTitle // Added Dialog components
-} from '@mui/material';
-// ... other imports remain same
+"use client"
+
+import { Box, Card, CardContent, Typography } from "@mui/material"
+import { motion } from "framer-motion"
 
 function PostCard({ post }) {
-  // ... existing state
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false); // Added dialog state
-
-  // ... existing handlers
-
-  const handleDeletePost = async () => {
-    try {
-      await deletePost(post.postId);
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      setError('Failed to delete post');
-    } finally {
-      setOpenDeleteDialog(false); // Close dialog
-    }
-  };
-
   return (
-    <Card sx={{ 
-      mb: 3, 
-      boxShadow: 4, 
-      borderRadius: 3, 
-      bgcolor: '#fef7f0',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease', // Added transition
-      '&:hover': {
-        transform: 'translateY(-5px)',
-        boxShadow: '0 10px 20px rgba(255, 111, 97, 0.2)'
-      }
-    }}>
-      {/* ... existing card content */}
-
-      {/* Added delete confirmation dialog */}
-      <Dialog
-        open={openDeleteDialog}
-        onClose={() => setOpenDeleteDialog(false)}
-      >
-        <DialogTitle>Delete Post?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this cake post? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDeleteDialog(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleDeletePost} color="error" variant="contained">
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <Card
+      sx={{
+        maxWidth: 600,
+        mx: "auto",
+        my: 2,
+        borderRadius: "12px",
+        background: "linear-gradient(135deg, rgba(15, 12, 41, 0.85) 0%, rgba(48, 43, 99, 0.85) 50%, rgba(36, 36, 62, 0.85) 100%)",
+        boxShadow: "0 10px 30px rgba(111, 66, 193, 0.3), 0 0 20px rgba(80, 250, 250, 0.2)",
+        border: "1px solid rgba(120, 250, 250, 0.2)",
+        backdropFilter: "blur(10px)",
+      }}
+      component={motion.div}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <CardContent>
+        <Typography
+          variant="h6"
+          sx={{
+            color: "#fff",
+            mb: 2,
+            background: "linear-gradient(90deg, #ff7bac, #ff9a8d, #3393ff)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          {post.description}
+        </Typography>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+          {post.mediaUrls.map((url, index) => (
+            <Box
+              key={index}
+              sx={{
+                width: 140,
+                height: 140,
+                borderRadius: "8px",
+                overflow: "hidden",
+                boxShadow: "0 0 10px rgba(111, 66, 193, 0.4)",
+              }}
+            >
+              {url.startsWith('data:video') ? (
+                <Box
+                  component="video"
+                  src={url}
+                  controls
+                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <Box
+                  component="img"
+                  src={url}
+                  sx={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              )}
+            </Box>
+          ))}
+        </Box>
+      </CardContent>
     </Card>
-  );
+  )
 }
 
-export default PostCard;
+export default PostCard
