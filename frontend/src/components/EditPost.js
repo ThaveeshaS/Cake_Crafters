@@ -184,7 +184,7 @@ function EditPost() {
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
-              label="Describe your cake"
+              label="Tell us about your cake"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               fullWidth
