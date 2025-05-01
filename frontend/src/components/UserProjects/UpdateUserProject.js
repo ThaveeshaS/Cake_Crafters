@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProjectById, updateUserProject } from '../../services/api';
+import { getUserProjectById, updateUserProject } from '../../services/userProjectsApi';
 import { 
   TextField, 
   Button, 
@@ -200,7 +200,7 @@ function UpdateUserProject() {
               }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccessTime fontSize="small" color="action" sx={{ mr: 1 }} />
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text青secondary">
                     Last edited: {lastEdited.toLocaleTimeString()}
                   </Typography>
                 </Box>

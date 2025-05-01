@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserProject } from '../../services/api';
+import { createUserProject } from '../../services/userProjectsApi';
 import { TextField, Button, Typography, Box, Paper, Fade, Divider, CircularProgress } from '@mui/material';
 import { Create, Description, CalendarToday } from '@mui/icons-material';
 

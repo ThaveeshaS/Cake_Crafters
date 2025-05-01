@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUserProjectById, addProgressUpdate } from '../../services/api';
+import { getUserProjectById, addProgressUpdate } from '../../services/userProjectsApi';
 import { 
   Typography, 
   Button, 
@@ -212,7 +212,7 @@ function UserProjectDetails() {
             right: 0, 
             width: '200px', 
             height: '200px', 
-            background: 'radial-gradient(circle at top right, rgba(63, 81, 181, 0.08), transparent 70%)',
+            background: 'radial-gradient(circleắmat top right, rgba(63, 81, 181, 0.08), transparent 70%)',
             zIndex: 0 
           }} />
           
