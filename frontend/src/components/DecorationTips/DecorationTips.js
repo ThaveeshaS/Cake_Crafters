@@ -10,6 +10,8 @@ function DecorationTips() {
   const [newComment, setNewComment] = useState({});
   const [editComment, setEditComment] = useState({});
   const [loading, setLoading] = useState(true);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [tipToDelete, setTipToDelete] = useState(null);
   const navigate = useNavigate();
   const menuRefs = useRef({});
 
@@ -40,14 +42,29 @@ function DecorationTips() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8080/api/decoration-tips/${id}`);
-      setTips(tips.filter((tip) => tip.id !== id));
-      setMenuOpen(null);
-    } catch (err) {
-      console.error('Failed to delete tip:', err);
+  const handleDeleteConfirm = async () => {
+    if (tipToDelete) {
+      try {
+        await axios.delete(`http://localhost:8080/api/decoration-tips/${tipToDelete.id}`);
+        setTips(tips.filter((tip) => tip.id !== tipToDelete.id));
+        setMenuOpen(null);
+        setShowDeletePopup(false);
+        setTipToDelete(null);
+      } catch (err) {
+        console.error('Failed to delete tip:', err);
+      }
     }
+  };
+
+  const handleDelete = (tip) => {
+    setTipToDelete(tip);
+    setShowDeletePopup(true);
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeletePopup(false);
+    setTipToDelete(null);
+    setMenuOpen(null);
   };
 
   const handleEdit = (tip) => {
@@ -115,7 +132,6 @@ function DecorationTips() {
     }
   };
 
-  // Function to format date to MM/DD/YYYY
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
@@ -175,7 +191,7 @@ function DecorationTips() {
             object-fit: cover;
             flex-shrink: 0;
             transition: transform 0.5s ease;
-            animation: fade 1s ease-in-out; /* Fade animation for images and videos */
+            animation: fade 1s ease-in-out;
           }
 
           @keyframes fade {
@@ -185,7 +201,7 @@ function DecorationTips() {
           }
 
           .tip-image-carousel .tip-image {
-            animation: fade 1s ease-in-out; /* Ensure carousel images also fade */
+            animation: fade 1s ease-in-out;
           }
 
           .tip-card:hover .tip-image {
@@ -354,7 +370,7 @@ function DecorationTips() {
             border-bottom: 1px solid #eee;
             position: relative;
             padding-left: 1rem;
-            padding-right: 80px; /* Space for horizontal buttons */
+            padding-right: 80px;
           }
 
           .comment-item:before {
@@ -377,7 +393,7 @@ function DecorationTips() {
             top: 0;
             right: 0;
             display: flex;
-            flex-direction: row; /* Stack buttons horizontally */
+            flex-direction: row;
             gap: 0.5rem;
             align-items: center;
           }
@@ -492,7 +508,7 @@ function DecorationTips() {
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.15);
             z-index: 1000;
-            min-width: 140px; /* Increased to fit styled buttons */
+            min-width: 140px;
             display: block;
             padding: 0.5rem;
           }
@@ -558,7 +574,7 @@ function DecorationTips() {
           }
 
           .comment-edit, .comment-delete {
-            background: #f8f9fa; /* Light background for contrast */
+            background: #f8f9fa;
             border: 1px solid var(--primary-color);
             cursor: pointer;
             font-size: 0.9rem;
@@ -599,6 +615,104 @@ function DecorationTips() {
             font-size: 1rem;
           }
 
+          .delete-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+          }
+
+          .delete-popup {
+            background: linear-gradient(135deg, #ffffff, #f9f9ff);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            border: 1px solid rgba(108, 92, 231, 0.2);
+          }
+
+          .delete-popup-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+          }
+
+          .delete-popup-icon {
+            color: var(--danger-color);
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+          }
+
+          .delete-popup-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+          }
+
+          .delete-popup-message {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+          }
+
+          .delete-popup-warning {
+            font-size: 0.9rem;
+            color: #e57373;
+            font-style: italic;
+            margin-bottom: 1.75rem;
+            font-weight: 500;
+          }
+
+          .delete-popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+          }
+
+          .delete-popup-cancel {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #6c757d;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .delete-popup-cancel:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            transform: scale(1.05);
+          }
+
+          .delete-popup-confirm {
+            background: var(--danger-color);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .delete-popup-confirm:hover {
+            background: #c0392b;
+            box-shadow: 0 3px 10px rgba(214, 48, 49, 0.3);
+            transform: scale(1.05);
+          }
+
           /* Custom scrollbar */
           ::-webkit-scrollbar {
             width: 6px;
@@ -620,7 +734,7 @@ function DecorationTips() {
 
           @media (max-width: 768px) {
             .comment-item {
-              padding-right: 70px; /* Adjust for smaller screens */
+              padding-right: 70px;
             }
 
             .menu-icon {
@@ -631,7 +745,7 @@ function DecorationTips() {
             }
 
             .dropdown-menu {
-              min-width: 120px; /* Slightly smaller for mobile */
+              min-width: 120px;
             }
 
             .dropdown-item {
@@ -645,7 +759,31 @@ function DecorationTips() {
             }
 
             .tip-image {
-              animation: fade 1s ease-in-out; /* Ensure fade animation on mobile */
+              animation: fade 1s ease-in-out;
+            }
+
+            .delete-popup {
+              width: 95%;
+              padding: 1.5rem;
+              max-width: 380px;
+            }
+
+            .delete-popup-title {
+              font-size: 1.2rem;
+            }
+
+            .delete-popup-message {
+              font-size: 0.95rem;
+            }
+
+            .delete-popup-warning {
+              font-size: 0.85rem;
+            }
+
+            .delete-popup-cancel,
+            .delete-popup-confirm {
+              padding: 0.5rem 1rem;
+              font-size: 0.9rem;
             }
           }
         `}
@@ -681,7 +819,7 @@ function DecorationTips() {
               <div className="row">
                 {tips.map((tip) => {
                   const imageCount = tip.media && tip.mediaType !== 'video' ? tip.media.length : 1;
-                  const slideDuration = imageCount * 10; // 10 seconds per image
+                  const slideDuration = imageCount * 10;
                   const percentagePerImage = 100 / imageCount;
                   const keyframes = Array.from({ length: imageCount }, (_, i) => {
                     const start = i * percentagePerImage;
@@ -771,7 +909,7 @@ function DecorationTips() {
                                 </div>
                                 <div
                                   className="dropdown-item delete"
-                                  onClick={() => handleDelete(tip.id)}
+                                  onClick={() => handleDelete(tip)}
                                   aria-label="Delete tip"
                                   title="Delete tip"
                                 >
@@ -911,6 +1049,37 @@ function DecorationTips() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showDeletePopup && tipToDelete && (
+        <div className="delete-popup-overlay">
+          <div className="delete-popup">
+            <div className="delete-popup-header">
+              <i className="bi bi-trash delete-popup-icon"></i>
+              <h3 className="delete-popup-title">Confirm Deletion</h3>
+            </div>
+            <p className="delete-popup-message">
+              Are you sure you want to delete the tip "{tipToDelete.title}"? This will permanently remove the tip and all associated comments from the system.
+            </p>
+            <p className="delete-popup-warning">
+              This action cannot be undone.
+            </p>
+            <div className="delete-popup-buttons">
+              <button
+                className="delete-popup-cancel"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+              <button
+                className="delete-popup-confirm"
+                onClick={handleDeleteConfirm}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

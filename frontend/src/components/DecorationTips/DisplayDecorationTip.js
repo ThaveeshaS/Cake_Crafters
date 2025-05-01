@@ -13,6 +13,7 @@ const DisplayDecorationTip = () => {
   const [activeMedia, setActiveMedia] = useState(0);
   const [editComment, setEditComment] = useState({});
   const [newComment, setNewComment] = useState('');
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/decoration-tips/${id}`)
@@ -26,15 +27,23 @@ const DisplayDecorationTip = () => {
       });
   }, [id]);
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this decorating tip?')) {
-      try {
-        await axios.delete(`http://localhost:8080/api/decoration-tips/${id}`);
-        navigate('/decorationtips');
-      } catch (err) {
-        setError(err.response?.data || 'Failed to delete tip');
-      }
+  const handleDelete = () => {
+    setShowDeletePopup(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await axios.delete(`http://localhost:8080/api/decoration-tips/${id}`);
+      setShowDeletePopup(false);
+      navigate('/decorationtips');
+    } catch (err) {
+      setError(err.response?.data || 'Failed to delete tip');
+      setShowDeletePopup(false);
     }
+  };
+
+  const handleCancelDelete = () => {
+    setShowDeletePopup(false);
   };
 
   const handleCommentSubmit = async (e) => {
@@ -359,7 +368,7 @@ const DisplayDecorationTip = () => {
             margin-bottom: 1rem;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: relative;
-            padding-right: 50px; /* Reduced space for vertical buttons */
+            padding-right: 50px;
           }
 
           .comment-item:before {
@@ -388,7 +397,7 @@ const DisplayDecorationTip = () => {
             top: 0;
             right: 0;
             display: flex;
-            flex-direction: column; /* Stack buttons vertically */
+            flex-direction: column;
             gap: 0.5rem;
             align-items: flex-end;
           }
@@ -484,7 +493,7 @@ const DisplayDecorationTip = () => {
           }
 
           .comment-edit, .comment-delete {
-            background: #f8f9fa; /* Light background for contrast */
+            background: #f8f9fa;
             border: 1px solid var(--primary-color);
             cursor: pointer;
             font-size: 0.9rem;
@@ -523,6 +532,104 @@ const DisplayDecorationTip = () => {
 
           .comment-edit i, .comment-delete i {
             font-size: 1rem;
+          }
+
+          .delete-popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+          }
+
+          .delete-popup {
+            background: linear-gradient(135deg, #ffffff, #f9f9ff);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            position: relative;
+            border: 1px solid rgba(108, 92, 231, 0.2);
+          }
+
+          .delete-popup-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+          }
+
+          .delete-popup-icon {
+            color: var(--danger-color);
+            font-size: 1.75rem;
+            margin-right: 0.75rem;
+          }
+
+          .delete-popup-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin: 0;
+          }
+
+          .delete-popup-message {
+            font-size: 1rem;
+            color: var(--neutral-color);
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+          }
+
+          .delete-popup-warning {
+            font-size: 0.9rem;
+            color: #e57373;
+            font-style: italic;
+            margin-bottom: 1.75rem;
+            font-weight: 500;
+          }
+
+          .delete-popup-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+          }
+
+          .delete-popup-cancel {
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: var(--neutral-color);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .delete-popup-cancel:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            transform: scale(1.05);
+          }
+
+          .delete-popup-confirm {
+            background: var(--danger-color);
+            border: none;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+          }
+
+          .delete-popup-confirm:hover {
+            background: #c0392b;
+            box-shadow: 0 3px 10px rgba(214, 48, 49, 0.3);
+            transform: scale(1.05);
           }
 
           /* Custom scrollbar */
@@ -572,7 +679,31 @@ const DisplayDecorationTip = () => {
             }
 
             .comment-item {
-              padding-right: 40px; /* Further reduced for vertical buttons on mobile */
+              padding-right: 40px;
+            }
+
+            .delete-popup {
+              width: 95%;
+              padding: 1.5rem;
+              max-width: 380px;
+            }
+
+            .delete-popup-title {
+              font-size: 1.2rem;
+            }
+
+            .delete-popup-message {
+              font-size: 0.95rem;
+            }
+
+            .delete-popup-warning {
+              font-size: 0.85rem;
+            }
+
+            .delete-popup-cancel,
+            .delete-popup-confirm {
+              padding: 0.5rem 1rem;
+              font-size: 0.9rem;
             }
           }
         `}
@@ -766,6 +897,37 @@ const DisplayDecorationTip = () => {
           </div>
         </div>
       </div>
+
+      {showDeletePopup && (
+        <div className="delete-popup-overlay">
+          <div className="delete-popup">
+            <div className="delete-popup-header">
+              <i className="bi bi-trash delete-popup-icon"></i>
+              <h3 className="delete-popup-title">Confirm Deletion</h3>
+            </div>
+            <p className="delete-popup-message">
+              Are you sure you want to delete the tip "{tip.title}"? This will permanently remove the tip and all associated comments from the system.
+            </p>
+            <p className="delete-popup-warning">
+              This action cannot be undone.
+            </p>
+            <div className="delete-popup-buttons">
+              <button
+                className="delete-popup-cancel"
+                onClick={handleCancelDelete}
+              >
+                Cancel
+              </button>
+              <button
+                className="delete-popup-confirm"
+                onClick={handleDeleteConfirm}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
