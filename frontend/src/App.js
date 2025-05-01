@@ -2,8 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PostList from './components/PostList';
 import CreatePost from './components/CreatePost';
+
 import EditPost from './components/EditPost';
 import { Container} from '@mui/material';
+
 import './App.css';
 
 import Header from './components/Elements/Header';
@@ -18,6 +20,14 @@ import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
 import DisplayDecorationTip from './components/DecorationTips/DisplayDecorationTip';
 
+
+import UserProjectList from './components/UserProjects/UserProjectList';
+import CreateUserProject from './components/UserProjects/CreateUserProject';
+import UserProjectDetails from './components/UserProjects/UserProjectDetails';
+import UpdateUserProject from './components/UserProjects/UpdateUserProject';
+
+
+
 function App() {
   return (
     <Router>
@@ -27,7 +37,9 @@ function App() {
         <Routes>
           <Route path="/" element={<PostList />} />
           <Route path="/create" element={<CreatePost />} />
+
           <Route path="/edit/:postId" element={<EditPost />} />
+
 
           <Route path="/decorationtips" element={<DecorationTips />} />
           <Route path="/create-decoration-tips" element={<DecoratingForm />} />
@@ -37,6 +49,13 @@ function App() {
           <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
           <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
+
+
+          <Route path="/cakesforevents" element={<UserProjectList />} />
+          <Route path="/create-user-project" element={<CreateUserProject />} />
+          <Route path="/user-project/:id" element={<UserProjectDetails />} />
+          <Route path="/user-project/:id/update" element={<UpdateUserProject />} />
+
         </Routes>
       </Container>
       <Footer />
