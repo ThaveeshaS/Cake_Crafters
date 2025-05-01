@@ -8,6 +8,7 @@ CakeCrafters is an innovative online platform designed for cake enthusiasts to s
 - **Cake Post Creation and Interaction**: Share cake posts with photos or videos, and interact with others through likes and comments.
 - **Cake Recipe Management**: Upload, save, and manage detailed recipes with ingredients and step-by-step instructions.
 - **Decorating Tips & Tricks**: Share and browse decorating tips categorized by difficulty, tags, or themes.
+- **Cake for Events**: Discover and share information about different types of cakes suitable for various events (e.g., weddings, birthdays, baby showers) and inform others with suggestions or requests.
 - **Authentication & Authorization**: Secure login via OAuth 2.0 (Google, Facebook).
 - **Notifications**: Real-time alerts for likes, comments, and new followers.
 - **Voice Navigation**: A novel feature that allows users to navigate the platform using voice commands for a hands-free experience.
@@ -60,7 +61,9 @@ The system follows a client-server architecture:
 
 4. **Browse Tips**: Explore decorating tips by category or difficulty.
 
-5. **Voice Navigation**: Use voice commands to navigate the platform (e.g., "Go to recipes," "Show my profile").
+5. **Explore Cakes for Events**: Browse cakes suitable for events like weddings or birthdays. Share your suggestions or get inspired by others’ event cake ideas.
+
+6. **Voice Navigation**: Use voice commands to navigate the platform (e.g., "Go to recipes," "Show my profile").
 
 ## Contributors
 - Pasindu W.G.V (IT22273512) 
