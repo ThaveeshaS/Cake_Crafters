@@ -128,11 +128,12 @@ function Navbar() {
           </li>
           <li className="nav-item">
             <Link 
-              className={`nav-link ${location.pathname === '/Voice' ? 'active' : ''}`}
-              to="/Voice">
-              <i className="bi bi-mic"></i> Voice Navigator
+              className={`nav-link ${location.pathname === '/voice' ? 'active' : ''}`}
+              to="/voice">
+                  <i className="bi bi-mic"></i> Voice Navigator
             </Link>
-          </li> 
+          </li>
+
         </ul>
       </div>
     </nav>
