@@ -147,6 +147,21 @@ public class PostService {
         return future;
     }
 
+    public CompletableFuture<Void> updateComment(String postId, String commentId, Comment comment) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        comment.setCommentId(commentId);
+        comment.setPostId(postId);
+        comment.setCreatedAt(LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        database.child("posts").child(postId).child("comments").child(commentId).setValue(comment, (error, ref) -> {
+            if (error == null) {
+                future.complete(null);
+            } else {
+                future.completeExceptionally(new RuntimeException(error.getMessage()));
+            }
+        });
+        return future;
+    }
+
     public CompletableFuture<Void> deleteComment(String postId, String commentId) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         database.child("posts").child(postId).child("comments").child(commentId).removeValue((error, ref) -> {

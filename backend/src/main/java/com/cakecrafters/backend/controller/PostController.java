@@ -110,6 +110,17 @@ public class PostController {
         }
     }
 
+    @PutMapping("/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> updateComment(@PathVariable String postId, @PathVariable String commentId, @RequestBody Comment comment) {
+        try {
+            postService.updateComment(postId, commentId, comment).get();
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Error updating comment", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @DeleteMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable String postId, @PathVariable String commentId) {
         try {
