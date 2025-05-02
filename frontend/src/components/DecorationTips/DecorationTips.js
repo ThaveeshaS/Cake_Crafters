@@ -12,6 +12,7 @@ function DecorationTips() {
   const [loading, setLoading] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [tipToDelete, setTipToDelete] = useState(null);
+  const [activeImageIndices, setActiveImageIndices] = useState({}); // State to track active image index for each tip
   const navigate = useNavigate();
   const menuRefs = useRef({});
 
@@ -25,6 +26,12 @@ function DecorationTips() {
       const response = await axios.get('http://localhost:8080/api/decoration-tips');
       const sortedTips = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setTips(sortedTips);
+      // Initialize active image indices for each tip
+      const initialIndices = sortedTips.reduce((acc, tip) => {
+        acc[tip.id] = 0;
+        return acc;
+      }, {});
+      setActiveImageIndices(initialIndices);
       setLoading(false);
     } catch (err) {
       console.error('Failed to fetch tips:', err);
@@ -41,6 +48,27 @@ function DecorationTips() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Automatic image transition effect for tips with multiple images
+  useEffect(() => {
+    const intervals = tips
+      .filter((tip) => tip.media && tip.mediaType !== 'video' && tip.media.length > 1)
+      .map((tip) => {
+        const interval = setInterval(() => {
+          setActiveImageIndices((prev) => {
+            const currentIndex = prev[tip.id] || 0;
+            const nextIndex = (currentIndex + 1) % tip.media.length;
+            return { ...prev, [tip.id]: nextIndex };
+          });
+        }, 3000); // Change image every 3 seconds
+        return { id: tip.id, interval };
+      });
+
+    // Cleanup intervals on component unmount or when tips change
+    return () => {
+      intervals.forEach(({ interval }) => clearInterval(interval));
+    };
+  }, [tips]);
 
   const handleDeleteConfirm = async () => {
     if (tipToDelete) {
@@ -179,10 +207,11 @@ function DecorationTips() {
             height: 220px;
           }
 
-          .tip-image-carousel {
+          .tip-image-wrapper {
             display: flex;
             width: 100%;
             height: 100%;
+            transition: transform 0.5s ease;
           }
 
           .tip-image {
@@ -190,18 +219,6 @@ function DecorationTips() {
             height: 220px;
             object-fit: cover;
             flex-shrink: 0;
-            transition: transform 0.5s ease;
-            animation: fade 1s ease-in-out;
-          }
-
-          @keyframes fade {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 1; }
-          }
-
-          .tip-image-carousel .tip-image {
-            animation: fade 1s ease-in-out;
           }
 
           .tip-card:hover .tip-image {
@@ -758,10 +775,6 @@ function DecorationTips() {
               font-size: 1rem;
             }
 
-            .tip-image {
-              animation: fade 1s ease-in-out;
-            }
-
             .delete-popup {
               width: 95%;
               padding: 1.5rem;
@@ -819,31 +832,10 @@ function DecorationTips() {
               <div className="row">
                 {tips.map((tip) => {
                   const imageCount = tip.media && tip.mediaType !== 'video' ? tip.media.length : 1;
-                  const slideDuration = imageCount * 10;
-                  const percentagePerImage = 100 / imageCount;
-                  const keyframes = Array.from({ length: imageCount }, (_, i) => {
-                    const start = i * percentagePerImage;
-                    const end = (i + 1) * percentagePerImage;
-                    const translateX = -(i * 100);
-                    return `
-                      ${start}% { transform: translateX(${translateX}%); }
-                      ${end}% { transform: translateX(${translateX}%); }
-                    `;
-                  }).join('');
+                  const activeIndex = activeImageIndices[tip.id] || 0;
 
                   return (
                     <div key={tip.id} className="col-lg-4 col-md-6 mb-4">
-                      <style>
-                        {`
-                          .tip-image-carousel-${tip.id} {
-                            animation: slide-${tip.id} ${slideDuration}s infinite linear;
-                          }
-                          @keyframes slide-${tip.id} {
-                            ${keyframes}
-                            100% { transform: translateX(0); }
-                          }
-                        `}
-                      </style>
                       <div className="tip-card h-100">
                         <div className="tip-image-container">
                           <Link to={`/display-decoration-tip/${tip.id}`}>
@@ -857,15 +849,22 @@ function DecorationTips() {
                                   autoPlay
                                 />
                               ) : tip.media.length > 1 ? (
-                                <div className={`tip-image-carousel tip-image-carousel-${tip.id}`}>
-                                  {tip.media.map((media, index) => (
-                                    <img
-                                      key={index}
-                                      src={media}
-                                      alt={`${tip.title} ${index + 1}`}
-                                      className="tip-image"
-                                    />
-                                  ))}
+                                <div>
+                                  <div
+                                    className="tip-image-wrapper"
+                                    style={{
+                                      transform: `translateX(-${activeIndex * 100}%)`,
+                                    }}
+                                  >
+                                    {tip.media.map((media, index) => (
+                                      <img
+                                        key={index}
+                                        src={media}
+                                        alt={`${tip.title} ${index + 1}`}
+                                        className="tip-image"
+                                      />
+                                    ))}
+                                  </div>
                                 </div>
                               ) : (
                                 <img
