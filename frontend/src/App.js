@@ -15,6 +15,8 @@ import DisplayCakeRecipe from './components/CakeRecipe/DisplayCakeRecipe';
 import AddNewCakeRecipe from './components/CakeRecipe/AddNewCakeRecipe';
 import CakeRecipeDetails from './components/CakeRecipe/CakeRecipeDetails';
 import UpdateRecipeForm from './components/CakeRecipe/UpdateRecipeForm';
+import VoiceNavigator from './components/Elements/VoiceNavigator';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 import DecoratingForm from './components/DecorationTips/DecoratingForm';
 import DecorationTips from './components/DecorationTips/DecorationTips';
@@ -49,7 +51,7 @@ function App() {
           <Route path="/addnewcakerecipe" element={<AddNewCakeRecipe />} />
           <Route path="/recipe/:id" element={<CakeRecipeDetails />} />
           <Route path="/recipe/:id/update" element={<UpdateRecipeForm />} />
-
+          <Route path="/voice" element={<VoiceNavigator />} />
 
           <Route path="/cakesforevents" element={<UserProjectList />} />
           <Route path="/create-user-project" element={<CreateUserProject />} />
