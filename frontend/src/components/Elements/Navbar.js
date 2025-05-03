@@ -128,15 +128,15 @@ function Navbar() {
           }
           
           .voice-nav-popup {
-            position: absolute;
-            top: 60px;
-            left: 0;
-            transform: translateX(-50%);
-            background: #ffffff;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
             border: 2px solid var(--primary-color);
             border-radius: 10px;
             padding: 2rem;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
             z-index: 2000;
             width: 999px;
             max-width: 90vw;
@@ -236,11 +236,11 @@ function Navbar() {
           @keyframes popupFadeIn {
             from {
               opacity: 0;
-              transform: translateX(-50%) translateY(10px);
+              transform: translate(-50%, -50%) scale(0.8);
             }
             to {
               opacity: 1;
-              transform: translateX(-50%) translateY(0);
+              transform: translate(-50%, -50%) scale(1);
             }
           }
           
@@ -294,6 +294,7 @@ function Navbar() {
               Home
             </Link>
           </li>
+          adem
           <li className="nav-item">
             <Link 
               className={`nav-link ${location.pathname === '/create' ? 'active' : ''}`}
