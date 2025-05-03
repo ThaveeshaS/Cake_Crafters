@@ -294,7 +294,6 @@ function Navbar() {
               Home
             </Link>
           </li>
-          adem
           <li className="nav-item">
             <Link 
               className={`nav-link ${location.pathname === '/create' ? 'active' : ''}`}
