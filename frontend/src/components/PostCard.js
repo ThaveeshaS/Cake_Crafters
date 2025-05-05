@@ -50,17 +50,17 @@ function PostCard({ post }) {
   };
 
   return (
-    <Card sx={{ mb: 3, boxShadow: 4, borderRadius: 3, bgcolor: '#fef7f0' }}>
+    <Card sx={{ mb: 3, boxShadow: 4, borderRadius: 3, bgcolor: '#e0f7fa' }}>
       <CardContent>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" color="#ff6f61" gutterBottom>
+          <Typography variant="h6" color="#d81b60" gutterBottom>
             {post.description}
           </Typography>
           <Box>
-            <IconButton onClick={handleEditPost} sx={{ color: '#ff6f61' }}>
+            <IconButton onClick={handleEditPost} sx={{ color: '#d81b60' }}>
               <EditIcon />
             </IconButton>
-            <IconButton onClick={handleDeletePost} sx={{ color: '#ff6f61' }}>
+            <IconButton onClick={handleDeletePost} sx={{ color: '#d81b60' }}>
               <DeleteIcon />
             </IconButton>
           </Box>
@@ -94,10 +94,10 @@ function PostCard({ post }) {
           </Typography>
         )}
         <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
-          <IconButton onClick={handleLike} sx={{ color: '#ff6f61' }}>
+          <IconButton onClick={handleLike} sx={{ color: '#d81b60' }}>
             <ThumbUpIcon />
           </IconButton>
-          <IconButton onClick={handleDislike} sx={{ color: '#ff6f61' }}>
+          <IconButton onClick={handleDislike} sx={{ color: '#d81b60' }}>
             <ThumbDownIcon />
           </IconButton>
         </Box>
@@ -110,5 +110,3 @@ function PostCard({ post }) {
 }
 
 export default PostCard;
-
-
