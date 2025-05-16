@@ -11,6 +11,10 @@ function CreateUserProject() {
     description: '',
     date: new Date().toISOString().split('T')[0],
   });
+  const [errors, setErrors] = useState({
+    title: '',
+    description: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fadeIn, setFadeIn] = useState(false);
   const navigate = useNavigate();
@@ -20,13 +24,49 @@ function CreateUserProject() {
     setFadeIn(true);
   }, []);
 
+  const validateField = (name, value) => {
+    if (name === 'title') {
+      if (!value) {
+        return 'Title is required';
+      }
+      if (value.length < 5) {
+        return 'Title must be at least 5 characters';
+      }
+      return '';
+    }
+    if (name === 'description') {
+      if (!value) {
+        return 'Description is required';
+      }
+      if (value.length < 10) {
+        return 'Description must be at least 10 characters';
+      }
+      return '';
+    }
+    return '';
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setProject({ ...project, [name]: value });
+    setErrors({ ...errors, [name]: validateField(name, value) });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    const titleError = validateField('title', project.title);
+    const descriptionError = validateField('description', project.description);
+    
+    setErrors({
+      title: titleError,
+      description: descriptionError,
+    });
+
+    if (titleError || descriptionError) {
+      return;
+    }
+
     setIsSubmitting(true);
     createUserProject(project)
       .then(() => {
@@ -78,6 +118,8 @@ function CreateUserProject() {
               fullWidth
               margin="normal"
               required
+              error={!!errors.title}
+              helperText={errors.title}
               InputProps={{
                 startAdornment: <Description color="action" sx={{ marginRight: '8px' }} />,
               }}
@@ -93,6 +135,8 @@ function CreateUserProject() {
               multiline
               rows={4}
               required
+              error={!!errors.description}
+              helperText={errors.description}
               sx={{ background: 'rgba(255, 255, 255, 0.8)' }}
             />
             <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
