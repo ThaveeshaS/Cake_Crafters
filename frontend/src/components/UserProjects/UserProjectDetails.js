@@ -638,23 +638,6 @@ function UserProjectDetails() {
               >
                 Back to Projects
               </Button>
-              
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => navigate(`/update-project/${id}`)}
-                startIcon={<UpdateOutlined />}
-                sx={{
-                  borderRadius: '20px',
-                  px: 4,
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #ff4081, #3f51b5)',
-                    color: 'white'
-                  }
-                }}
-              >
-                Edit Project
-              </Button>
             </Box>
           </Box>
         </DecoratedPaper>
