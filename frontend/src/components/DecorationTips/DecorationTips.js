@@ -11,8 +11,10 @@ function DecorationTips() {
   const [editComment, setEditComment] = useState({});
   const [loading, setLoading] = useState(true);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showEditPopup, setShowEditPopup] = useState(false);
+  const [tipToEdit, setTipToEdit] = useState(null);
   const [tipToDelete, setTipToDelete] = useState(null);
-  const [activeImageIndices, setActiveImageIndices] = useState({}); // State to track active image index for each tip
+  const [activeImageIndices, setActiveImageIndices] = useState({});
   const navigate = useNavigate();
   const menuRefs = useRef({});
 
@@ -26,7 +28,6 @@ function DecorationTips() {
       const response = await axios.get('http://localhost:8080/api/decoration-tips');
       const sortedTips = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setTips(sortedTips);
-      // Initialize active image indices for each tip
       const initialIndices = sortedTips.reduce((acc, tip) => {
         acc[tip.id] = 0;
         return acc;
@@ -49,7 +50,6 @@ function DecorationTips() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Automatic image transition effect for tips with multiple images
   useEffect(() => {
     const intervals = tips
       .filter((tip) => tip.media && tip.mediaType !== 'video' && tip.media.length > 1)
@@ -60,11 +60,10 @@ function DecorationTips() {
             const nextIndex = (currentIndex + 1) % tip.media.length;
             return { ...prev, [tip.id]: nextIndex };
           });
-        }, 3000); // Change image every 3 seconds
+        }, 3000);
         return { id: tip.id, interval };
       });
 
-    // Cleanup intervals on component unmount or when tips change
     return () => {
       intervals.forEach(({ interval }) => clearInterval(interval));
     };
@@ -96,7 +95,22 @@ function DecorationTips() {
   };
 
   const handleEdit = (tip) => {
-    navigate('/create-decoration-tips', { state: { tip } });
+    setTipToEdit(tip);
+    setShowEditPopup(true);
+  };
+
+  const handleEditConfirm = () => {
+    if (tipToEdit) {
+      setShowEditPopup(false);
+      navigate('/create-decoration-tips', { state: { tip: tipToEdit } });
+      setTipToEdit(null);
+      setMenuOpen(null);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditPopup(false);
+    setTipToEdit(null);
     setMenuOpen(null);
   };
 
@@ -632,7 +646,7 @@ function DecorationTips() {
             font-size: 1rem;
           }
 
-          .delete-popup-overlay {
+          .popup-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -645,7 +659,7 @@ function DecorationTips() {
             z-index: 1000;
           }
 
-          .delete-popup {
+          .popup {
             background: linear-gradient(135deg, #ffffff, #f9f9ff);
             border-radius: 12px;
             padding: 2rem;
@@ -656,26 +670,33 @@ function DecorationTips() {
             border: 1px solid rgba(108, 92, 231, 0.2);
           }
 
-          .delete-popup-header {
+          .popup-header {
             display: flex;
             align-items: center;
             margin-bottom: 1.25rem;
           }
 
-          .delete-popup-icon {
-            color: var(--danger-color);
+          .popup-icon {
             font-size: 1.75rem;
             margin-right: 0.75rem;
           }
 
-          .delete-popup-title {
+          .delete-popup-icon {
+            color: var(--danger-color);
+          }
+
+          .edit-popup-icon {
+            color: var(--primary-color);
+          }
+
+          .popup-title {
             font-size: 1.35rem;
             font-weight: 700;
             color: var(--dark-color);
             margin: 0;
           }
 
-          .delete-popup-message {
+          .popup-message {
             font-size: 1rem;
             color: #6c757d;
             margin-bottom: 0.75rem;
@@ -690,13 +711,13 @@ function DecorationTips() {
             font-weight: 500;
           }
 
-          .delete-popup-buttons {
+          .popup-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
           }
 
-          .delete-popup-cancel {
+          .popup-cancel {
             background: #f8f9fa;
             border: 1px solid #ced4da;
             color: #6c757d;
@@ -707,26 +728,39 @@ function DecorationTips() {
             cursor: pointer;
           }
 
-          .delete-popup-cancel:hover {
+          .popup-cancel:hover {
             background: #e9ecef;
             border-color: #adb5bd;
             transform: scale(1.05);
           }
 
-          .delete-popup-confirm {
-            background: var(--danger-color);
-            border: none;
-            color: white;
+          .popup-confirm {
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.3s ease;
             cursor: pointer;
+            border: none;
+            color: white;
+          }
+
+          .delete-popup-confirm {
+            background: var(--danger-color);
           }
 
           .delete-popup-confirm:hover {
             background: #c0392b;
             box-shadow: 0 3px 10px rgba(214, 48, 49, 0.3);
+            transform: scale(1.05);
+          }
+
+          .edit-popup-confirm {
+            background: var(--primary-color);
+          }
+
+          .edit-popup-confirm:hover {
+            background: #5649d1;
+            box-shadow: 0 3px 10px rgba(108, 92, 231, 0.3);
             transform: scale(1.05);
           }
 
@@ -775,17 +809,17 @@ function DecorationTips() {
               font-size: 1rem;
             }
 
-            .delete-popup {
+            .popup {
               width: 95%;
               padding: 1.5rem;
               max-width: 380px;
             }
 
-            .delete-popup-title {
+            .popup-title {
               font-size: 1.2rem;
             }
 
-            .delete-popup-message {
+            .popup-message {
               font-size: 0.95rem;
             }
 
@@ -793,8 +827,8 @@ function DecorationTips() {
               font-size: 0.85rem;
             }
 
-            .delete-popup-cancel,
-            .delete-popup-confirm {
+            .popup-cancel,
+            .popup-confirm {
               padding: 0.5rem 1rem;
               font-size: 0.9rem;
             }
@@ -1053,30 +1087,58 @@ function DecorationTips() {
       )}
 
       {showDeletePopup && tipToDelete && (
-        <div className="delete-popup-overlay">
-          <div className="delete-popup">
-            <div className="delete-popup-header">
+        <div className="popup-overlay">
+          <div className="popup">
+            <div className="popup-header">
               <i className="bi bi-trash delete-popup-icon"></i>
-              <h3 className="delete-popup-title">Confirm Deletion</h3>
+              <h3 className="popup-title">Confirm Deletion</h3>
             </div>
-            <p className="delete-popup-message">
+            <p className="popup-message">
               Are you sure you want to delete the tip "{tipToDelete.title}"? This will permanently remove the tip and all associated comments from the system.
             </p>
             <p className="delete-popup-warning">
               This action cannot be undone.
             </p>
-            <div className="delete-popup-buttons">
+            <div className="popup-buttons">
               <button
-                className="delete-popup-cancel"
+                className="popup-cancel"
                 onClick={handleCancelDelete}
               >
                 Cancel
               </button>
               <button
-                className="delete-popup-confirm"
+                className="popup-confirm delete-popup-confirm"
                 onClick={handleDeleteConfirm}
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEditPopup && tipToEdit && (
+        <div className="popup-overlay">
+          <div className="popup">
+            <div className="popup-header">
+              <i className="bi bi-pencil edit-popup-icon"></i>
+              <h3 className="popup-title">Confirm Edit</h3>
+            </div>
+            <p className="popup-message">
+              Are you sure you want to edit the tip "{tipToEdit.title}"? You will be redirected to the edit form to modify the tip details.
+            </p>
+            <div className="popup-buttons">
+              <button
+                className="popup-cancel"
+                onClick={handleCancelEdit}
+              >
+                Cancel
+              </button>
+              <button
+                className="popup-confirm edit-popup-confirm"
+                onClick={handleEditConfirm}
+              >
+                Edit
               </button>
             </div>
           </div>
