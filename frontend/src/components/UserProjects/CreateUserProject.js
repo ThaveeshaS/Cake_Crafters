@@ -111,10 +111,10 @@ function CreateUserProject() {
       return;
     }
 
+    //API inter
     setIsSubmitting(true);
     createUserProject(project)
       .then(() => {
-        // Show success animation before navigating (optional)
         setTimeout(() => {
           navigate('/cakesforevents');
         }, 1000);
@@ -125,7 +125,6 @@ function CreateUserProject() {
       });
   };
 
-  // Decorative floating elements component
   const FloatingElements = () => {
     return (
       <>

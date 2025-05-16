@@ -26,7 +26,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Skeleton
+  Skeleton,
+  TextField,
+  InputAdornment
 } from '@mui/material';
 import { 
   Add, 
@@ -38,7 +40,8 @@ import {
   Cake, 
   SortRounded, 
   SearchRounded,
-  NoPhotography
+  NoPhotography,
+  Clear
 } from '@mui/icons-material';
 
 function UserProjectList() {
@@ -49,6 +52,7 @@ function UserProjectList() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [sortAnchorEl, setSortAnchorEl] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); // New state for search query
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +68,11 @@ function UserProjectList() {
         setLoading(false);
       });
   }, []);
+
+  // Filter projects based on search query
+  const filteredProjects = projects.filter((project) =>
+    project.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleDeleteClick = (project) => {
     setSelectedProject(project);
@@ -105,6 +114,14 @@ function UserProjectList() {
 
   const handleSortMenuClose = () => {
     setSortAnchorEl(null);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
   };
 
   const formatDate = (dateString) => {
@@ -306,6 +323,7 @@ function UserProjectList() {
           <Box sx={{ 
             display: 'flex', 
             justifyContent: 'space-between',
+            alignItems: 'center',
             mb: 4,
             flexWrap: 'wrap',
             gap: 2,
@@ -315,10 +333,10 @@ function UserProjectList() {
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             backdropFilter: 'blur(8px)'
           }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
               <Chip 
                 icon={<SearchRounded sx={{ color: '#6495ED !important' }} />} 
-                label={`${projects.length} Project${projects.length !== 1 ? 's' : ''}`} 
+                label={`${filteredProjects.length} Project${filteredProjects.length !== 1 ? 's' : ''}`} 
                 sx={{ 
                   borderColor: '#6495ED',
                   color: '#2D3748',
@@ -327,6 +345,37 @@ function UserProjectList() {
                   '& .MuiChip-icon': { color: '#6495ED' }
                 }}
                 variant="outlined"
+              />
+              <TextField
+                placeholder="Search by cake name"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                size="small"
+                sx={{
+                  width: { xs: '100%', sm: '200px' },
+                  background: 'rgba(255,255,255,0.9)',
+                  borderRadius: '8px',
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '8px',
+                    '&:hover fieldset': {
+                      borderColor: '#6495ED',
+                    },
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchRounded sx={{ color: '#6495ED' }} />
+                    </InputAdornment>
+                  ),
+                  endAdornment: searchQuery && (
+                    <InputAdornment position="end">
+                      <IconButton onClick={handleClearSearch} size="small">
+                        <Clear sx={{ color: '#6B7280' }} />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </Box>
             
@@ -372,8 +421,8 @@ function UserProjectList() {
           {/* Project Grid */}
           <Grid container spacing={3}>
             {loading ? renderSkeletons() : (
-              projects.length > 0 ? (
-                projects.map((project, index) => (
+              filteredProjects.length > 0 ? (
+                filteredProjects.map((project, index) => (
                   <Grid item xs={12} sm={6} md={4} key={project.id}>
                     <Grow 
                       in={fadeIn}
@@ -573,10 +622,12 @@ function UserProjectList() {
                     }} />
                     <NoPhotography sx={{ fontSize: 64, color: '#6B7280', mb: 3, filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }} />
                     <Typography variant="h5" sx={{ color: '#2D3748', mb: 2, fontWeight: '600' }}>
-                      No Projects Yet
+                      {searchQuery ? 'No Projects Found' : 'No Projects Yet'}
                     </Typography>
                     <Typography variant="body1" sx={{ color: '#4B5563', mb: 4, textAlign: 'center', maxWidth: '400px' }}>
-                      Start your creative journey by crafting your first cake project. Click below to begin!
+                      {searchQuery 
+                        ? 'No projects match your search. Try a different cake name or create a new project!'
+                        : 'Start your creative journey by crafting your first cake project. Click below to begin!'}
                     </Typography>
                     <Button
                       variant="contained"
@@ -674,7 +725,9 @@ function UserProjectList() {
               onClick={handleDeleteCancel} 
               variant="outlined"
               sx={{
-                borderColor: '#6495ED',
+               
+
+ borderColor: '#6495ED',
                 color: '#6495ED',
                 '&:hover': { borderColor: '#4B5563' }
               }}
