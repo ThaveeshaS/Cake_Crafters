@@ -14,6 +14,7 @@ const DisplayDecorationTip = () => {
   const [editComment, setEditComment] = useState({});
   const [newComment, setNewComment] = useState('');
   const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [showUpdatePopup, setShowUpdatePopup] = useState(false);
 
   useEffect(() => {
     axios.get(`http://localhost:8080/api/decoration-tips/${id}`)
@@ -44,6 +45,19 @@ const DisplayDecorationTip = () => {
 
   const handleCancelDelete = () => {
     setShowDeletePopup(false);
+  };
+
+  const handleUpdate = () => {
+    setShowUpdatePopup(true);
+  };
+
+  const handleUpdateConfirm = () => {
+    setShowUpdatePopup(false);
+    navigate('/create-decoration-tips', { state: { tip } });
+  };
+
+  const handleCancelUpdate = () => {
+    setShowUpdatePopup(false);
   };
 
   const handleCommentSubmit = async (e) => {
@@ -534,7 +548,7 @@ const DisplayDecorationTip = () => {
             font-size: 1rem;
           }
 
-          .delete-popup-overlay {
+          .popup-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -547,7 +561,7 @@ const DisplayDecorationTip = () => {
             z-index: 1000;
           }
 
-          .delete-popup {
+          .popup {
             background: linear-gradient(135deg, #ffffff, #f9f9ff);
             border-radius: 12px;
             padding: 2rem;
@@ -558,47 +572,46 @@ const DisplayDecorationTip = () => {
             border: 1px solid rgba(108, 92, 231, 0.2);
           }
 
-          .delete-popup-header {
+          .popup-header {
             display: flex;
             align-items: center;
             margin-bottom: 1.25rem;
           }
 
-          .delete-popup-icon {
-            color: var(--danger-color);
+          .popup-icon {
             font-size: 1.75rem;
             margin-right: 0.75rem;
           }
 
-          .delete-popup-title {
+          .delete-popup-icon {
+            color: var(--danger-color);
+          }
+
+          .update-popup-icon {
+            color: var(--success-color);
+          }
+
+          .popup-title {
             font-size: 1.35rem;
             font-weight: 700;
             color: var(--dark-color);
             margin: 0;
           }
 
-          .delete-popup-message {
+          .popup-message {
             font-size: 1rem;
             color: var(--neutral-color);
-            margin-bottom: 0.75rem;
+            margin-bottom: 1.75rem;
             line-height: 1.5;
           }
 
-          .delete-popup-warning {
-            font-size: 0.9rem;
-            color: #e57373;
-            font-style: italic;
-            margin-bottom: 1.75rem;
-            font-weight: 500;
-          }
-
-          .delete-popup-buttons {
+          .popup-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 1rem;
           }
 
-          .delete-popup-cancel {
+          .popup-cancel {
             background: #f8f9fa;
             border: 1px solid #ced4da;
             color: var(--neutral-color);
@@ -609,21 +622,24 @@ const DisplayDecorationTip = () => {
             cursor: pointer;
           }
 
-          .delete-popup-cancel:hover {
+          .popup-cancel:hover {
             background: #e9ecef;
             border-color: #adb5bd;
             transform: scale(1.05);
           }
 
-          .delete-popup-confirm {
-            background: var(--danger-color);
-            border: none;
-            color: white;
+          .popup-confirm {
             padding: 0.6rem 1.2rem;
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.3s ease;
             cursor: pointer;
+            border: none;
+            color: white;
+          }
+
+          .delete-popup-confirm {
+            background: var(--danger-color);
           }
 
           .delete-popup-confirm:hover {
@@ -632,7 +648,16 @@ const DisplayDecorationTip = () => {
             transform: scale(1.05);
           }
 
-          /* Custom scrollbar */
+          .update-popup-confirm {
+            background: var(--success-color);
+          }
+
+          .update-popup-confirm:hover {
+            background: #00997b;
+            box-shadow: 0 3px 10px rgba(0, 184, 148, 0.3);
+            transform: scale(1.05);
+          }
+
           .comment-list::-webkit-scrollbar {
             width: 6px;
           }
@@ -682,26 +707,22 @@ const DisplayDecorationTip = () => {
               padding-right: 40px;
             }
 
-            .delete-popup {
+            .popup {
               width: 95%;
               padding: 1.5rem;
               max-width: 380px;
             }
 
-            .delete-popup-title {
+            .popup-title {
               font-size: 1.2rem;
             }
 
-            .delete-popup-message {
+            .popup-message {
               font-size: 0.95rem;
             }
 
-            .delete-popup-warning {
-              font-size: 0.85rem;
-            }
-
-            .delete-popup-cancel,
-            .delete-popup-confirm {
+            .popup-cancel,
+            .popup-confirm {
               padding: 0.5rem 1rem;
               font-size: 0.9rem;
             }
@@ -787,9 +808,9 @@ const DisplayDecorationTip = () => {
               <i className="bi bi-arrow-left me-2"></i> Back to Tips
             </Link>
             <div className="right-buttons">
-              <Link to="/create-decoration-tips" state={{ tip }} className="btn update-btn">
+              <button onClick={handleUpdate} className="btn update-btn">
                 <i className="bi bi-pencil-square me-2"></i> Update Tip
-              </Link>
+              </button>
               <button onClick={handleDelete} className="btn delete-btn">
                 <i className="bi bi-trash me-2"></i> Delete Tip
               </button>
@@ -899,30 +920,58 @@ const DisplayDecorationTip = () => {
       </div>
 
       {showDeletePopup && (
-        <div className="delete-popup-overlay">
-          <div className="delete-popup">
-            <div className="delete-popup-header">
+        <div className="popup-overlay">
+          <div className="popup">
+            <div className="popup-header">
               <i className="bi bi-trash delete-popup-icon"></i>
-              <h3 className="delete-popup-title">Confirm Deletion</h3>
+              <h3 className="popup-title">Confirm Deletion</h3>
             </div>
-            <p className="delete-popup-message">
+            <p className="popup-message">
               Are you sure you want to delete the tip "{tip.title}"? This will permanently remove the tip and all associated comments from the system.
             </p>
-            <p className="delete-popup-warning">
+            <p className="popup-warning">
               This action cannot be undone.
             </p>
-            <div className="delete-popup-buttons">
+            <div className="popup-buttons">
               <button
-                className="delete-popup-cancel"
+                className="popup-cancel"
                 onClick={handleCancelDelete}
               >
                 Cancel
               </button>
               <button
-                className="delete-popup-confirm"
+                className="popup-confirm delete-popup-confirm"
                 onClick={handleDeleteConfirm}
               >
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showUpdatePopup && (
+        <div className="popup-overlay">
+          <div className="popup">
+            <div className="popup-header">
+              <i className="bi bi-pencil-square update-popup-icon"></i>
+              <h3 className="popup-title">Confirm Update</h3>
+            </div>
+            <p className="popup-message">
+              Are you sure you want to update the tip "{tip.title}"? You will be redirected to the edit form to modify the tip details.
+            </p>
+            <div className="popup-buttons">
+              <button
+                className="popup-cancel"
+                onClick={handleCancelUpdate}
+              >
+                Cancel
+              </button>
+              <button
+                className="popup-confirm update-popup-confirm"
+                onClick={handleUpdateConfirm}
+              >
+                Update
               </button>
             </div>
           </div>

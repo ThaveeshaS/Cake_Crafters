@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+import { Form, Button } from 'react-bootstrap';
 
 const CreateRecipeForm = () => {
   const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ const CreateRecipeForm = () => {
   const [imagePreviews, setImagePreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const cakeTypes = [
@@ -44,9 +46,116 @@ const CreateRecipeForm = () => {
     };
   }, [imagePreviews]);
 
+  const validateForm = () => {
+    const newErrors = {};
+    
+    // Author Name validation
+    if (!formData.authorName.trim()) {
+      newErrors.authorName = 'Author name is required';
+    } else if (formData.authorName.length < 2) {
+      newErrors.authorName = 'Author name must be at least 2 characters';
+    } else if (formData.authorName.length > 50) {
+      newErrors.authorName = 'Author name must be less than 50 characters';
+    } else if (!/^[a-zA-Z\s]+$/.test(formData.authorName.trim())) {
+      newErrors.authorName = 'Author name must contain only letters and spaces';
+    }
+
+    // Cake Name validation
+    if (!formData.cakeName.trim()) {
+      newErrors.cakeName = 'Cake name is required';
+    } else if (formData.cakeName.length < 3) {
+      newErrors.cakeName = 'Cake name must be at least 3 characters';
+    } else if (formData.cakeName.length > 100) {
+      newErrors.cakeName = 'Cake name must be less than 100 characters';
+    }
+
+    // Subtitle validation
+    if (formData.subTitle && formData.subTitle.length > 200) {
+      newErrors.subTitle = 'Subtitle must be less than 200 characters';
+    }
+
+    // Cake Type validation
+    if (!formData.cakeType) {
+      newErrors.cakeType = 'Please select a cake type';
+    }
+
+    // Skill Level validation
+    if (!formData.skillLevel) {
+      newErrors.skillLevel = 'Please select a skill level';
+    }
+
+    // Prep Time validation
+    if (!formData.prepTime.trim()) {
+      newErrors.prepTime = 'Prep time is required';
+    } else if (!/^\d+\s*(min|hour|hr|hrs|minutes|hours)$/.test(formData.prepTime.trim())) {
+      newErrors.prepTime = 'Please enter valid prep time (e.g., "30 min" or "1 hour")';
+    }
+
+    // Cook Time validation
+    if (!formData.cookTime.trim()) {
+      newErrors.cookTime = 'Cook time is required';
+    } else if (!/^\d+\s*(min|hour|hr|hrs|minutes|hours)$/.test(formData.cookTime.trim())) {
+      newErrors.cookTime = 'Please enter valid cook time (e.g., "30 min" or "1 hour")';
+    }
+
+    // Servings validation
+    if (!formData.servings) {
+      newErrors.servings = 'Servings is required';
+    } else if (isNaN(formData.servings) || formData.servings < 1 || formData.servings > 100) {
+      newErrors.servings = 'Servings must be a number between 1 and 100';
+    }
+
+    // Ingredients validation
+    if (!formData.ingredients.trim()) {
+      newErrors.ingredients = 'Ingredients are required';
+    } else if (formData.ingredients.split('\n').length < 2) {
+      newErrors.ingredients = 'Please provide at least 2 ingredients';
+    } else if (formData.ingredients.length > 1000) {
+      newErrors.ingredients = 'Ingredients list is too long';
+    }
+
+    // Instructions validation
+    if (!formData.instructions.trim()) {
+      newErrors.instructions = 'Instructions are required';
+    } else if (formData.instructions.split('\n').length < 2) {
+      newErrors.instructions = 'Please provide at least 2 instruction steps';
+    } else if (formData.instructions.length > 2000) {
+      newErrors.instructions = 'Instructions are too long';
+    }
+
+    // Image validation
+    if (images.length === 0) {
+      newErrors.images = 'At least one image is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'authorName') {
+      // Only update if the value contains only letters and spaces
+      if (/^[a-zA-Z\s]*$/.test(value)) {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.target.name === 'authorName') {
+      // Allow letters, space, backspace, delete, arrow keys, and tab
+      const allowedKeys = [
+        'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab'
+      ];
+      if (!(/[a-zA-Z\s]/.test(e.key) || allowedKeys.includes(e.key))) {
+        e.preventDefault();
+      }
+    }
   };
 
   const removeImage = (index) => {
@@ -57,6 +166,7 @@ const CreateRecipeForm = () => {
     newPreviews.splice(index, 1);
     setImages(newImages);
     setImagePreviews(newPreviews);
+    setErrors((prev) => ({ ...prev, images: '' }));
   };
 
   const handleDragEvents = (e) => {
@@ -90,7 +200,18 @@ const CreateRecipeForm = () => {
   const handleImageChange = (e) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+      const imageFiles = files.filter((file) => {
+        if (!file.type.startsWith('image/')) {
+          setErrors((prev) => ({ ...prev, images: 'Only image files are allowed' }));
+          return false;
+        }
+        if (file.size > 4 * 1024 * 1024) {
+          setErrors((prev) => ({ ...prev, images: 'Image size must be less than 4MB' }));
+          return false;
+        }
+        return true;
+      });
+
       const selectedFiles = imageFiles.slice(0, 4 - images.length);
 
       const previews = [];
@@ -108,12 +229,18 @@ const CreateRecipeForm = () => {
       Promise.all(base64Promises).then((base64Images) => {
         setImages([...images, ...base64Images]);
         setImagePreviews([...imagePreviews, ...previews]);
+        setErrors((prev) => ({ ...prev, images: '' }));
       });
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     
     const submittedData = {
@@ -149,6 +276,7 @@ const CreateRecipeForm = () => {
         });
         setImages([]);
         setImagePreviews([]);
+        setErrors({});
         navigate('/displaycakerecipe');
       })
       .catch((error) => {
@@ -268,6 +396,14 @@ const CreateRecipeForm = () => {
             box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.2);
           }
           
+          .is-invalid {
+            border-color: var(--danger-color) !important;
+          }
+          
+          .invalid-feedback {
+            font-size: 0.9rem;
+          }
+          
           textarea.form-control {
             min-height: 150px;
           }
@@ -313,6 +449,10 @@ const CreateRecipeForm = () => {
           .upload-area:hover {
             border-color: var(--primary-color);
             background: rgba(162, 155, 254, 0.1);
+          }
+          
+          .upload-area.is-invalid {
+            border-color: var(--danger-color);
           }
           
           .upload-icon {
@@ -477,144 +617,175 @@ const CreateRecipeForm = () => {
       <div className="create-recipe-container">
         <h1 className="form-header">Create New Cake Recipe</h1>
 
-        <form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} noValidate>
           <div className="form-section">
             <h3><i className="bi bi-person-badge"></i> Basic Information</h3>
             
-            <div className="form-group">
-              <label htmlFor="authorName" className="form-label required-field">
+            <Form.Group className="form-group" controlId="authorName">
+              <Form.Label className="form-label required-field">
                 Author Name
-              </label>
-              <input
+              </Form.Label>
+              <Form.Control
                 type="text"
-                className="form-control"
-                id="authorName"
                 name="authorName"
                 value={formData.authorName}
                 onChange={handleChange}
-                required
+                onKeyDown={handleKeyDown}
+                isInvalid={!!errors.authorName}
                 placeholder="Your name or nickname"
+                required
               />
-            </div>
+              <Form.Control.Feedback type="invalid">
+                {errors.authorName}
+              </Form.Control.Feedback>
+            </Form.Group>
 
             <div className="row">
-              <div className="col-md-6 form-group">
-                <label htmlFor="cakeName" className="form-label required-field">
-                  Cake Name
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="cakeName"
-                  name="cakeName"
-                  value={formData.cakeName}
-                  onChange={handleChange}
-                  required
-                  placeholder="e.g. Chocolate Fudge Cake"
-                />
+              <div className="col-md-6">
+                <Form.Group className="form-group" controlId="cakeName">
+                  <Form.Label className="form-label required-field">
+                    Cake Name
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="cakeName"
+                    value={formData.cakeName}
+                    onChange={handleChange}
+                    isInvalid={!!errors.cakeName}
+                    placeholder="e.g. Chocolate Fudge Cake"
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.cakeName}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
-              <div className="col-md-6 form-group">
-                <label htmlFor="subTitle" className="form-label">
-                  Subtitle (Optional)
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="subTitle"
-                  name="subTitle"
-                  value={formData.subTitle}
-                  onChange={handleChange}
-                  placeholder="A short description"
-                />
-              </div>
-            </div>
-
-            <div className="row">
-              <div className="col-md-6 form-group">
-                <label htmlFor="cakeType" className="form-label required-field">
-                  Cake Type
-                </label>
-                <select
-                  className="form-select"
-                  id="cakeType"
-                  name="cakeType"
-                  value={formData.cakeType}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select cake type</option>
-                  {cakeTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-md-6 form-group">
-                <label htmlFor="skillLevel" className="form-label required-field">
-                  Skill Level
-                </label>
-                <select
-                  className="form-select"
-                  id="skillLevel"
-                  name="skillLevel"
-                  value={formData.skillLevel}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select level</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
+              <div className="col-md-6">
+                <Form.Group className="form-group" controlId="subTitle">
+                  <Form.Label className="form-label">
+                    Subtitle (Optional)
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="subTitle"
+                    value={formData.subTitle}
+                    onChange={handleChange}
+                    isInvalid={!!errors.subTitle}
+                    placeholder="A short description"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.subTitle}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
             </div>
 
             <div className="row">
-              <div className="col-md-4 form-group">
-                <label htmlFor="prepTime" className="form-label required-field">
-                  Prep Time
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="prepTime"
-                  name="prepTime"
-                  placeholder="e.g. 30 mins"
-                  value={formData.prepTime}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="col-md-6">
+                <Form.Group className="form-group" controlId="cakeType">
+                  <Form.Label className="form-label required-field">
+                    Cake Type
+                  </Form.Label>
+                  <Form.Select
+                    name="cakeType"
+                    value={formData.cakeType}
+                    onChange={handleChange}
+                    isInvalid={!!errors.cakeType}
+                    required
+                  >
+                    <option value="">Select cake type</option>
+                    {cakeTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    {errors.cakeType}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
-              <div className="col-md-4 form-group">
-                <label htmlFor="cookTime" className="form-label required-field">
-                  Cook Time
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="cookTime"
-                  name="cookTime"
-                  placeholder="e.g. 1 hour"
-                  value={formData.cookTime}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="col-md-6">
+                <Form.Group className="form-group" controlId="skillLevel">
+                  <Form.Label className="form-label required-field">
+                    Skill Level
+                  </Form.Label>
+                  <Form.Select
+                    name="skillLevel"
+                    value={formData.skillLevel}
+                    onChange={handleChange}
+                    isInvalid={!!errors.skillLevel}
+                    required
+                  >
+                    <option value="">Select level</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    {errors.skillLevel}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
-              <div className="col-md-4 form-group">
-                <label htmlFor="servings" className="form-label required-field">
-                  Servings
-                </label>
-                <input
-                  type="number"
-                  className="form-control"
-                  id="servings"
-                  name="servings"
-                  min="1"
-                  value={formData.servings}
-                  onChange={handleChange}
-                  required
-                />
+            </div>
+
+            <div className="row">
+              <div className="col-md-4">
+                <Form.Group className="form-group" controlId="prepTime">
+                  <Form.Label className="form-label required-field">
+                    Prep Time
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="prepTime"
+                    placeholder="e.g. 30 mins"
+                    value={formData.prepTime}
+                    onChange={handleChange}
+                    isInvalid={!!errors.prepTime}
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.prepTime}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </div>
+              <div className="col-md-4">
+                <Form.Group className="form-group" controlId="cookTime">
+                  <Form.Label className="form-label required-field">
+                    Cook Time
+                  </Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="cookTime"
+                    placeholder="e.g. 1 hour"
+                    value={formData.cookTime}
+                    onChange={handleChange}
+                    isInvalid={!!errors.cookTime}
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.cookTime}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </div>
+              <div className="col-md-4">
+                <Form.Group className="form-group" controlId="servings">
+                  <Form.Label className="form-label required-field">
+                    Servings
+                  </Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="servings"
+                    min="1"
+                    value={formData.servings}
+                    onChange={handleChange}
+                    isInvalid={!!errors.servings}
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.servings}
+                  </Form.Control.Feedback>
+                </Form.Group>
               </div>
             </div>
           </div>
@@ -622,7 +793,7 @@ const CreateRecipeForm = () => {
           <div className="form-section">
             <h3><i className="bi bi-images"></i> Cake Images</h3>
             <div
-              className="upload-area"
+              className={`upload-area ${errors.images ? 'is-invalid' : ''}`}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
               onDragOver={handleDragOver}
@@ -649,6 +820,11 @@ const CreateRecipeForm = () => {
                 disabled={images.length >= 4}
               />
             </div>
+            {errors.images && (
+              <div className="invalid-feedback d-block">
+                {errors.images}
+              </div>
+            )}
 
             <div className="upload-status">
               <div className="upload-count">
@@ -680,16 +856,16 @@ const CreateRecipeForm = () => {
 
           <div className="form-section">
             <h3><i className="bi bi-list-check"></i> Ingredients</h3>
-            <div className="form-group">
-              <label htmlFor="ingredients" className="form-label required-field">
+            <Form.Group className="form-group" controlId="ingredients">
+              <Form.Label className="form-label required-field">
                 List all ingredients with quantities (one per line)
-              </label>
-              <textarea
-                className="form-control"
-                id="ingredients"
+              </Form.Label>
+              <Form.Control
+                as="textarea"
                 name="ingredients"
                 value={formData.ingredients}
                 onChange={handleChange}
+                isInvalid={!!errors.ingredients}
                 placeholder={`Example:
 2 cups all-purpose flour
 1 cup granulated sugar
@@ -702,21 +878,24 @@ const CreateRecipeForm = () => {
                 rows="8"
                 required
               />
-            </div>
+              <Form.Control.Feedback type="invalid">
+                {errors.ingredients}
+              </Form.Control.Feedback>
+            </Form.Group>
           </div>
 
           <div className="form-section">
             <h3><i className="bi bi-list-ol"></i> Instructions</h3>
-            <div className="form-group">
-              <label htmlFor="instructions" className="form-label required-field">
+            <Form.Group className="form-group" controlId="instructions">
+              <Form.Label className="form-label required-field">
                 Step-by-step instructions
-              </label>
-              <textarea
-                className="form-control"
-                id="instructions"
+              </Form.Label>
+              <Form.Control
+                as="textarea"
                 name="instructions"
                 value={formData.instructions}
                 onChange={handleChange}
+                isInvalid={!!errors.instructions}
                 placeholder={`Example:
 1. Preheat oven to 350°F (175°C). Grease and flour a 9-inch round cake pan.
 2. In a large bowl, whisk together flour, sugar, baking powder, and salt.
@@ -727,7 +906,10 @@ const CreateRecipeForm = () => {
                 rows="10"
                 required
               />
-            </div>
+              <Form.Control.Feedback type="invalid">
+                {errors.instructions}
+              </Form.Control.Feedback>
+            </Form.Group>
           </div>
 
           <div className="form-footer">
@@ -739,9 +921,9 @@ const CreateRecipeForm = () => {
                 day: 'numeric'
               })}
             </div>
-            <button 
+            <Button 
               type="submit" 
-              className="btn submit-btn"
+              className="submit-btn"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -754,9 +936,9 @@ const CreateRecipeForm = () => {
                   <i className="bi bi-plus-circle"></i> Add Cake Recipe
                 </>
               )}
-            </button>
+            </Button>
           </div>
-        </form>
+        </Form>
       </div>
     </div>
   );
