@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import axios from 'axios';
+import DOMPurify from 'dompurify';
 
 function DecoratingForm() {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ function DecoratingForm() {
   });
   const [previews, setPreviews] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -37,24 +38,75 @@ function DecoratingForm() {
     }
   }, [editTip]);
 
+  // Validation function for form fields
+  const validateField = (name, value) => {
+    let error = '';
+    switch (name) {
+      case 'author':
+        if (!value.trim()) error = 'Author name is required';
+        else if (value.length < 2) error = 'Author name must be at least 2 characters';
+        else if (value.length > 50) error = 'Author name cannot exceed 50 characters';
+        break;
+      case 'title':
+        if (!value.trim()) error = 'Title is required';
+        else if (value.length < 5) error = 'Title must be at least 5 characters';
+        else if (value.length > 100) error = 'Title cannot exceed 100 characters';
+        break;
+      case 'description':
+        if (!value.trim()) error = 'Description is required';
+        else if (value.length < 10) error = 'Description must be at least 10 characters';
+        else if (value.length > 500) error = 'Description cannot exceed 500 characters';
+        break;
+      case 'tip':
+        if (!value.trim()) error = 'Tip is required';
+        else if (value.length < 20) error = 'Tip must be at least 20 characters';
+        else if (value.length > 2000) error = 'Tip cannot exceed 2000 characters';
+        break;
+      case 'category':
+        if (!['Beginner', 'Intermediate', 'Advanced'].includes(value))
+          error = 'Please select a valid category';
+        break;
+      case 'difficulty':
+        if (!['Easy', 'Medium', 'Hard'].includes(value))
+          error = 'Please select a valid difficulty';
+        break;
+      default:
+        break;
+    }
+    return error;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const sanitizedValue = DOMPurify.sanitize(value);
+    setFormData({ ...formData, [name]: sanitizedValue });
+    setErrors({ ...errors, [name]: validateField(name, sanitizedValue) });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      if (key !== 'media' && key !== 'mediaType' && key !== 'createdAt') {
+        const error = validateField(key, formData[key]);
+        if (error) newErrors[key] = error;
+      }
+    });
+    if (formData.mediaType === 'images' && formData.media.length === 0) {
+      newErrors.media = 'Please upload at least one image';
+    }
+    if (formData.mediaType === 'video' && formData.media.length === 0) {
+      newErrors.media = 'Please upload a video';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     setIsSubmitting(true);
-    if (formData.mediaType === 'images' && formData.media.length === 0) {
-      setError('Please upload at least one image');
-      setIsSubmitting(false);
-      return;
-    }
-    if (formData.mediaType === 'video' && formData.media.length === 0) {
-      setError('Please upload a video');
-      setIsSubmitting(false);
-      return;
-    }
 
     let mediaBase64 = formData.media;
     if (formData.media.some((m) => m instanceof File)) {
@@ -84,7 +136,7 @@ function DecoratingForm() {
       }
       navigate('/decorationtips');
     } catch (err) {
-      setError('Failed to save tip. Please try again.');
+      setErrors({ ...errors, submit: 'Failed to save tip. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -97,26 +149,28 @@ function DecoratingForm() {
       media: [],
     });
     setPreviews([]);
-    setError('');
-  };
-
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    processFiles(files);
+    setErrors({ ...errors, media: '' });
   };
 
   const processFiles = (files) => {
-    setError('');
+    setErrors({ ...errors, media: '' });
 
     if (formData.mediaType === 'images') {
       if (formData.media.length + files.length > 3) {
-        setError('You can upload a maximum of 3 images');
+        setErrors({ ...errors, media: 'You can upload a maximum of 3 images' });
         return;
       }
 
       const imageFiles = files.filter((file) => file.type.match('image.*'));
       if (imageFiles.length !== files.length) {
-        setError('Please upload only image files');
+        setErrors({ ...errors, media: 'Please upload only image files' });
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const oversizedFiles = imageFiles.filter((file) => file.size > maxSize);
+      if (oversizedFiles.length > 0) {
+        setErrors({ ...errors, media: 'Each image must be 5MB or smaller' });
         return;
       }
 
@@ -141,13 +195,19 @@ function DecoratingForm() {
       });
     } else {
       if (files.length > 1) {
-        setError('Please upload only one video');
+        setErrors({ ...errors, media: 'Please upload only one video' });
         return;
       }
 
       const videoFile = files[0];
       if (!videoFile.type.match('video.*')) {
-        setError('Please upload a video file');
+        setErrors({ ...errors, media: 'Please upload a video file' });
+        return;
+      }
+
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (videoFile.size > maxSize) {
+        setErrors({ ...errors, media: 'Video must be 50MB or smaller' });
         return;
       }
 
@@ -157,7 +217,7 @@ function DecoratingForm() {
       video.onloadedmetadata = () => {
         window.URL.revokeObjectURL(video.src);
         if (video.duration > 30) {
-          setError('Video must be 30 seconds or shorter');
+          setErrors({ ...errors, media: 'Video must be 30 seconds or shorter' });
           return;
         }
 
@@ -177,6 +237,11 @@ function DecoratingForm() {
 
       video.src = URL.createObjectURL(videoFile);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    processFiles(files);
   };
 
   const handleDragOver = (e) => {
@@ -207,6 +272,7 @@ function DecoratingForm() {
     const newMedia = [...formData.media];
     newMedia.splice(index, 1);
     setFormData({ ...formData, media: newMedia });
+    setErrors({ ...errors, media: '' });
   };
 
   const handleBack = () => {
@@ -321,6 +387,10 @@ function DecoratingForm() {
             box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.2);
           }
 
+          .form-control.is-invalid, .form-select.is-invalid {
+            border-color: var(--danger-color);
+          }
+
           textarea.form-control {
             min-height: 150px;
           }
@@ -349,7 +419,7 @@ function DecoratingForm() {
 
           .submit-btn:disabled {
             opacity: 0.7;
-            transform: none !important;
+            transform: none;
           }
 
           .back-btn {
@@ -616,7 +686,7 @@ function DecoratingForm() {
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${errors.author ? 'is-invalid' : ''}`}
                 id="author"
                 name="author"
                 value={formData.author}
@@ -624,6 +694,7 @@ function DecoratingForm() {
                 required
                 placeholder="Your name or nickname"
               />
+              {errors.author && <div className="error-message">{errors.author}</div>}
             </div>
 
             <div className="form-group">
@@ -632,7 +703,7 @@ function DecoratingForm() {
               </label>
               <input
                 type="text"
-                className="form-control"
+                className={`form-control ${errors.title ? 'is-invalid' : ''}`}
                 id="title"
                 name="title"
                 value={formData.title}
@@ -640,6 +711,7 @@ function DecoratingForm() {
                 required
                 placeholder="e.g. Perfect Frosting Technique"
               />
+              {errors.title && <div className="error-message">{errors.title}</div>}
             </div>
 
             <div className="form-group">
@@ -647,7 +719,7 @@ function DecoratingForm() {
                 Description
               </label>
               <textarea
-                className="form-control"
+                className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                 id="description"
                 name="description"
                 value={formData.description}
@@ -656,6 +728,7 @@ function DecoratingForm() {
                 required
                 placeholder="Briefly describe your decorating tip"
               />
+              {errors.description && <div className="error-message">{errors.description}</div>}
             </div>
 
             <div className="row">
@@ -664,7 +737,7 @@ function DecoratingForm() {
                   Category
                 </label>
                 <select
-                  className="form-select"
+                  className={`form-select ${errors.category ? 'is-invalid' : ''}`}
                   id="category"
                   name="category"
                   value={formData.category}
@@ -676,13 +749,14 @@ function DecoratingForm() {
                   <option value="Intermediate">Intermediate</option>
                   <option value="Advanced">Advanced</option>
                 </select>
+                {errors.category && <div className="error-message">{errors.category}</div>}
               </div>
               <div className="col-md-6 form-group">
                 <label htmlFor="difficulty" className="form-label required-field">
                   Difficulty
                 </label>
                 <select
-                  className="form-select"
+                  className={`form-select ${errors.difficulty ? 'is-invalid' : ''}`}
                   id="difficulty"
                   name="difficulty"
                   value={formData.difficulty}
@@ -694,6 +768,7 @@ function DecoratingForm() {
                   <option value="Medium">Medium</option>
                   <option value="Hard">Hard</option>
                 </select>
+                {errors.difficulty && <div className="error-message">{errors.difficulty}</div>}
               </div>
             </div>
           </div>
@@ -705,7 +780,7 @@ function DecoratingForm() {
                 Decoration Tip
               </label>
               <textarea
-                className="form-control"
+                className={`form-control ${errors.tip ? 'is-invalid' : ''}`}
                 id="tip"
                 name="tip"
                 value={formData.tip}
@@ -714,6 +789,7 @@ function DecoratingForm() {
                 required
                 placeholder="Explain your decorating tip in detail"
               />
+              {errors.tip && <div className="error-message">{errors.tip}</div>}
             </div>
           </div>
 
@@ -765,7 +841,7 @@ function DecoratingForm() {
                     <p className="small">
                       {formData.mediaType === 'images'
                         ? 'Supports: JPG, PNG, GIF (Max 5MB each)'
-                        : 'Supports: MP4, MOV (Max 30 seconds)'}
+                        : 'Supports: MP4, MOV (Max 30 seconds, 50MB)'}
                     </p>
                   </div>
                   <button type="button" className="browse-btn">
@@ -806,7 +882,8 @@ function DecoratingForm() {
                 {formData.mediaType === 'images' ? 'Max 3 images' : 'Max 1 video'}
               </div>
             </div>
-            {error && <div className="error-message">{error}</div>}
+            {errors.media && <div className="error-message">{errors.media}</div>}
+            {errors.submit && <div className="error-message">{errors.submit}</div>}
           </div>
 
           <div className="form-footer">
